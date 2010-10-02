@@ -16,9 +16,6 @@ if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
 else:
     ROOT = "%s/python/pythonbrew" % os.environ["HOME"]
-VIRTUALENV = "virtualenv-1.5.1"
-VIRTUALENVDLFILE = "%s.tar.gz" % (VIRTUALENV)
-VIRTUALENVDLSITE = "http://pypi.python.org/packages/source/v/virtualenv/%s" % VIRTUALENVDLFILE
 PYTHONDLSITE = "http://www.python.org/ftp/python/%s/%s"
 EZSETUPDLSITE = "http://peak.telecommunity.com/dist/ez_setup.py"
 
@@ -66,8 +63,8 @@ class PythonbrewOptions(object):
             return ""
     
     def _help(self):
-        print """Usage:
-    pythonbrew [options] [init|install|installed|switch|version]
+        print """=== USAGE:
+    pythonbrew [options] [init|install|installed|switch|off|version]
     
     # Initialize
     pythonbrew init
@@ -78,16 +75,40 @@ class PythonbrewOptions(object):
     # Install some Pythons
     pythonbrew install Python-2.6.6
     pythonbrew install Python-2.5.5
-    pythonbrew install Python-version
     
     # Switch python in the $PATH
     pythonbrew switch Python-2.6.6
-    pythonbrew switch Python-version
-    pythonbrew switch /path/to/Python-2.5.5
+    pythonbrew switch /path/to/Python-2.5.5/
     pythonbrew switch /path/to/python
+    
+    # Disable pythonbrew
+    pythonbrew off
     
     # Version
     pythonbrew version
+    
+=== COMMANDS:
+  = init
+    Run this once to setup the pythonbrew directory ready for installing
+    pythons into. Run it again if you decide to change PYTHONBREW_ROOT.
+  
+  = install Python-<version>
+      Build and install the given version of python.
+      
+  = installed
+      List the installed versions of python.
+      
+  = switch Python-<version>
+      Switch to the given version.
+
+  = switch /path/to/Python-dir/
+      Switch to the given version of python in directory.
+      
+  = switch /path/to/python
+      Switch to the given version of python.
+      
+  = version
+      Show version.
 """
 
 class Pythonbrew(object):
@@ -104,27 +125,13 @@ class Pythonbrew(object):
         f()
     
     def run_command_init(self):
-        self._makedirs( "%s/virtualenv" % ROOT )
         self._makedirs( "%s/pythons" % ROOT )
         self._makedirs( "%s/build" % ROOT )
         self._makedirs( "%s/dists" % ROOT )
         self._makedirs( "%s/etc" % ROOT )
         
-        sys.stdout.write("%s..." % VIRTUALENVDLFILE)
-        sys.stdout.flush()
-        if not os.path.isdir( "%s/virtualenv/%s" % (ROOT, VIRTUALENV) ) or self._options.force():
-            urllib.urlretrieve( VIRTUALENVDLSITE, 
-                                "%s/dists/%s" % (ROOT, VIRTUALENVDLFILE),
-                                self._download_progress )
-            print "[OK]"
-            os.system( "cd %s/virtualenv; tar zxf %s/dists/%s" % (ROOT, ROOT, VIRTUALENVDLFILE) )
-        else:
-            print "[SKIP]"
-        self._unlink( "%s/virtualenv/current" % ROOT )
-        os.system( "cd %s/virtualenv; ln -s %s current" % (ROOT, VIRTUALENV) )
-        
-        os.system( "echo 'export PATH=%s/bin:%s/pythons/current/bin:%s/virtualenv/current:${PATH}' > %s/etc/bashrc" % (ROOT, ROOT, ROOT, ROOT) )
-        os.system( "echo 'setenv PATH %s/bin:%s/pythons/current/bin:%s/virtualenv/current:$PATH' > %s/etc/cshrc" % (ROOT, ROOT, ROOT, ROOT) )
+        os.system( "echo 'export PATH=%s/bin:%s/pythons/current/bin:${PATH}' > %s/etc/bashrc" % (ROOT, ROOT, ROOT) )
+        os.system( "echo 'setenv PATH %s/bin:%s/pythons/current/bin:$PATH' > %s/etc/cshrc" % (ROOT, ROOT, ROOT) )
         m = re.search( "(t?csh)", os.environ.get("SHELL") )
         if m:
             shrc = "cshrc"
@@ -239,15 +246,34 @@ And follow the instruction on screen."""
 
     pythonbrew switch """+dist
     
+    def run_command_installed(self):
+        if os.path.realpath( "%s/pythons/current" % ROOT ) == ROOT:
+            cur = os.path.realpath("%s/bin/python" % ROOT)
+        else:
+            cur = os.path.realpath( "%s/pythons/current" % ROOT )
+        print "%s (*)" % cur
+        
+        for d in os.listdir("%s/pythons/" % ROOT):
+            if d == "current" or cur == "%s/pythons/%s" % (ROOT,d):
+                continue
+            print "%s/pythons/%s" % (ROOT, d)
+    
     def run_command_switch(self):
         dist = self._options.get_opt(0)
         distdir = dist
         if os.path.isfile( dist ) and os.access( dist, os.X_OK ):
-            self._switch_file(dist)
+            if re.search( ".*python(\d(\.\d)?)?$", dist ):
+                self._switch_file(dist)
+            else:
+                print "Invalid file: `%s`" % dist
             return
         elif os.path.isdir( dist ):
-            if os.path.isdir("%s/bin" % dist) and (os.path.isfile("%s/bin/python" % dist) or os.path.isfile("%s/bin/python3" % dist)):
-                pass
+            if os.path.isdir("%s/bin" % dist):
+                if os.path.isfile("%s/bin/python" % dist):
+                    self._switch_file("%s/bin/python" % dist)
+                if os.path.isfile("%s/bin/python3" % dist):
+                    self._switch_file("%s/bin/python3" % dist)
+                return
             elif os.path.isfile("%s/python" % dist) and os.access("%s/python" % dist, os.X_OK):
                 self._switch_file("%s/python" % dist)
                 return
@@ -265,14 +291,31 @@ And follow the instruction on screen."""
     def _switch_file(self, dist):
         self._unlink( "%s/pythons/current" % ROOT )
         self._unlink( "%s/bin/python" % ROOT )
-        os.system( "ln -fs %s %s/bin/python" % (dist, ROOT) )
+        self._clean_switch_symlink()
+        self._symlink( dist, "%s/bin/python" % ROOT )
+        self._symlink( ROOT, "%s/pythons/current" % ROOT )
         print "Switched to "+dist
     
     def _switch_dir(self, dist):
         self._unlink( "%s/pythons/current" % ROOT )
         self._unlink( "%s/bin/python" % ROOT )
-        os.system( "ln -fs %s/pythons/%s %s/pythons/current" % (ROOT, dist, ROOT) )
-        print "Switched to "+dist;
+        self._symlink( dist, "%s/pythons/current" % ROOT )
+        self._clean_switch_symlink()
+        for root, dirs, files in os.walk("%s/pythons/current/bin/" % ROOT):
+            for f in files:
+                self._symlink("%s%s" % (root, f), "%s/bin/%s" % (ROOT, f))
+        print "Switched to "+dist
+        
+    def _clean_switch_symlink(self):
+        for root, dirs, files in os.walk("%s/bin/" % ROOT):
+            for f in files:
+                if f == "pythonbrew":
+                    continue
+                self._unlink("%s%s" % (root, f))
+    
+    def run_command_off(self):
+        self._unlink("%s/pythons/current" % ROOT)
+        self._clean_switch_symlink()
     
     def run_command_version(self):
         print VERSION
@@ -284,6 +327,12 @@ And follow the instruction on screen."""
             if errno.EEXIST != e:
                 raise
     
+    def _symlink(self, src, dst):
+        try:
+            os.symlink(src, dst)
+        except:
+            pass
+        
     def _unlink(self, name):
         try:
             os.unlink( name )
