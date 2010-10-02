@@ -1,0 +1,296 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import urllib
+import errno
+import re
+import shutil
+import filecmp
+import subprocess
+import getopt
+
+VERSION = "0.1"
+if os.environ.has_key("PYTHONBREW_ROOT"):
+    ROOT = os.environ["PYTHONBREW_ROOT"]
+else:
+    ROOT = "%s/python/pythonbrew" % os.environ["HOME"]
+VIRTUALENV = "virtualenv-1.5.1"
+VIRTUALENVDLFILE = "%s.tar.gz" % (VIRTUALENV)
+VIRTUALENVDLSITE = "http://pypi.python.org/packages/source/v/virtualenv/%s" % VIRTUALENVDLFILE
+PYTHONDLSITE = "http://www.python.org/ftp/python/%s/%s"
+EZSETUPDLSITE = "http://peak.telecommunity.com/dist/ez_setup.py"
+
+class PythonbrewOptions(object):
+    def __init__(self):
+        self._prog = sys.argv[0]
+        self._args = sys.argv[1:]
+        self._opts = {}
+        try:
+            (opts, args) = getopt.getopt(self._args, "hf", ["help", "force", "build-options="])
+        except getopt.GetoptError:
+            self._help()
+            sys.exit()
+        for o, a in opts:
+            if o in ("-h", "--help"):
+                self._help()
+                sys.exit()
+            if o in ("-f", "--force"):
+                self._opts["force"] = True
+            if o in ("--build-options"):
+                self._opts["build-options"] = a;
+        self._args = args
+        if len(self._args) == 0:
+            self._help()
+            sys.exit()
+    
+    def get_prog(self):
+        return self._prog
+    
+    def get_cmd(self):
+        return self._args[0]
+    
+    def get_opt(self, idx):
+        if idx+1 >= len(self._args):
+            return None
+        return self._args[idx+1]
+    
+    def force(self):
+        return self._opts.get("force") == True
+    
+    def build_options(self):
+        if self._opts.has_key("build-options"):
+            return self._opts.get("build-options")
+        else:
+            return ""
+    
+    def _help(self):
+        print """Usage:
+    pythonbrew [options] [init|install|installed|switch]
+    
+    # Initialize
+    pythonbrew init
+    
+    # Install some Pythons
+    pythonbrew install Python-2.6.6
+    pythonbrew install Python-2.5.5
+    pythonbrew install Python-version
+    
+    # Switch python in the $PATH
+    pythonbrew switch Python-2.6.6
+    pythonbrew switch Python-version
+    
+    # Version
+    pythonbrew version
+"""
+
+class Pythonbrew(object):
+    def __init__(self):
+        self._options = PythonbrewOptions()
+    
+    def run(self):
+        cmd = self._options.get_cmd()
+        try:
+            f = self.__getattribute__("run_command_%s" % cmd)
+        except:
+            print "Unknown command: `%s`. Typo?" % cmd
+            sys.exit()
+        f()
+    
+    def run_command_init(self):
+        self._makedirs( "%s/virtualenv" % ROOT )
+        self._makedirs( "%s/pythons" % ROOT )
+        self._makedirs( "%s/build" % ROOT )
+        self._makedirs( "%s/dists" % ROOT )
+        self._makedirs( "%s/etc" % ROOT )
+        
+        sys.stdout.write("%s..." % VIRTUALENVDLFILE)
+        sys.stdout.flush()
+        if not os.path.isdir( "%s/virtualenv/%s" % (ROOT, VIRTUALENV) ) or self._options.force():
+            urllib.urlretrieve( VIRTUALENVDLSITE, 
+                                "%s/dists/%s" % (ROOT, VIRTUALENVDLFILE),
+                                self._download_progress )
+            print "[OK]"
+            os.system( "cd %s/virtualenv; tar zxf %s/dists/%s" % (ROOT, ROOT, VIRTUALENVDLFILE) )
+        else:
+            print "[SKIP]"
+        self._unlink( "%s/virtualenv/current" % ROOT )
+        os.system( "cd %s/virtualenv; ln -s %s current" % (ROOT, VIRTUALENV) )
+        
+        os.system( "echo 'export PATH=%s/bin:%s/pythons/current/bin:%s/virtualenv/current:${PATH}' > %s/etc/bashrc" % (ROOT, ROOT, ROOT, ROOT) )
+        os.system( "echo 'setenv PATH %s/bin:%s/pythons/current/bin:%s/virtualenv/current:$PATH' > %s/etc/cshrc" % (ROOT, ROOT, ROOT, ROOT) )
+        m = re.search( "(t?csh)", os.environ.get("SHELL") )
+        if m:
+            shrc = "cshrc"
+            yourshrc = m.group(1)+"rc"
+        else:
+            shrc = yourshrc = "bashrc"
+        print """
+Pythonbrew environment initiated, required directories are created under
+
+    """+ROOT+"""
+    
+Well-done! Congratulations! Please add the following line to the end
+of your ~/."""+yourshrc+"""
+
+    source """+ROOT+"""/etc/"""+shrc+"""
+
+After that, exit this shell, start a new one, and install some fresh
+pythons:
+
+    pythonbrew install Python-2.6.6
+    pythonbrew install Python-2.5.5
+
+For further instructions, simply run:
+
+    pythonbrew
+
+The default help messages will popup and tell you what to do!
+
+Enjoy pythonbrew at $HOME!!
+INSTRUCTION"""
+    
+    def run_command_install(self):
+        dist = self._options.get_opt(0)
+        
+        if not dist:
+            executable = os.path.abspath( self._options.get_prog() )
+            target = "%s/bin/pythonbrew" % ROOT
+            if os.path.isfile( executable ) and os.path.isfile( target ):
+                if filecmp.cmp( executable, target ):
+                    print """You are already running the installed pythonbrew:
+        
+    """ + executable;
+                    sys.exit()
+            self._makedirs( "%s/bin" % ROOT )
+            shutil.copy( executable, target )
+            os.chmod( target, 0755 )
+            print """The pythonbrew is installed as:
+    
+    """+target+"""
+
+You may trash the downloaded """+executable+""" from now on.
+
+Next, if this is the first time you've run pythonbrew installation, run:
+
+    """+target+""" init
+
+And follow the instruction on screen."""
+            sys.exit()
+        
+        # Install python
+        m = re.search( "^Python-(\d\.\d\d?(\.\d\d?)?)$", dist )
+        if not m:
+            print "Unknown file: `%s`. Typo?" % dist
+            sys.exit()
+        dist_version = m.group(1)
+        dist_tarball = "%s.tgz" % dist
+
+        sys.stdout.write("%s..." % dist_tarball)
+        sys.stdout.flush()
+        urllib.urlretrieve( PYTHONDLSITE % (dist_version, dist_tarball),
+                            "%s/dists/%s" % (ROOT, dist_tarball),
+                            self._download_progress )
+        if os.path.getsize( "%s/dists/%s" % (ROOT, dist_tarball) ) < 1000000: #iffy
+            print "[ERROR] File not found (probably):%s/dists/%s" % (ROOT, dist_tarball)
+            sys.exit()
+        print "[OK]"
+        
+        build_options = "--prefix=%s/pythons/%s %s" % (ROOT, dist, self._options.build_options())
+        print "Installing %s into %s/pythons/%s" % (dist, ROOT, dist);
+        
+        cmd = []
+        cmd.append( "cd %s/build" % ROOT )
+        cmd.append( "tar zxf %s/dists/%s" % (ROOT, dist_tarball) )
+        cmd.append( "cd %s" % dist )
+        cmd.append( "./configure %s" % (build_options) )
+        if self._options.force():
+            cmd.append( "make" )
+            cmd.append( "make install" )
+        else:
+            cmd.append( "make clean" )
+            cmd.append( "make" )
+            cmd.append( "make test && make install" )
+        cmd = ";".join(cmd)
+        print cmd
+        try:
+            retcode = subprocess.call( "%s >> %s/build.log 2>&1" % (cmd, ROOT), shell=True )
+        except OSError, (e, es):
+            retcode = -1
+        if retcode != 0:
+            print """Installing """+dist+""" failed. See """+ROOT+"""/build.log to see why.
+
+    pythonbrew --force install """+dist
+            sys.exit()
+        print """Installed """+dist+""" successfully. Run the following command to switch to it.
+
+    pythonbrew switch """+dist
+    
+    def run_command_switch(self):
+        dist = self._options.get_opt(0)
+        distdir = dist
+        if os.path.isfile( dist ) and os.access( dist, os.X_OK ):
+            self._switch_file(dist)
+            return
+        elif os.path.isdir( dist ):
+            if os.path.isdir("%s/bin" % dist) and (os.path.isfile("%s/bin/python" % dist) or os.path.isfile("%s/bin/python3" % dist)):
+                pass
+            elif os.path.isfile("%s/python" % dist) and os.access("%s/python" % dist, os.X_OK):
+                self._switch_file("%s/python" % dist)
+                return
+            elif os.path.isfile("%s/python3" % dist) and os.access("%s/python3" % dist, os.X_OK):
+                self._switch_file("%s/python3" % dist)
+                return
+            else:
+                print "Invalid directory: `%s`" % dist
+                return
+        elif not os.path.isdir( "%s/pythons/%s" % (ROOT, dist) ):
+            print "Unknown switch target: `%s`. Typo?" % dist
+            return
+        self._switch_dir( distdir )
+    
+    def _switch_file(self, dist):
+        self._unlink( "%s/pythons/current" % ROOT )
+        os.system( "ln -s %s %s/bin/python" % (dist, ROOT) )
+        print "Switched to "+dist
+    
+    def _switch_dir(self, dist):
+        self._unlink( "%s/pythons/current" % ROOT )
+        os.system( "cd %s/pythons; ln -s %s current" % (ROOT, dist) )
+        for root, dirs, files in os.walk("%s/bin/" % (ROOT) ):
+            for f in files:
+                if "pythonbrew" == f:
+                    continue
+                self._unlink( "%s/%s" % (root, f) )
+        for root, dirs, files in os.walk("%s/pythons/current/bin/" % (ROOT) ):
+            for f in files:
+                os.system( "ln -fs %s/%s %s/bin" % (root, f, ROOT) )
+        print "Switched to "+dist;
+    
+    def run_command_version(self):
+        print VERSION
+    
+    def _makedirs(self, name):
+        try:
+            os.makedirs( name )
+        except OSError, (e, es):
+            if errno.EEXIST != e:
+                raise
+    
+    def _unlink(self, name):
+        try:
+            os.unlink( name )
+        except OSError, (e, es):
+            if errno.ENOENT != e:
+                raise
+    
+    def _download_progress(self, block, blockbytes, maxbytes):
+        pass
+            
+def main():
+    p = Pythonbrew()
+    p.run()
+    
+if __name__ == "__main__":
+    main()
