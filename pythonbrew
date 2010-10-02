@@ -67,10 +67,13 @@ class PythonbrewOptions(object):
     
     def _help(self):
         print """Usage:
-    pythonbrew [options] [init|install|installed|switch]
+    pythonbrew [options] [init|install|installed|switch|version]
     
     # Initialize
     pythonbrew init
+    
+    # Install pythonbrew
+    pythonbrew install
     
     # Install some Pythons
     pythonbrew install Python-2.6.6
@@ -80,6 +83,8 @@ class PythonbrewOptions(object):
     # Switch python in the $PATH
     pythonbrew switch Python-2.6.6
     pythonbrew switch Python-version
+    pythonbrew switch /path/to/Python-2.5.5
+    pythonbrew switch /path/to/python
     
     # Version
     pythonbrew version
@@ -153,8 +158,8 @@ INSTRUCTION"""
     
     def run_command_install(self):
         dist = self._options.get_opt(0)
-        
         if not dist:
+            # Install pythonbrew
             executable = os.path.abspath( self._options.get_prog() )
             target = "%s/bin/pythonbrew" % ROOT
             if os.path.isfile( executable ) and os.path.isfile( target ):
@@ -180,6 +185,13 @@ And follow the instruction on screen."""
             sys.exit()
         
         # Install python
+        m = re.search( "^Python-(\d\.\d\d?(\.\d\d?)?)$", dist )
+        if m:
+            self._install_python(dist, m.group(1))
+            return
+        print "Unknown file: `%s`. Typo?" % dist
+    
+    def _install_python(self, dist, dist_version):
         m = re.search( "^Python-(\d\.\d\d?(\.\d\d?)?)$", dist )
         if not m:
             print "Unknown file: `%s`. Typo?" % dist
@@ -252,20 +264,14 @@ And follow the instruction on screen."""
     
     def _switch_file(self, dist):
         self._unlink( "%s/pythons/current" % ROOT )
-        os.system( "ln -s %s %s/bin/python" % (dist, ROOT) )
+        self._unlink( "%s/bin/python" % ROOT )
+        os.system( "ln -fs %s %s/bin/python" % (dist, ROOT) )
         print "Switched to "+dist
     
     def _switch_dir(self, dist):
         self._unlink( "%s/pythons/current" % ROOT )
-        os.system( "cd %s/pythons; ln -s %s current" % (ROOT, dist) )
-        for root, dirs, files in os.walk("%s/bin/" % (ROOT) ):
-            for f in files:
-                if "pythonbrew" == f:
-                    continue
-                self._unlink( "%s/%s" % (root, f) )
-        for root, dirs, files in os.walk("%s/pythons/current/bin/" % (ROOT) ):
-            for f in files:
-                os.system( "ln -fs %s/%s %s/bin" % (root, f, ROOT) )
+        self._unlink( "%s/bin/python" % ROOT )
+        os.system( "ln -fs %s/pythons/%s %s/pythons/current" % (ROOT, dist, ROOT) )
         print "Switched to "+dist;
     
     def run_command_version(self):
