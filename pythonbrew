@@ -75,6 +75,7 @@ class PythonbrewOptions(object):
     # Install some Pythons
     pythonbrew install Python-2.6.6
     pythonbrew install Python-2.5.5
+    pythonbrew --build-options="CC=gcc_4.1" install Python-2.4.3
     
     # Switch python in the $PATH
     pythonbrew switch Python-2.6.6
@@ -106,9 +107,16 @@ class PythonbrewOptions(object):
       
   = switch /path/to/python
       Switch to the given version of python.
-      
+
+  = off
+      Disable pythonbrew.
+
   = version
       Show version.
+      
+=== OPTIONS:
+  = --force
+  = --build-options
 """
 
 class Pythonbrew(object):
