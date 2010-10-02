@@ -1,0 +1,6 @@
+.DS_Store
+._src.crx
+.project
+.pydevproject
+.settings
+.tmp_*
