@@ -49,8 +49,8 @@ Switch python in the $PATH::
 Disable pythonbrew::
 
   pythonbrew off
-    
-Version::
+
+Show version::
 
   pythonbrew version
 
@@ -58,12 +58,15 @@ COMMANDS
 ========
 
 init
-  Run this once to setup the pythonbrew directory ready for installing
+  Run this once to setup the pythonbrew directory ready for installing.
+  
   pythons into. Run it again if you decide to change PYTHONBREW_ROOT.
 
 install Python-<version>
   Build and install the given version of Python.
+  
   Setuptools is automatically installed.
+  
   options: --force, --no-setuptools or --build-options.
 
 installed
@@ -87,11 +90,11 @@ version
 Options
 =======
 
---force
+\--force
   Force installation of a Python.
 
---build-options
+\--build-options
   Configure options.
 
---no-setuptools
+\--no-setuptools
   Skip installation of setuptools.
