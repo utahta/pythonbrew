@@ -10,6 +10,7 @@ import shutil
 import filecmp
 import subprocess
 import getopt
+import stat
 
 VERSION = "0.1"
 if os.environ.has_key("PYTHONBREW_ROOT"):
@@ -25,7 +26,7 @@ class PythonbrewOptions(object):
         self._args = sys.argv[1:]
         self._opts = {}
         try:
-            (opts, args) = getopt.getopt(self._args, "hf", ["help", "force", "build-options="])
+            (opts, args) = getopt.getopt(self._args, "hf", ["help", "force", "build-options=", "no-setuptools"])
         except getopt.GetoptError:
             self._help()
             sys.exit()
@@ -37,6 +38,8 @@ class PythonbrewOptions(object):
                 self._opts["force"] = True
             if o in ("--build-options"):
                 self._opts["build-options"] = a;
+            if o in ("--no-setuptools"):
+                self._opts["no-setuptools"] = True
         self._args = args
         if len(self._args) == 0:
             self._help()
@@ -62,31 +65,12 @@ class PythonbrewOptions(object):
         else:
             return ""
     
+    def no_setuptools(self):
+        return self._opts.get("no-setuptools") == True
+    
     def _help(self):
         print """=== USAGE:
     pythonbrew [options] [init|install|installed|switch|off|version]
-    
-    # Initialize
-    pythonbrew init
-    
-    # Install pythonbrew
-    pythonbrew install
-    
-    # Install some Pythons
-    pythonbrew install Python-2.6.6
-    pythonbrew install Python-2.5.5
-    pythonbrew --build-options="CC=gcc_4.1" install Python-2.4.3
-    
-    # Switch python in the $PATH
-    pythonbrew switch Python-2.6.6
-    pythonbrew switch /path/to/Python-2.5.5/
-    pythonbrew switch /path/to/python
-    
-    # Disable pythonbrew
-    pythonbrew off
-    
-    # Version
-    pythonbrew version
     
 === COMMANDS:
   = init
@@ -95,6 +79,7 @@ class PythonbrewOptions(object):
   
   = install Python-<version>
       Build and install the given version of python.
+      options: --force, --no-setuptools or --build-options.
       
   = installed
       List the installed versions of python.
@@ -116,7 +101,16 @@ class PythonbrewOptions(object):
       
 === OPTIONS:
   = --force
+      Force installation of a Python.
+
   = --build-options
+      Configure options.
+
+  = --no-setuptools
+      setuptools is not installed.
+
+=== FURTHER INSTRUCTIONS
+  http://github.com/utahta/pythonbrew
 """
 
 class Pythonbrew(object):
@@ -214,7 +208,7 @@ And follow the instruction on screen."""
         dist_version = m.group(1)
         dist_tarball = "%s.tgz" % dist
 
-        sys.stdout.write("%s..." % dist_tarball)
+        sys.stdout.write("Downloading %s..." % dist_tarball)
         sys.stdout.flush()
         urllib.urlretrieve( PYTHONDLSITE % (dist_version, dist_tarball),
                             "%s/dists/%s" % (ROOT, dist_tarball),
@@ -250,16 +244,34 @@ And follow the instruction on screen."""
 
     pythonbrew --force install """+dist
             sys.exit()
+        # install ez_setup
+        self._install_ez_setup( dist )
         print """Installed """+dist+""" successfully. Run the following command to switch to it.
 
     pythonbrew switch """+dist
     
+    def _install_ez_setup(self, pydist):
+        if self._options.no_setuptools():
+            print "Skip installation setuptools."
+            return
+        dist = EZSETUPDLSITE
+        dist = dist[dist.rfind("/")+1:]
+        
+        urllib.urlretrieve( EZSETUPDLSITE,
+                            "%s/dists/%s" % (ROOT, dist),
+                            self._download_progress )
+        os.system( "%s/pythons/%s/bin/python %s/dists/%s" % (ROOT, pydist, ROOT, dist) )
+        if os.path.isfile("%s/pythons/%s/bin/easy_install" % (ROOT, pydist)):
+            os.system( "%s/pythons/%s/bin/easy_install pip" % (ROOT, pydist) )
+    
     def run_command_installed(self):
-        if os.path.realpath( "%s/pythons/current" % ROOT ) == ROOT:
-            cur = os.path.realpath("%s/bin/python" % ROOT)
-        else:
-            cur = os.path.realpath( "%s/pythons/current" % ROOT )
-        print "%s (*)" % cur
+        cur = ""
+        if os.path.islink( "%s/pythons/current" % ROOT ):
+            if os.path.realpath( "%s/pythons/current" % ROOT ) == ROOT:
+                cur = os.path.realpath("%s/bin/python" % ROOT)
+            else:
+                cur = os.path.realpath( "%s/pythons/current" % ROOT )
+            print "%s (*)" % cur
         
         for d in os.listdir("%s/pythons/" % ROOT):
             if d == "current" or cur == "%s/pythons/%s" % (ROOT,d):
