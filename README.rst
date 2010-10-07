@@ -37,8 +37,8 @@ Install some Pythons::
 
   pythonbrew install Python-2.6.6
   pythonbrew install Python-2.5.5
-  pythonbrew --build-options="CC=gcc_4.1" install Python-2.5.4
-  pythonbrew --no-setuptools install Python-2.5.3
+  pythonbrew install --build-options="CC=gcc_4.1" Python-2.5.4
+  pythonbrew install --no-setuptools Python-2.5.3
     
 Switch python in the $PATH::
 
@@ -90,11 +90,11 @@ version
 Options
 =======
 
-\--force
+\-f --force
   Force installation of a Python.
 
-\--build-options
+\-b --build-options
   Configure options.
 
-\--no-setuptools
+\-n --no-setuptools
   Skip installation of setuptools.
