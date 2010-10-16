@@ -12,7 +12,7 @@ import subprocess
 import stat
 from optparse import OptionParser
 
-VERSION = "0.2"
+VERSION = "0.3"
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
 else:
@@ -39,6 +39,9 @@ command_dict = {}
 def add_command(command):
     command_dict[command.name] = command
 
+#----------------------------------------------------
+# util
+#----------------------------------------------------
 def size_format(b):
     kb = 1000
     mb = kb*kb
@@ -49,6 +52,35 @@ def size_format(b):
         return "%.1fKb" % (b/kb)
     return "%.0fB" % (b)
 
+def is_url(name):
+    if ':' not in name:
+        return False
+    scheme = name.split(':', 1)[0].lower()
+    return scheme in ['http', 'https', 'file', 'ftp']
+
+def splitext(name):
+    base, ext = os.path.splitext(name)
+    if base.lower().endswith('.tar'):
+        ext = base[-4:] + ext
+        base = base[:-4]
+    return base, ext
+
+def is_archive_file(name):
+    ext = splitext(name)[1].lower()
+    archives = ('.zip', '.tar.gz', '.tar.bz2', '.tgz', '.tar')
+    if ext in archives:
+        return True
+    return False
+
+#----------------------------------------------------
+# exception
+#----------------------------------------------------
+class InstallationError(Exception):
+    """General exception during installation"""
+
+#----------------------------------------------------
+# classes
+#----------------------------------------------------
 class Download(object):
     def __init__(self):
         self._msg = ""
@@ -238,34 +270,78 @@ Next, if this is the first time you've run pythonbrew installation, run:
     """+target+""" init
 
 And follow the instruction on screen."""
+          
+    def _get_pkg(self, name):
+        if not os.path.isfile(name) and not os.path.isdir(name):
+            if is_url(name):
+                basename = os.path.basename(name)
+                download_url = name
+                download_path = "%s/%s" % (PATH_DISTS, basename)
+            else:
+                m = re.search("^Python-(\d\.\d\d?(\.\d\d?)?)$", name)
+                if not m:
+                    print "Unknown package: `%s`" % name
+                    sys.exit(1)
+                dist_version = m.group(1)
+                basename = "%s.tgz" % name
+                download_url = PYTHONDLSITE % (dist_version, basename)
+                download_path = "%s/%s" % (PATH_DISTS, basename)
+
+            dl = Download()
+            dl.download(
+                basename,
+                download_url,
+                download_path
+            )
+            # iffy
+            if os.path.getsize( "%s" % (download_path) ) < 1000000:
+                print "Failed to download. `%s`" % (download_url)
+                sys.exit(1)
+            return basename
+        else:
+            basename = os.path.basename(name)
+            distpath = "%s/%s" % (PATH_DISTS, basename)
+            if os.path.isfile(name):
+                shutil.copy(name, "%s" % distpath)
+                print "File copy %s to %s" % (name, distpath)
+            elif os.path.isdir(name):
+                shutil.copytree(name, "%s" % distpath)
+                print "Directory copy %s to %s" % (name, distpath)
+            else:
+                print "Unknown object. `%s`" % name
+                sys.exit(1)
+            return basename
+    
+    def _get_uncompress_command(self, basename):
+        distpath = "%s/%s" % (PATH_DISTS, basename)
+        if os.path.isfile(distpath):
+            ext = splitext(basename)[1]
+            if ext == ".tar.gz" or ext == ".tgz":
+                return "tar zxf %s" % (distpath)
+            elif ext == ".tar.bz2":
+                return "tar jxf %s" % (distpath)
+            elif ext == ".tar":
+                return "tar xf %s" % (distpath)
+            elif ext == ".zip":
+                return "unzip %s" % (distpath)
+        elif os.path.isdir(distpath):
+            return "mv %s %s/%s" % (distpath, PATH_BUILD, basename)
+        else:
+            print "Unknown object. `%s`" % (basename)
+        return ""
     
     def _install_python(self, dist, options):
-        m = re.search("^Python-(\d\.\d\d?(\.\d\d?)?)$", dist)
-        if not m:
-            print "Unknown package: `%s`" % dist
-            return
-        dist_version = m.group(1)
-        dist_tgz = "%s.tgz" % dist
-        download_path = "%s/%s" % (PATH_DISTS, dist_tgz)
+        basename = self._get_pkg(dist)
+        pkgname = splitext(basename)[0]
         
-        dl = Download()
-        dl.download(
-            dist_tgz,
-            PYTHONDLSITE % (dist_version, dist_tgz),
-            download_path
-        )
-        # iffy...
-        if os.path.getsize( "%s" % (download_path) ) < 1000000:
-            print "[ERROR] File not found (probably):%s/dists/%s" % (ROOT, dist_tgz)
-            return
-        
-        build_options = "--prefix=%s/pythons/%s %s" % (ROOT, dist, options.build_options)
-        print "Installing %s into %s/pythons/%s" % (dist, ROOT, dist);
+        install_dir = "%s/%s" % (PATH_PYTHONS, pkgname)
+        build_options = "--prefix=%s %s" % (install_dir, options.build_options)
+        print "Installing %s into %s" % (pkgname, install_dir);
         
         cmd = []
         cmd.append("cd %s/build" % ROOT)
-        cmd.append("tar zxf %s/dists/%s" % (ROOT, dist_tgz))
-        cmd.append("cd %s" % dist)
+        cmd.append(self._get_uncompress_command(basename))
+        cmd.append("cd %s" % pkgname)
         cmd.append("./configure %s" % (build_options))
         if options.force:
             cmd.append("make")
@@ -281,15 +357,15 @@ And follow the instruction on screen."""
         except OSError, (e, es):
             retcode = -1
         if retcode != 0:
-            print """Installing """+dist+""" failed. See """+ROOT+"""/build.log to see why.
+            print """Installing """+pkgname+""" failed. See """+ROOT+"""/build.log to see why.
 
-    pythonbrew install --force """+dist
+    pythonbrew install --force """+pkgname
             return
         # install ez_setup
-        self._install_ez_setup(dist, options.no_setuptools)
-        print """Installed """+dist+""" successfully. Run the following command to switch to it.
+        self._install_ez_setup(pkgname, options.no_setuptools)
+        print """Installed """+pkgname+""" successfully. Run the following command to switch to it.
 
-    pythonbrew switch """+dist
+    pythonbrew switch """+pkgname
     
     def _install_ez_setup(self, pydist, no_setuptools):
         if no_setuptools:
@@ -315,14 +391,14 @@ class InstalledCommand(Command):
             if os.path.realpath("%s/current" % PATH_PYTHONS) == ROOT:
                 cur = os.path.realpath("%s/bin/python" % ROOT)
             else:
-                cur = os.path.realpath("%s/current" % PATH_PYTHONS)
+                cur = os.path.basename(os.path.realpath("%s/current" % PATH_PYTHONS))
             print "%s (*)" % cur
         else:
             cur = ""
         for d in os.listdir("%s/" % PATH_PYTHONS):
             if d == "current" or cur == "%s/%s" % (PATH_PYTHONS, d):
                 continue
-            print "%s/%s" % (PATH_PYTHONS, d)
+            print "%s" % (d)
 
 class SwitchCommand(Command):
     name = "switch"
