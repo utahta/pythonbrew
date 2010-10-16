@@ -323,11 +323,12 @@ And follow the instruction on screen."""
                     )
                 except:
                     os.remove(download_path)
-                    print "Interrupt to abort. `%s`" % (download_url)
+                    print "\nInterrupt to abort. `%s`" % (download_url)
                     sys.exit(1)
                 # iffy
-                if os.path.getsize( download_path ) < 1000000:
-                    print "Invalid file. `%s`" % (download_url)
+                if os.path.getsize(download_path) < 1000000:
+                    print "Invalid file downloaded. (maybe 404 not found?) `%s`" % (download_url)
+                    os.remove(download_path)
                     sys.exit(1)
         else:
             if os.path.isfile(name):
