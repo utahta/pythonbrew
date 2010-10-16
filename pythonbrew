@@ -40,6 +40,12 @@ def add_command(command):
     command_dict[command.name] = command
 
 #----------------------------------------------------
+# exception
+#----------------------------------------------------
+class BuildingException(Exception):
+    """General exception during building"""
+
+#----------------------------------------------------
 # util
 #----------------------------------------------------
 def size_format(b):
@@ -99,6 +105,29 @@ class Download(object):
         sys.stdout.write("%s%s" % (now_msg, padding))
         sys.stdout.flush()
         self._last_msg = now_msg
+
+class Subprocess(object):
+    def __init__(self, log=None, shell=False, cwd=None, print_cmd=True):
+        self._log = log
+        self._shell = shell
+        self._cwd = cwd
+        self._print_cmd = print_cmd
+    
+    def chdir(self, cwd):
+        self._cwd = cwd
+    
+    def check_call(self, cmd, shell=None, cwd=None):
+        if shell:
+            self._shell = shell
+        if cwd:
+            self._cwd = cwd
+        if self._print_cmd:
+            print cmd
+        if self._log:
+            cmd = "(%s) >> '%s' 2>&1" % (cmd, self._log)
+        retcode = subprocess.call(cmd, shell=self._shell, cwd=self._cwd)
+        if retcode != 0:
+            raise BuildingException()
 
 class Command(object):
     name = None
@@ -235,6 +264,7 @@ class InstallCommand(Command):
             default=False,
             help="Skip installation of setuptools."
         )
+        self._logfile = "%s/build.log" % ROOT
     
     def run_command(self, options, args):
         if args:
@@ -264,7 +294,7 @@ Next, if this is the first time you've run pythonbrew installation, run:
     """+target+""" init
 
 And follow the instruction on screen."""
-          
+        
     def _get_pkg(self, name):
         if not os.path.isfile(name) and not os.path.isdir(name):
             if is_url(name):
@@ -280,18 +310,25 @@ And follow the instruction on screen."""
                 basename = "%s.tgz" % name
                 download_url = PYTHONDLSITE % (dist_version, basename)
                 download_path = "%s/%s" % (PATH_DISTS, basename)
-
-            dl = Download()
-            dl.download(
-                basename,
-                download_url,
-                download_path
-            )
-            # iffy
-            if os.path.getsize( "%s" % (download_path) ) < 1000000:
-                print "Failed to download. `%s`" % (download_url)
-                sys.exit(1)
-            return basename
+            
+            if os.path.isfile(download_path):
+                print "Use the previously fetched %s" % (download_path)
+            else:
+                try:
+                    dl = Download()
+                    dl.download(
+                        basename,
+                        download_url,
+                        download_path
+                    )
+                except:
+                    os.remove(download_path)
+                    print "Interrupt to abort. `%s`" % (download_url)
+                    sys.exit(1)
+                # iffy
+                if os.path.getsize( download_path ) < 1000000:
+                    print "Invalid file. `%s`" % (download_url)
+                    sys.exit(1)
         else:
             if os.path.isfile(name):
                 basename = os.path.basename(name)
@@ -304,7 +341,7 @@ And follow the instruction on screen."""
             else:
                 print "Unknown object. `%s`" % name
                 sys.exit(1)
-            return basename
+        return basename
     
     def _get_uncompress_command(self, basename):
         distpath = "%s/%s" % (PATH_DISTS, basename)
@@ -331,30 +368,30 @@ And follow the instruction on screen."""
         install_dir = "%s/%s" % (PATH_PYTHONS, pkgname)
         build_options = "--prefix=%s %s" % (install_dir, options.build_options)
         print "Installing %s into %s" % (pkgname, install_dir);
-        
-        cmd = []
-        cmd.append("cd %s/build" % ROOT)
-        cmd.append(self._get_uncompress_command(basename))
-        cmd.append("cd %s" % pkgname)
-        cmd.append("./configure %s" % (build_options))
-        if options.force:
-            cmd.append("make")
-            cmd.append("make install")
-        else:
-            cmd.append("make clean")
-            cmd.append("make")
-            cmd.append("make test && make install")
-        cmd = ";".join(cmd)
-        print cmd
-        try:
-            retcode = subprocess.call("%s >> %s/build.log 2>&1" % (cmd, ROOT), shell=True)
-        except OSError, (e, es):
-            retcode = -1
-        if retcode != 0:
-            print """Installing """+pkgname+""" failed. See """+ROOT+"""/build.log to see why.
+        print """This could take a while. You can run the following command on another shell to track the status:
 
-    pythonbrew install --force """+pkgname
-            return
+  tail -f %s
+""" % (self._logfile)
+        try:
+            s = Subprocess(log=self._logfile, shell=True, cwd=PATH_BUILD)
+            s.check_call(self._get_uncompress_command(basename))
+            
+            s.chdir("%s/%s" % (PATH_BUILD, pkgname))
+            s.check_call("./configure %s" % (build_options))
+            if options.force:
+                s.check_call("make")
+                s.check_call("make install")
+            else:
+                s.check_call("make clean")
+                s.check_call("make")
+                s.check_call("make test")
+                s.check_call("make install")
+        except:
+            print """Installing %(pkgname)s failed. See %(ROOT)s/build.log to see why.
+    
+    pythonbrew install --force %(pkgname)s""" % {"pkgname":pkgname, "ROOT":ROOT}
+            sys.exit(1)
+
         # install ez_setup
         self._install_ez_setup(pkgname, options.no_setuptools)
         print """Installed """+pkgname+""" successfully. Run the following command to switch to it.
@@ -365,13 +402,12 @@ And follow the instruction on screen."""
         if no_setuptools:
             print "Skip installation setuptools."
             return
-        dist = EZSETUPDLSITE
-        dist = dist[dist.rfind("/")+1:]
-        
+        basename = os.path.basename(EZSETUPDLSITE)
+                
         dl = Download()
-        dl.download(dist, EZSETUPDLSITE, "%s/%s" % (PATH_DISTS, dist))
+        dl.download(basename, EZSETUPDLSITE, "%s/%s" % (PATH_DISTS, basename))
         
-        os.system("%s/%s/bin/python %s/%s" % (PATH_PYTHONS, pydist, PATH_DISTS, dist))
+        os.system("%s/%s/bin/python %s/%s" % (PATH_PYTHONS, pydist, PATH_DISTS, basename))
         if os.path.isfile("%s/%s/bin/easy_install" % (PATH_PYTHONS, pydist)):
             os.system("%s/%s/bin/easy_install pip" % (PATH_PYTHONS, pydist))
 

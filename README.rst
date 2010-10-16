@@ -67,7 +67,7 @@ init
 install Python-<version>
   Build and install the given version of Python.
   
-  Setuptools is automatically installed.
+  Setuptools and pip is automatically installed.
   
   options: --force, --no-setuptools or --build-options.
 
