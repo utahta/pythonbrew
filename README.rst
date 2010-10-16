@@ -96,7 +96,7 @@ Options
   Force installation of a Python.
 
 \-b --build-options
-  Configure options.
+  Configure options of Python.
 
 \-n --no-setuptools
   Skip installation of setuptools.

@@ -73,12 +73,6 @@ def is_archive_file(name):
     return False
 
 #----------------------------------------------------
-# exception
-#----------------------------------------------------
-class InstallationError(Exception):
-    """General exception during installation"""
-
-#----------------------------------------------------
 # classes
 #----------------------------------------------------
 class Download(object):
@@ -396,7 +390,7 @@ class InstalledCommand(Command):
         else:
             cur = ""
         for d in os.listdir("%s/" % PATH_PYTHONS):
-            if d == "current" or cur == "%s/%s" % (PATH_PYTHONS, d):
+            if d == "current" or cur == "%s" % (d):
                 continue
             print "%s" % (d)
 
