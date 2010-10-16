@@ -293,14 +293,14 @@ And follow the instruction on screen."""
                 sys.exit(1)
             return basename
         else:
-            basename = os.path.basename(name)
-            distpath = "%s/%s" % (PATH_DISTS, basename)
             if os.path.isfile(name):
-                shutil.copy(name, "%s" % distpath)
-                print "File copy %s to %s" % (name, distpath)
+                basename = os.path.basename(name)
+                print "Copy the file %s to %s/%s" % (name, PATH_DISTS, basename)
+                shutil.copy(name, "%s/%s" % (PATH_DISTS, basename))
             elif os.path.isdir(name):
-                shutil.copytree(name, "%s" % distpath)
-                print "Directory copy %s to %s" % (name, distpath)
+                basename = name
+                print "Copy the directory %s to %s/%s" % (name, PATH_DISTS, basename)
+                shutil.copytree(name, "%s/%s" % (PATH_DISTS, basename))
             else:
                 print "Unknown object. `%s`" % name
                 sys.exit(1)
