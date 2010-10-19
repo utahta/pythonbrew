@@ -108,7 +108,7 @@ def clean_switch_symlink():
 #----------------------------------------------------
 # classes
 #----------------------------------------------------
-class Download(object):
+class Downloader(object):
     def __init__(self):
         self._msg = ""
         self._last_msg = ""
@@ -351,7 +351,7 @@ And follow the instruction on screen."""
                 print "Use the previously fetched %s" % (download_path)
             else:
                 try:
-                    dl = Download()
+                    dl = Downloader()
                     dl.download(
                         basename,
                         download_url,
@@ -440,7 +440,7 @@ And follow the instruction on screen."""
             return
         basename = os.path.basename(EZSETUPDLSITE)
                 
-        dl = Download()
+        dl = Downloader()
         dl.download(basename, EZSETUPDLSITE, "%s/%s" % (PATH_DISTS, basename))
         
         os.system("%s/%s/bin/python %s/%s" % (PATH_PYTHONS, pydist, PATH_DISTS, basename))
