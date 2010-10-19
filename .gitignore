@@ -4,3 +4,4 @@
 .pydevproject
 .settings
 .tmp_*
+*.pyc
