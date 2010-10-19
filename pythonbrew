@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# vim:fileencoding=utf-8
 
 import os
 import sys
@@ -9,7 +9,7 @@ import re
 import shutil
 import filecmp
 import subprocess
-import stat
+from HTMLParser import HTMLParser
 from optparse import OptionParser
 
 VERSION = "0.3"
@@ -56,7 +56,7 @@ def size_format(b):
         return "%.1fMb" % (b/mb)
     if b >= kb:
         return "%.1fKb" % (b/kb)
-    return "%.0fB" % (b)
+    return "%.0fbytes" % (b)
 
 def is_url(name):
     if ':' not in name:
@@ -77,6 +77,33 @@ def is_archive_file(name):
     if ext in archives:
         return True
     return False
+
+def makedirs(name):
+    try:
+        os.makedirs(name)
+    except OSError, (e,es):
+        if errno.EEXIST != e:
+            raise
+
+def symlink(src, dst):
+    try:
+        os.symlink(src, dst)
+    except:
+        pass
+    
+def unlink(name):
+    try:
+        os.unlink(name)
+    except OSError, (e,es):
+        if errno.ENOENT != e:
+            raise
+
+def clean_switch_symlink():
+    for root, dirs, files in os.walk("%s/bin/" % ROOT):
+        for f in files:
+            if f == "pythonbrew":
+                continue
+            unlink("%s%s" % (root, f))
 
 #----------------------------------------------------
 # classes
@@ -129,6 +156,38 @@ class Subprocess(object):
         if retcode != 0:
             raise BuildingException()
 
+class PythonVersionParser(HTMLParser):
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self._versions = []
+        self._re = re.compile("^(\d+\.\d+(\..*)?)/$")
+    
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            attrs = dict(attrs)
+            if "href" in attrs:
+                m = self._re.search(attrs["href"])
+                if m:
+                    self._versions.append(m.group(1))
+    
+    def get_versions(self):
+        return sorted(self._versions)
+
+class PythonPackages(object):
+    def __init__(self):
+        parser = PythonVersionParser()
+        fp = urllib.urlopen("http://www.python.org/ftp/python/")
+        parser.feed(fp.read())
+        fp.close()
+        parser.close()
+        self._versions = parser.get_versions()
+        
+    def has_version(self, version):
+        return version in self._versions
+
+#----------------------------------------------------
+# commands
+#----------------------------------------------------
 class Command(object):
     name = None
     usage = None
@@ -141,33 +200,6 @@ class Command(object):
     def run(self, args):
         options, args = self.parser.parse_args(args)
         self.run_command(options, args[1:])
-        
-    def _makedirs(self, name):
-        try:
-            os.makedirs( name )
-        except OSError, (e, es):
-            if errno.EEXIST != e:
-                raise
-    
-    def _symlink(self, src, dst):
-        try:
-            os.symlink(src, dst)
-        except:
-            pass
-        
-    def _unlink(self, name):
-        try:
-            os.unlink(name)
-        except OSError, (e, es):
-            if errno.ENOENT != e:
-                raise
-
-    def _clean_switch_symlink(self):
-        for root, dirs, files in os.walk("%s/bin/" % ROOT):
-            for f in files:
-                if f == "pythonbrew":
-                    continue
-                self._unlink("%s%s" % (root, f))
 
 class HelpCommand(Command):
     name = "help"
@@ -199,10 +231,10 @@ class InitCommand(Command):
     summary = "Run this once to setup the pythonbrew directory ready for installing pythons into."
         
     def run_command(self, options, args):
-        self._makedirs(PATH_PYTHONS)
-        self._makedirs(PATH_BUILD)
-        self._makedirs(PATH_DISTS)
-        self._makedirs(PATH_ETC)
+        makedirs(PATH_PYTHONS)
+        makedirs(PATH_BUILD)
+        makedirs(PATH_DISTS)
+        makedirs(PATH_ETC)
         
         os.system("echo 'export PATH=%s/bin:%s/current/bin:${PATH}' > %s/bashrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
         os.system("echo 'setenv PATH %s/bin:%s/current/bin:$PATH' > %s/cshrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
@@ -280,7 +312,7 @@ class InstallCommand(Command):
         
     """ + executable;
                     return
-            self._makedirs("%s/bin" % ROOT)
+            makedirs("%s/bin" % ROOT)
             shutil.copy(executable, target)
             os.chmod(target, 0755)
             print """The pythonbrew is installed as:
@@ -294,7 +326,7 @@ Next, if this is the first time you've run pythonbrew installation, run:
     """+target+""" init
 
 And follow the instruction on screen."""
-        
+    
     def _get_pkg(self, name):
         if not os.path.isfile(name) and not os.path.isdir(name):
             if is_url(name):
@@ -302,11 +334,15 @@ And follow the instruction on screen."""
                 download_url = name
                 download_path = "%s/%s" % (PATH_DISTS, basename)
             else:
-                m = re.search("^Python-(\d\.\d\d?(\.\d\d?)?)$", name)
+                m = re.search("^Python-(\d+\.\d+(\..*)?)$", name)
                 if not m:
                     print "Unknown package: `%s`" % name
                     sys.exit(1)
                 dist_version = m.group(1)
+                pkgs = PythonPackages()
+                if not pkgs.has_version(dist_version):
+                    print "Package not found: `%s`" % name
+                    sys.exit(1)
                 basename = "%s.tgz" % name
                 download_url = PYTHONDLSITE % (dist_version, basename)
                 download_path = "%s/%s" % (PATH_DISTS, basename)
@@ -383,7 +419,6 @@ And follow the instruction on screen."""
                 s.check_call("make")
                 s.check_call("make install")
             else:
-                s.check_call("make clean")
                 s.check_call("make")
                 s.check_call("make test")
                 s.check_call("make install")
@@ -468,21 +503,21 @@ class SwitchCommand(Command):
         self._switch_dir( distdir )
     
     def _switch_file(self, dist):
-        self._unlink("%s/current" % PATH_PYTHONS)
-        self._unlink("%s/bin/python" % ROOT)
-        self._clean_switch_symlink()
-        self._symlink(dist, "%s/bin/python" % ROOT)
-        self._symlink(ROOT, "%s/current" % PATH_PYTHONS)
+        unlink("%s/current" % PATH_PYTHONS)
+        unlink("%s/bin/python" % ROOT)
+        clean_switch_symlink()
+        symlink(dist, "%s/bin/python" % ROOT)
+        symlink(ROOT, "%s/current" % PATH_PYTHONS)
         print "Switched to "+dist
     
     def _switch_dir(self, dist):
-        self._unlink("%s/current" % PATH_PYTHONS)
-        self._unlink("%s/bin/python" % ROOT)
-        self._symlink(dist, "%s/current" % PATH_PYTHONS)
-        self._clean_switch_symlink()
+        unlink("%s/current" % PATH_PYTHONS)
+        unlink("%s/bin/python" % ROOT)
+        symlink(dist, "%s/current" % PATH_PYTHONS)
+        clean_switch_symlink()
         for root, dirs, files in os.walk("%s/pythons/current/bin/" % ROOT):
             for f in files:
-                self._symlink("%s%s" % (root, f), "%s/bin/%s" % (ROOT, f))
+                symlink("%s%s" % (root, f), "%s/bin/%s" % (ROOT, f))
         print "Switched to "+dist
         
 class OffCommand(Command):
@@ -491,8 +526,8 @@ class OffCommand(Command):
     summary = "Disable pythonbrew."
     
     def run_command(self, options, args):
-        self._unlink("%s/current" % PATH_PYTHONS)
-        self._clean_switch_symlink()
+        unlink("%s/current" % PATH_PYTHONS)
+        clean_switch_symlink()
 
 class VersionCommand(Command):
     name = "version"
