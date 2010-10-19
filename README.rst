@@ -50,8 +50,8 @@ Switch python in the $PATH::
 
 Search python packages::
 
-  pythonbrew search Python-2.6.6
-  pythonbrew search Python-2
+  pythonbrew search Python-2.6
+  pythonbrew search Python-2.5
 
 Disable pythonbrew::
 
