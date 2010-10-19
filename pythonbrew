@@ -170,7 +170,7 @@ class PythonVersionParser(HTMLParser):
                 if m:
                     self._versions.append(m.group(1))
     
-    def get_versions(self):
+    def get_sorted_versions(self):
         return sorted(self._versions)
 
 class PythonPackages(object):
@@ -180,10 +180,13 @@ class PythonPackages(object):
         parser.feed(fp.read())
         fp.close()
         parser.close()
-        self._versions = parser.get_versions()
+        self._versions = parser.get_sorted_versions()
         
     def has_version(self, version):
         return version in self._versions
+    
+    def get_packages(self):
+        return ["Python-%s" % v for v in self._versions]
 
 #----------------------------------------------------
 # commands
@@ -228,7 +231,7 @@ class HelpCommand(Command):
 class InitCommand(Command):
     name = "init"
     usage = "%prog"
-    summary = "Run this once to setup the pythonbrew directory ready for installing pythons into."
+    summary = "Run this once to setup the pythonbrew directory ready for installing pythons into"
         
     def run_command(self, options, args):
         makedirs(PATH_PYTHONS)
@@ -272,7 +275,7 @@ INSTRUCTION"""
 class InstallCommand(Command):
     name = "install"
     usage = "%prog [OPTIONS] PACKAGE_NAMES"
-    summary = "Build and install the given version of python."
+    summary = "Build and install the given version of python"
     
     def __init__(self):
         super(InstallCommand, self).__init__()
@@ -327,7 +330,7 @@ Next, if this is the first time you've run pythonbrew installation, run:
 
 And follow the instruction on screen."""
     
-    def _get_pkg(self, name):
+    def _get_package(self, name):
         if not os.path.isfile(name) and not os.path.isdir(name):
             if is_url(name):
                 basename = os.path.basename(name)
@@ -399,7 +402,7 @@ And follow the instruction on screen."""
         return ""
     
     def _install_python(self, dist, options):
-        basename = self._get_pkg(dist)
+        basename = self._get_package(dist)
         pkgname = splitext(basename)[0]
         
         install_dir = "%s/%s" % (PATH_PYTHONS, pkgname)
@@ -450,7 +453,7 @@ And follow the instruction on screen."""
 class InstalledCommand(Command):
     name = "installed"
     usage = "%prog"
-    summary = "List the installed versions of python."
+    summary = "List the installed versions of python"
         
     def run_command(self, options, args):
         if os.path.islink("%s/current" % PATH_PYTHONS):
@@ -469,7 +472,7 @@ class InstalledCommand(Command):
 class SwitchCommand(Command):
     name = "switch"
     usage = "%prog PACKAGE"
-    summary = "Switch to the given version."
+    summary = "Switch to the given version"
     
     def run_command(self, options, args):
         if args:
@@ -523,7 +526,7 @@ class SwitchCommand(Command):
 class OffCommand(Command):
     name = "off"
     usage = "%prog"
-    summary = "Disable pythonbrew."
+    summary = "Disable pythonbrew"
     
     def run_command(self, options, args):
         unlink("%s/current" % PATH_PYTHONS)
@@ -532,10 +535,33 @@ class OffCommand(Command):
 class VersionCommand(Command):
     name = "version"
     usage = "%prog"
-    summary = "Show version."
+    summary = "Show version"
     
     def run_command(self, options, args):
         print VERSION
+
+class SearchCommand(Command):
+    name = "search"
+    usage = "%prog [Python-<VERSION>]"
+    summary = "Search Python packages"
+    
+    def run_command(self, options, args):
+        pkgs = PythonPackages()
+        if args:
+            pattern = args[0]
+            _re = re.compile(r"%s" % pattern)
+            pkgnames = []
+            for pkgname in pkgs.get_packages():
+                if _re.match(pkgname):
+                    pkgnames.append(pkgname)
+            if pkgnames:
+                for pkgname in pkgnames:
+                    print pkgname
+            else:
+                print "Package not found. `%s`" % pattern
+        else:
+            for pkgname in pkgs.get_packages():
+                print pkgname
 
 class Pythonbrew(object):
     def run(self):
@@ -552,6 +578,7 @@ class Pythonbrew(object):
         add_command(SwitchCommand())
         add_command(OffCommand())
         add_command(VersionCommand())
+        add_command(SearchCommand())
         
         command = args[0].lower()
         if command not in command_dict:
