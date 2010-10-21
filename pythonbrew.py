@@ -13,13 +13,14 @@ import tempfile
 from HTMLParser import HTMLParser
 from optparse import OptionParser
 
-VERSION = "0.3"
+VERSION = "0.4"
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
 else:
     ROOT = "%s/python/pythonbrew" % os.environ["HOME"]
 PYTHONDLSITE = "http://www.python.org/ftp/python/%s/%s"
-SETUPDLSITE = "http://python-distribute.org/distribute_setup.py"
+DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"
+EZSETUP_DLSITE = "http://peak.telecommunity.com/dist/ez_setup.py"
 
 PATH_PYTHONS = "%s/pythons" % ROOT
 PATH_BUILD = "%s/build" % ROOT
@@ -455,24 +456,35 @@ And follow the instruction on screen."""
 
     pythonbrew switch """+pkgname
     
-    def _install_setuptools(self, pydist, no_setuptools):
+    def _install_setuptools(self, pkgname, no_setuptools):
         if no_setuptools:
             print "Skip installation setuptools."
             return
-        basename = os.path.basename(SETUPDLSITE)
+        if re.match("^Python-3.*", pkgname):
+            download_url = DISTRIBUTE_SETUP_DLSITE
+            is_python3 = True
+        else:
+            download_url = EZSETUP_DLSITE
+            is_python3 = False
+        basename = os.path.basename(download_url)
         
         dl = Downloader()
-        dl.download(basename, SETUPDLSITE, "%s/%s" % (PATH_DISTS, basename))
+        dl.download(basename, download_url, "%s/%s" % (PATH_DISTS, basename))
         
-        pyexec2 = "%s/%s/bin/python" % (PATH_PYTHONS, pydist)
-        pyexec3 = "%s/%s/bin/python3" % (PATH_PYTHONS, pydist)
-        if os.path.isfile(pyexec3):
-            pyexec = pyexec3
+        if is_python3:
+            if os.path.isfile("%s/%s/bin/python3" % (PATH_PYTHONS, pkgname)):
+                pyexec = "%s/%s/bin/python3" % (PATH_PYTHONS, pkgname)
+            elif os.path.isfile("%s/%s/bin/python3.0" % (PATH_PYTHONS, pkgname)):
+                pyexec = "%s/%s/bin/python3.0" % (PATH_PYTHONS, pkgname)
+            else:
+                print "Python3 binary not found. `%s/%s`" % (PATH_PYTHONS, pkgname)
+                return
         else:
-            pyexec = pyexec2
+            pyexec = "%s/%s/bin/python" % (PATH_PYTHONS, pkgname)
         os.system("%s %s/%s" % (pyexec, PATH_DISTS, basename))
-        if os.path.isfile("%s/%s/bin/easy_install" % (PATH_PYTHONS, pydist)) and pyexec == pyexec2:
-            os.system("%s/%s/bin/easy_install pip" % (PATH_PYTHONS, pydist))
+        
+        if os.path.isfile("%s/%s/bin/easy_install" % (PATH_PYTHONS, pkgname)) and not is_python3:
+            os.system("%s/%s/bin/easy_install pip" % (PATH_PYTHONS, pkgname))
 
 class InstalledCommand(Command):
     name = "installed"
@@ -542,9 +554,15 @@ class SwitchCommand(Command):
         unlink("%s/bin/python" % ROOT)
         symlink(dist, "%s/current" % PATH_PYTHONS)
         clean_switch_symlink()
-        for root, dirs, files in os.walk("%s/pythons/current/bin/" % ROOT):
+        for root, dirs, files in os.walk("%s/current/bin/" % PATH_PYTHONS):
             for f in files:
-                symlink("%s%s" % (root, f), "%s/bin/%s" % (ROOT, f))
+                symlink("%s%s" % (root, f), "%s/%s" % (PATH_BIN, f))
+        # I want better code
+        if not os.path.isfile("%s/python" % PATH_BIN):
+            if os.path.isfile("%s/python3" % PATH_BIN):
+                symlink(os.path.realpath("%s/python3" % PATH_BIN), "%s/python" % PATH_BIN)
+            elif os.path.isfile("%s/python3.0" % PATH_BIN):
+                symlink(os.path.realpath("%s/python3.0" % PATH_BIN), "%s/python" % PATH_BIN)
         print "Switched to "+dist
         
 class OffCommand(Command):
