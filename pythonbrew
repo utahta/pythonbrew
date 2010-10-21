@@ -9,6 +9,7 @@ import re
 import shutil
 import filecmp
 import subprocess
+import tempfile
 from HTMLParser import HTMLParser
 from optparse import OptionParser
 
@@ -18,12 +19,13 @@ if os.environ.has_key("PYTHONBREW_ROOT"):
 else:
     ROOT = "%s/python/pythonbrew" % os.environ["HOME"]
 PYTHONDLSITE = "http://www.python.org/ftp/python/%s/%s"
-EZSETUPDLSITE = "http://peak.telecommunity.com/dist/ez_setup.py"
+SETUPDLSITE = "http://python-distribute.org/distribute_setup.py"
 
 PATH_PYTHONS = "%s/pythons" % ROOT
 PATH_BUILD = "%s/build" % ROOT
 PATH_DISTS = "%s/dists" % ROOT
 PATH_ETC = "%s/etc" % ROOT
+PATH_BIN = "%s/bin" % ROOT
 
 parser = OptionParser(usage="%prog COMMAND [OPTIONS]",
                       version=VERSION,
@@ -81,7 +83,7 @@ def is_archive_file(name):
 def makedirs(name):
     try:
         os.makedirs(name)
-    except OSError, (e,es):
+    except OSError, (e, es):
         if errno.EEXIST != e:
             raise
 
@@ -94,7 +96,7 @@ def symlink(src, dst):
 def unlink(name):
     try:
         os.unlink(name)
-    except OSError, (e,es):
+    except OSError, (e, es):
         if errno.ENOENT != e:
             raise
 
@@ -307,29 +309,45 @@ class InstallCommand(Command):
             self._install_python(args[0], options)
         else:
             # Install pythonbrew
-            executable = os.path.abspath(sys.argv[0])
-            target = "%s/bin/pythonbrew" % ROOT
-            if os.path.isfile(executable) and os.path.isfile(target):
-                if filecmp.cmp(executable, target):
-                    print """You are already running the installed pythonbrew:
+            self._install_myself()
+
+    def _install_myself(self):
+        executable = os.path.abspath(sys.argv[0])
+        (fd, src) = tempfile.mkstemp()
+        fp = file(executable, "r")
+        line = fp.readline()
+        if line.startswith("#!"):
+            os.write(fd, "#!%s\n" % os.path.realpath(sys.executable))
+        else:
+            os.write(fd, line)
+        os.write(fd, fp.read())
+        os.close(fd)
+        fp.close()
         
-    """ + executable;
-                    return
-            makedirs("%s/bin" % ROOT)
-            shutil.copy(executable, target)
-            os.chmod(target, 0755)
-            print """The pythonbrew is installed as:
+        dist = "%s/pythonbrew" % PATH_BIN
+        if os.path.isfile(src) and os.path.isfile(dist):
+            if filecmp.cmp(src, dist):
+                os.remove(src)
+                print """You are already running the installed pythonbrew:
+        
+    """ + dist
+                sys.exit()        
+        makedirs(PATH_BIN)
+        shutil.copy(src, dist)
+        os.chmod(dist, 0755)
+        os.remove(src)
+        print """The pythonbrew is installed as:
     
-    """+target+"""
+    """+dist+"""
 
 You may trash the downloaded """+executable+""" from now on.
 
 Next, if this is the first time you've run pythonbrew installation, run:
 
-    """+target+""" init
+    """+dist+""" init
 
 And follow the instruction on screen."""
-    
+
     def _get_package(self, name):
         if not os.path.isfile(name) and not os.path.isdir(name):
             if is_url(name):
@@ -431,23 +449,29 @@ And follow the instruction on screen."""
     pythonbrew install --force %(pkgname)s""" % {"pkgname":pkgname, "ROOT":ROOT}
             sys.exit(1)
 
-        # install ez_setup
-        self._install_ez_setup(pkgname, options.no_setuptools)
+        # install setuptools
+        self._install_setuptools(pkgname, options.no_setuptools)
         print """Installed """+pkgname+""" successfully. Run the following command to switch to it.
 
     pythonbrew switch """+pkgname
     
-    def _install_ez_setup(self, pydist, no_setuptools):
+    def _install_setuptools(self, pydist, no_setuptools):
         if no_setuptools:
             print "Skip installation setuptools."
             return
-        basename = os.path.basename(EZSETUPDLSITE)
-                
-        dl = Downloader()
-        dl.download(basename, EZSETUPDLSITE, "%s/%s" % (PATH_DISTS, basename))
+        basename = os.path.basename(SETUPDLSITE)
         
-        os.system("%s/%s/bin/python %s/%s" % (PATH_PYTHONS, pydist, PATH_DISTS, basename))
-        if os.path.isfile("%s/%s/bin/easy_install" % (PATH_PYTHONS, pydist)):
+        dl = Downloader()
+        dl.download(basename, SETUPDLSITE, "%s/%s" % (PATH_DISTS, basename))
+        
+        pyexec2 = "%s/%s/bin/python" % (PATH_PYTHONS, pydist)
+        pyexec3 = "%s/%s/bin/python3" % (PATH_PYTHONS, pydist)
+        if os.path.isfile(pyexec3):
+            pyexec = pyexec3
+        else:
+            pyexec = pyexec2
+        os.system("%s %s/%s" % (pyexec, PATH_DISTS, basename))
+        if os.path.isfile("%s/%s/bin/easy_install" % (PATH_PYTHONS, pydist)) and pyexec == pyexec2:
             os.system("%s/%s/bin/easy_install pip" % (PATH_PYTHONS, pydist))
 
 class InstalledCommand(Command):
