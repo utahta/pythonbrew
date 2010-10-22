@@ -35,8 +35,8 @@ Initialize::
     
 Install some Pythons::
 
+  pythonbrew install Python-3.1.2
   pythonbrew install Python-2.6.6
-  pythonbrew install Python-2.5.5
   pythonbrew install --build-options="CC=gcc_4.1" Python-2.6.6
   pythonbrew install --no-setuptools Python-2.6.6
   pythonbrew install http://www.python.org/ftp/python/2.6.6/Python-2.6.6.tgz
@@ -45,13 +45,12 @@ Install some Pythons::
 Switch python in the $PATH::
 
   pythonbrew switch Python-2.6.6
-  pythonbrew switch /path/to/Python-2.5.5/
   pythonbrew switch /path/to/python
 
 Search python packages::
 
   pythonbrew search Python-2.6
-  pythonbrew search Python-2.5
+  pythonbrew search Python-3
 
 Disable pythonbrew::
 

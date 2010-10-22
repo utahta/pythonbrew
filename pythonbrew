@@ -20,7 +20,6 @@ else:
     ROOT = "%s/python/pythonbrew" % os.environ["HOME"]
 PYTHONDLSITE = "http://www.python.org/ftp/python/%s/%s"
 DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"
-EZSETUP_DLSITE = "http://peak.telecommunity.com/dist/ez_setup.py"
 
 PATH_PYTHONS = "%s/pythons" % ROOT
 PATH_BUILD = "%s/build" % ROOT
@@ -328,7 +327,7 @@ class InstallCommand(Command):
         dist = "%s/pythonbrew" % PATH_BIN
         if os.path.isfile(src) and os.path.isfile(dist):
             if filecmp.cmp(src, dist):
-                os.remove(src)
+                unlink(src)
                 print """You are already running the installed pythonbrew:
         
     """ + dist
@@ -336,7 +335,7 @@ class InstallCommand(Command):
         makedirs(PATH_BIN)
         shutil.copy(src, dist)
         os.chmod(dist, 0755)
-        os.remove(src)
+        unlink(src)
         print """The pythonbrew is installed as:
     
     """+dist+"""
@@ -380,25 +379,21 @@ And follow the instruction on screen."""
                         download_path
                     )
                 except:
-                    os.remove(download_path)
+                    unlink(download_path)
                     print "\nInterrupt to abort. `%s`" % (download_url)
                     sys.exit(1)
                 # iffy
                 if os.path.getsize(download_path) < 1000000:
-                    print "Invalid file downloaded. (maybe 404 not found?) `%s`" % (download_url)
-                    os.remove(download_path)
+                    print "Failed to download. (maybe not stable version of python) `%s`" % (download_url)
+                    unlink(download_path)
                     sys.exit(1)
         else:
-            if os.path.isfile(name):
+            if is_archive_file(name):
                 basename = os.path.basename(name)
-                print "Copy the file %s to %s/%s" % (name, PATH_DISTS, basename)
+                print "Copy the archive file %s to %s/%s" % (name, PATH_DISTS, basename)
                 shutil.copy(name, "%s/%s" % (PATH_DISTS, basename))
-            elif os.path.isdir(name):
-                basename = name
-                print "Copy the directory %s to %s/%s" % (name, PATH_DISTS, basename)
-                shutil.copytree(name, "%s/%s" % (PATH_DISTS, basename))
             else:
-                print "Unknown object. `%s`" % name
+                print "Invalid file. `%s`" % name
                 sys.exit(1)
         return basename
     
@@ -417,7 +412,7 @@ And follow the instruction on screen."""
         elif os.path.isdir(distpath):
             return "mv %s %s/%s" % (distpath, PATH_BUILD, basename)
         else:
-            print "Unknown object. `%s`" % (basename)
+            print "File not found. `%s`" % (basename)
         return ""
     
     def _install_python(self, dist, options):
@@ -452,20 +447,20 @@ And follow the instruction on screen."""
 
         # install setuptools
         self._install_setuptools(pkgname, options.no_setuptools)
-        print """Installed """+pkgname+""" successfully. Run the following command to switch to it.
+        print """
+Installed %(pkgname)s successfully. Run the following command to switch to it.
 
-    pythonbrew switch """+pkgname
+    pythonbrew switch %(pkgname)s""" % {"pkgname":pkgname}
     
     def _install_setuptools(self, pkgname, no_setuptools):
         if no_setuptools:
             print "Skip installation setuptools."
             return
         if re.match("^Python-3.*", pkgname):
-            download_url = DISTRIBUTE_SETUP_DLSITE
             is_python3 = True
         else:
-            download_url = EZSETUP_DLSITE
             is_python3 = False
+        download_url = DISTRIBUTE_SETUP_DLSITE
         basename = os.path.basename(download_url)
         
         dl = Downloader()
@@ -481,10 +476,15 @@ And follow the instruction on screen."""
                 return
         else:
             pyexec = "%s/%s/bin/python" % (PATH_PYTHONS, pkgname)
-        os.system("%s %s/%s" % (pyexec, PATH_DISTS, basename))
         
-        if os.path.isfile("%s/%s/bin/easy_install" % (PATH_PYTHONS, pkgname)) and not is_python3:
-            os.system("%s/%s/bin/easy_install pip" % (PATH_PYTHONS, pkgname))
+        try:
+            s = Subprocess(log=self._logfile, shell=True, cwd=PATH_DISTS)
+            s.check_call("%s %s" % (pyexec, basename))
+            if os.path.isfile("%s/%s/bin/easy_install" % (PATH_PYTHONS, pkgname)) and not is_python3:
+                s.check_call("%s/%s/bin/easy_install pip" % (PATH_PYTHONS, pkgname), cwd=None)
+        except:
+            print "Installing setuptools failed. See %s/build.log to see why." % (ROOT)
+            sys.exit(1)
 
 class InstalledCommand(Command):
     name = "installed"
@@ -492,18 +492,20 @@ class InstalledCommand(Command):
     summary = "List the installed versions of python"
         
     def run_command(self, options, args):
-        if os.path.islink("%s/current" % PATH_PYTHONS):
-            if os.path.realpath("%s/current" % PATH_PYTHONS) == ROOT:
-                cur = os.path.realpath("%s/bin/python" % ROOT)
-            else:
-                cur = os.path.basename(os.path.realpath("%s/current" % PATH_PYTHONS))
+        if not os.path.islink("%s/current" % PATH_PYTHONS):
+            cur = os.path.realpath("%s/bin/python" % ROOT)
             print "%s (*)" % cur
+        elif os.path.islink("%s/current" % PATH_PYTHONS):
+            cur = os.path.basename(os.path.realpath("%s/current" % PATH_PYTHONS))
         else:
             cur = ""
-        for d in os.listdir("%s/" % PATH_PYTHONS):
-            if d == "current" or cur == "%s" % (d):
+        for d in sorted(os.listdir("%s/" % PATH_PYTHONS)):
+            if d == "current":
                 continue
-            print "%s" % (d)
+            if cur == d:
+                print "%s (*)" % cur
+            else:
+                print "%s" % (d)
 
 class SwitchCommand(Command):
     name = "switch"
@@ -520,24 +522,8 @@ class SwitchCommand(Command):
             else:
                 print "Invalid binary: `%s`" % dist
             return
-        elif os.path.isdir( dist ):
-            if os.path.isdir("%s/bin" % dist):
-                if os.path.isfile("%s/bin/python" % dist):
-                    self._switch_file("%s/bin/python" % dist)
-                if os.path.isfile("%s/bin/python3" % dist):
-                    self._switch_file("%s/bin/python3" % dist)
-                return
-            elif os.path.isfile("%s/python" % dist) and os.access("%s/python" % dist, os.X_OK):
-                self._switch_file("%s/python" % dist)
-                return
-            elif os.path.isfile("%s/python3" % dist) and os.access("%s/python3" % dist, os.X_OK):
-                self._switch_file("%s/python3" % dist)
-                return
-            else:
-                print "Invalid directory: `%s`" % dist
-                return
         elif not os.path.isdir( "%s/%s" % (PATH_PYTHONS, dist) ):
-            print "Unknown package: `%s`" % dist
+            print "`%s` is not installed." % dist
             return
         self._switch_dir( distdir )
     
@@ -546,7 +532,6 @@ class SwitchCommand(Command):
         unlink("%s/bin/python" % ROOT)
         clean_switch_symlink()
         symlink(dist, "%s/bin/python" % ROOT)
-        symlink(ROOT, "%s/current" % PATH_PYTHONS)
         print "Switched to "+dist
     
     def _switch_dir(self, dist):
