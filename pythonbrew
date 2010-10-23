@@ -100,7 +100,8 @@ def unlink(name):
         if errno.ENOENT != e:
             raise
 
-def clean_switch_symlink():
+def off():
+    unlink("%s/current" % PATH_PYTHONS)
     for root, dirs, files in os.walk("%s/bin/" % ROOT):
         for f in files:
             if f == "pythonbrew":
@@ -520,7 +521,7 @@ class SwitchCommand(Command):
             if re.search( ".*python(\d(\.\d)?)?$", dist ):
                 self._switch_file(dist)
             else:
-                print "Invalid binary: `%s`" % dist
+                print "`%s` is not python binary." % dist
             return
         elif not os.path.isdir( "%s/%s" % (PATH_PYTHONS, dist) ):
             print "`%s` is not installed." % dist
@@ -528,17 +529,13 @@ class SwitchCommand(Command):
         self._switch_dir( distdir )
     
     def _switch_file(self, dist):
-        unlink("%s/current" % PATH_PYTHONS)
-        unlink("%s/bin/python" % ROOT)
-        clean_switch_symlink()
-        symlink(dist, "%s/bin/python" % ROOT)
+        off()
+        symlink(dist, "%s/python" % PATH_BIN)
         print "Switched to "+dist
     
     def _switch_dir(self, dist):
-        unlink("%s/current" % PATH_PYTHONS)
-        unlink("%s/bin/python" % ROOT)
+        off()
         symlink(dist, "%s/current" % PATH_PYTHONS)
-        clean_switch_symlink()
         for root, dirs, files in os.walk("%s/current/bin/" % PATH_PYTHONS):
             for f in files:
                 symlink("%s%s" % (root, f), "%s/%s" % (PATH_BIN, f))
@@ -556,8 +553,7 @@ class OffCommand(Command):
     summary = "Disable pythonbrew"
     
     def run_command(self, options, args):
-        unlink("%s/current" % PATH_PYTHONS)
-        clean_switch_symlink()
+        off()
 
 class VersionCommand(Command):
     name = "version"
@@ -569,7 +565,7 @@ class VersionCommand(Command):
 
 class SearchCommand(Command):
     name = "search"
-    usage = "%prog [Python-<VERSION>]"
+    usage = "%prog Python-<VERSION>"
     summary = "Search Python packages"
     
     def run_command(self, options, args):
@@ -590,6 +586,26 @@ class SearchCommand(Command):
             for pkgname in pkgs.get_packages():
                 print pkgname
 
+class UninstallCommand(Command):
+    name = "uninstall"
+    usage = "%prog Python-<VERSION>"
+    summary = "Uninstall the given version of python"
+    
+    def run_command(self, options, args):
+        if args:
+            pkgname = args[0]
+            pkgpath = "%s/%s" % (PATH_PYTHONS, pkgname)
+            if not os.path.isdir(pkgpath):
+                print "%s is not installed." % pkgname
+                sys.exit(1)
+            if os.path.islink("%s/current" % PATH_PYTHONS):
+                curpath = os.path.realpath("%s/current" % PATH_PYTHONS)
+                if pkgpath == curpath:
+                    off()
+            shutil.rmtree(pkgpath)
+        else:
+            self.parser.print_help()
+
 class Pythonbrew(object):
     def run(self):
         options, args = parser.parse_args(sys.argv[1:])
@@ -606,6 +622,7 @@ class Pythonbrew(object):
         add_command(OffCommand())
         add_command(VersionCommand())
         add_command(SearchCommand())
+        add_command(UninstallCommand())
         
         command = args[0].lower()
         if command not in command_dict:

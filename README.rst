@@ -27,7 +27,7 @@ If you need to install pythonbrew into somewhere else, you can do that by settin
 Usage
 =====
 
-pythonbrew [options] [init|install|installed|switch|search|off|version]
+pythonbrew [options] [init|install|installed|switch|search|uninstall|off|version]
     
 Initialize::
 
@@ -51,6 +51,10 @@ Search python packages::
 
   pythonbrew search Python-2.6
   pythonbrew search Python-3
+
+Uninstall some Pythons::
+
+  pythonbrew uninstall Python-2.6.6
 
 Disable pythonbrew::
 
@@ -87,8 +91,11 @@ switch /path/to/Python-dir/
 switch /path/to/python
   Switch to the given version of python.
 
-search [Python-<version>]
+search Python-<version>
   Search Python packages.
+  
+uninstall Python-<version>
+  Uninstall the given version of python.
 
 off
   Disable pythonbrew.
