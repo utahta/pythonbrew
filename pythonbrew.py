@@ -80,9 +80,9 @@ def is_archive_file(name):
         return True
     return False
 
-def makedirs(name):
+def makedirs(path):
     try:
-        os.makedirs(name)
+        os.makedirs(path)
     except OSError, (e, es):
         if errno.EEXIST != e:
             raise
@@ -93,20 +93,28 @@ def symlink(src, dst):
     except:
         pass
     
-def unlink(name):
+def unlink(path):
     try:
-        os.unlink(name)
+        os.unlink(path)
     except OSError, (e, es):
         if errno.ENOENT != e:
             raise
+        
+def rm_r(path):
+    """like rm -r command."""
+    if os.path.isdir(path):
+        shutil.rmtree(path)
+    else:
+        unlink(path)
 
 def off():
     unlink("%s/current" % PATH_PYTHONS)
-    for root, dirs, files in os.walk("%s/bin/" % ROOT):
+    for root, dirs, files in os.walk(PATH_BIN):
         for f in files:
             if f == "pythonbrew":
                 continue
             unlink("%s%s" % (root, f))
+        break
 
 #----------------------------------------------------
 # classes
@@ -539,6 +547,7 @@ class SwitchCommand(Command):
         for root, dirs, files in os.walk("%s/current/bin/" % PATH_PYTHONS):
             for f in files:
                 symlink("%s%s" % (root, f), "%s/%s" % (PATH_BIN, f))
+            break
         # I want better code
         if not os.path.isfile("%s/python" % PATH_BIN):
             if os.path.isfile("%s/python3" % PATH_BIN):
@@ -602,9 +611,22 @@ class UninstallCommand(Command):
                 curpath = os.path.realpath("%s/current" % PATH_PYTHONS)
                 if pkgpath == curpath:
                     off()
-            shutil.rmtree(pkgpath)
+            rm_r(pkgpath)
         else:
             self.parser.print_help()
+
+class CleanCommand(Command):
+    name = "clean"
+    usage = "%prog"
+    summary = "Remove stale source folders and archives"
+    
+    def run_command(self, options, args):
+        self._clean(PATH_BUILD)
+        self._clean(PATH_DISTS)
+        
+    def _clean(self, root):
+        for dir in os.listdir(root):
+            rm_r("%s/%s" % (root, dir))
 
 class Pythonbrew(object):
     def run(self):
@@ -623,6 +645,7 @@ class Pythonbrew(object):
         add_command(VersionCommand())
         add_command(SearchCommand())
         add_command(UninstallCommand())
+        add_command(CleanCommand())
         
         command = args[0].lower()
         if command not in command_dict:
