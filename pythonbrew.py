@@ -338,7 +338,7 @@ class InstallCommand(Command):
         if os.path.isfile(src) and os.path.isfile(dist):
             if filecmp.cmp(src, dist):
                 unlink(src)
-                print """You are already running the installed pythonbrew:
+                print """You are already running the installed latest version of pythonbrew:
         
     """ + dist
                 sys.exit()        
