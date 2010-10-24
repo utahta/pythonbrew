@@ -98,7 +98,6 @@ def unlink(path):
     try:
         os.unlink(path)
     except OSError, (e, es):
-        print es
         if errno.ENOENT != e:
             raise
         
