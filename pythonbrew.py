@@ -20,6 +20,7 @@ else:
     ROOT = "%s/python/pythonbrew" % os.environ["HOME"]
 PYTHONDLSITE = "http://www.python.org/ftp/python/%s/%s"
 DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"
+PYTHONBREW_DLSITE = "http://github.com/utahta/pythonbrew/raw/master/pythonbrew"
 
 PATH_PYTHONS = "%s/pythons" % ROOT
 PATH_BUILD = "%s/build" % ROOT
@@ -97,6 +98,7 @@ def unlink(path):
     try:
         os.unlink(path)
     except OSError, (e, es):
+        print es
         if errno.ENOENT != e:
             raise
         
@@ -108,13 +110,12 @@ def rm_r(path):
         unlink(path)
 
 def off():
-    unlink("%s/current" % PATH_PYTHONS)
     for root, dirs, files in os.walk(PATH_BIN):
         for f in files:
             if f == "pythonbrew":
                 continue
-            unlink("%s%s" % (root, f))
-        break
+            unlink("%s/%s" % (root, f))
+    unlink("%s/current" % PATH_PYTHONS)
 
 #----------------------------------------------------
 # classes
@@ -629,6 +630,30 @@ class CleanCommand(Command):
         for dir in os.listdir(root):
             rm_r("%s/%s" % (root, dir))
 
+class UpdateCommand(Command):
+    name = "update"
+    usage = "%prog"
+    summary = "Upgrades pythonbrew to the latest version"
+    
+    def run_command(self, options, args):
+        download_url = PYTHONBREW_DLSITE
+        basename = os.path.basename(download_url)
+        download_path = "%s/%s" % (PATH_DISTS, basename)
+        
+        try:
+            d = Downloader()
+            d.download(basename, download_url, download_path)
+        except:
+            print "Failed to download. `%s`" % download_url
+            sys.exit(1)
+        
+        try:
+            s = Subprocess(shell=True, cwd=PATH_DISTS)
+            s.check_call("%s %s install" % (sys.executable, download_path))
+        except:
+            print "Failed to install. `%s`" % (download_path)
+            sys.exit(1)        
+
 class Pythonbrew(object):
     def run(self):
         options, args = parser.parse_args(sys.argv[1:])
@@ -647,6 +672,7 @@ class Pythonbrew(object):
         add_command(SearchCommand())
         add_command(UninstallCommand())
         add_command(CleanCommand())
+        add_command(UpdateCommand())
         
         command = args[0].lower()
         if command not in command_dict:
