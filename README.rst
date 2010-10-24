@@ -61,6 +61,7 @@ Remove stale source folders and archives::
   pythonbrew clean
 
 Upgrades pythonbrew to the latest version::
+
   pythonbrew update
 
 Disable pythonbrew::
