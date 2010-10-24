@@ -37,11 +37,11 @@ Install some Pythons::
 
   pythonbrew install Python-3.1.2
   pythonbrew install Python-2.6.6
-  pythonbrew install --build-options="CC=gcc_4.1" Python-2.6.6
+  pythonbrew install --configure="CC=gcc_4.1" Python-2.6.6
   pythonbrew install --no-setuptools Python-2.6.6
   pythonbrew install http://www.python.org/ftp/python/2.6.6/Python-2.6.6.tgz
   pythonbrew install /path/to/Python-2.6.6.tgz
-    
+  
 Switch python in the $PATH::
 
   pythonbrew switch Python-2.6.6
@@ -81,7 +81,7 @@ install Python-<version>
   
   Setuptools and pip is automatically installed.
   
-  options: --force, --no-setuptools or --build-options.
+  options: --force, --no-setuptools and --configure.
 
 installed
   List the installed versions of python.
@@ -110,11 +110,11 @@ version
 Options
 =======
 
-\-f --force
+\-f|--force
   Force installation of a Python.
 
-\-b --build-options
-  Configure options of Python.
+\-C|--configure
+  Custom configure options.
 
-\-n --no-setuptools
+\-n|--no-setuptools
   Skip installation of setuptools.

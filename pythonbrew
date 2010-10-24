@@ -298,10 +298,11 @@ class InstallCommand(Command):
             help="Force installation of a Python."
         )
         self.parser.add_option(
-            "-b", "--build-options",
-            dest="build_options",
+            "-C", "--configure",
+            dest="configure",
             default="",
-            help="Set configure options."
+            metavar="CONFIGURE_OPTIONS",
+            help="Custom configure options."
         )
         self.parser.add_option(
             "-n", "--no-setuptools",
@@ -429,7 +430,7 @@ And follow the instruction on screen."""
         pkgname = splitext(basename)[0]
         
         install_dir = "%s/%s" % (PATH_PYTHONS, pkgname)
-        build_options = "--prefix=%s %s" % (install_dir, options.build_options)
+        configure = "--prefix=%s %s" % (install_dir, options.configure)
         print "Installing %s into %s" % (pkgname, install_dir);
         print """This could take a while. You can run the following command on another shell to track the status:
 
@@ -440,7 +441,7 @@ And follow the instruction on screen."""
             s.check_call(self._get_uncompress_command(basename))
             
             s.chdir("%s/%s" % (PATH_BUILD, pkgname))
-            s.check_call("./configure %s" % (build_options))
+            s.check_call("./configure %s" % (configure))
             if options.force:
                 s.check_call("make")
                 s.check_call("make install")
