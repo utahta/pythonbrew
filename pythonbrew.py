@@ -116,6 +116,29 @@ def off():
             unlink("%s/%s" % (root, f))
     unlink("%s/current" % PATH_PYTHONS)
 
+def copy_myself(path):
+    (fd, src) = tempfile.mkstemp()
+    fp = file(path, "r")
+    line = fp.readline()
+    if line.startswith("#!"):
+        os.write(fd, "#!%s\n" % os.path.realpath(sys.executable))
+    else:
+        os.write(fd, line)
+    os.write(fd, fp.read())
+    os.close(fd)
+    fp.close()
+    
+    dist = "%s/pythonbrew" % PATH_BIN
+    if os.path.isfile(src) and os.path.isfile(dist):
+        if filecmp.cmp(src, dist):
+            unlink(src)
+            return (False, dist)
+    makedirs(PATH_BIN)
+    shutil.copy(src, dist)
+    os.chmod(dist, 0755)
+    unlink(src)
+    return (True, dist)
+
 #----------------------------------------------------
 # classes
 #----------------------------------------------------
@@ -323,29 +346,11 @@ class InstallCommand(Command):
 
     def _install_myself(self):
         executable = os.path.abspath(sys.argv[0])
-        (fd, src) = tempfile.mkstemp()
-        fp = file(executable, "r")
-        line = fp.readline()
-        if line.startswith("#!"):
-            os.write(fd, "#!%s\n" % os.path.realpath(sys.executable))
-        else:
-            os.write(fd, line)
-        os.write(fd, fp.read())
-        os.close(fd)
-        fp.close()
-        
-        dist = "%s/pythonbrew" % PATH_BIN
-        if os.path.isfile(src) and os.path.isfile(dist):
-            if filecmp.cmp(src, dist):
-                unlink(src)
-                print """You are already running the installed latest version of pythonbrew:
-        
-    """ + dist
-                sys.exit()        
-        makedirs(PATH_BIN)
-        shutil.copy(src, dist)
-        os.chmod(dist, 0755)
-        unlink(src)
+        (retval, dist) = copy_myself(executable)
+        if not retval:
+            print "You are already running the installed latest version of pythonbrew."
+            print "\n%s" % dist
+            sys.exit()
         print """The pythonbrew is installed as:
     
     """+dist+"""
@@ -369,6 +374,9 @@ And follow the instruction on screen."""
                 if not m:
                     print "Unknown package: `%s`" % name
                     sys.exit(1)
+                if os.path.isdir("%s/%s" % (PATH_PYTHONS, name)):
+                    print "You are already installed `%s`." % name
+                    sys.exit()
                 dist_version = m.group(1)
                 pkgs = PythonPackages()
                 if not pkgs.has_version(dist_version):
@@ -646,12 +654,12 @@ class UpdateCommand(Command):
             print "Failed to download. `%s`" % download_url
             sys.exit(1)
         
-        try:
-            s = Subprocess(shell=True, cwd=PATH_DISTS)
-            s.check_call("%s %s install" % (sys.executable, download_path))
-        except:
-            print "Failed to install. `%s`" % (download_path)
-            sys.exit(1)        
+        (retval, dist) = copy_myself(download_path)
+        if not retval:
+            print "You are already running the installed latest version of pythonbrew."
+            print "\n%s" % dist
+            sys.exit()
+        print "The pythonbrew has been updated."
 
 class Pythonbrew(object):
     def run(self):
