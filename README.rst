@@ -89,9 +89,6 @@ installed
 switch Python-<version>
   Switch to the given version.
 
-switch /path/to/Python-dir/
-  Switch to the given version of python in directory.
-
 switch /path/to/python
   Switch to the given version of python.
 
