@@ -27,8 +27,8 @@ If you need to install pythonbrew into somewhere else, you can do that by settin
 Usage
 =====
 
-pythonbrew [options] [command]
-    
+pythonbrew command [options]
+
 Initialize::
 
   pythonbrew init
