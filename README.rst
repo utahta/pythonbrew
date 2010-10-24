@@ -110,11 +110,11 @@ version
 Options
 =======
 
-\-f|--force
+\-f | --force
   Force installation of a Python.
 
-\-C|--configure
+\-C | --configure
   Custom configure options.
 
-\-n|--no-setuptools
+\-n | --no-setuptools
   Skip installation of setuptools.
