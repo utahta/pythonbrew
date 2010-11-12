@@ -1,0 +1,8 @@
+* 0.5
+  - This version is incompatible with the 0.4 or less.
+  - Split the file.
+  - Added pythonbrew-install script.
+  - Added pybrew script. This is a symbolic pythonbrew.
+  - Rename `search` to `list`.
+  - Removed `init`.
+  - Added syntax that `pythonbrew command <VERSION>`

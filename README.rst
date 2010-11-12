@@ -13,48 +13,42 @@ Following python version is required to use pythonbrew:
 
 The recommended way to download and install pythonbrew is to run these statements in your shell.::
 
-  curl -LO http://github.com/utahta/pythonbrew/raw/master/pythonbrew
-  chmod +x pythonbrew
-  ./pythonbrew install
+  curl -LO http://github.com/utahta/pythonbrew/raw/master/pythonbrew-install
+  chmod +x pythonbrew-install
+  ./pythonbrew-install
 
-After that, pythonbrew installs itself to ~/python/pythonbrew/bin, and you should follow the instruction on screen to setup your .bashrc or .cshrc to put it in your PATH.
+After that, pythonbrew installs itself to ~/.pythonbrew/bin, and you should follow the instruction on screen to setup your .bashrc or .cshrc to put it in your PATH.
 
 If you need to install pythonbrew into somewhere else, you can do that by setting a PYTHONBREW_ROOT environment variable.::
 
   export PYTHONBREW_ROOT=/path/to/pythonbrew
-  ./pythonbrew install
+  ./pythonbrew-install
 
 Usage
 =====
 
 pythonbrew command [options]
-
-Initialize::
-
-  pythonbrew init
     
 Install some Pythons::
 
-  pythonbrew install Python-3.1.2
-  pythonbrew install Python-2.6.6
+  pythonbrew install 2.6.6
+  pythonbrew install Python-2.5.5
   pythonbrew install --configure="CC=gcc_4.1" Python-2.6.6
   pythonbrew install --no-setuptools Python-2.6.6
-  pythonbrew install http://www.python.org/ftp/python/2.6.6/Python-2.6.6.tgz
-  pythonbrew install /path/to/Python-2.6.6.tgz
   
 Switch python in the $PATH::
 
-  pythonbrew switch Python-2.6.6
-  pythonbrew switch /path/to/python
+  pythonbrew switch 2.6.6
+  pythonbrew switch Python-2.5.5
 
-Search python packages::
+List the available install versions of Python::
 
-  pythonbrew search Python-2.6
-  pythonbrew search Python-3
+  pythonbrew list 2.6
+  pythonbrew list 3.0
 
 Uninstall some Pythons::
 
-  pythonbrew uninstall Python-2.6.6
+  pythonbrew uninstall 2.6.6
 
 Remove stale source folders and archives::
 
@@ -75,12 +69,7 @@ Show version::
 COMMANDS
 ========
 
-init
-  Run this once to setup the pythonbrew directory ready for installing.
-  
-  pythons into. Run it again if you decide to change PYTHONBREW_ROOT.
-
-install Python-<version>
+install <version>
   Build and install the given version of Python.
   
   Setuptools and pip is automatically installed.
@@ -90,14 +79,11 @@ install Python-<version>
 installed
   List the installed versions of python.
 
-switch Python-<version>
+switch <version>
   Switch to the given version.
 
-switch /path/to/python
-  Switch to the given version of python.
-
-search Python-<version>
-  Search Python packages.
+list <version>
+  List the available install version of python.
   
 uninstall Python-<version>
   Uninstall the given version of python.

@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+PYTHON=`command -v python`
+
+usage()
+{
+    printf "
+  Usage:
+
+    ${0} [options]
+
+    options:
+
+      --python    : Python interpreter.
+
+"
+}
+
+parse_arguments()
+{
+    for arg do
+        val=`echo "$arg" | sed -e "s;--[^=]*=;;"`
+        case "$arg" in
+            --python=*) PYTHON="$val" ;;
+            --help) usage ;;
+            *) echo "Can't find the option. :$arg";;
+        esac
+    done
+}
+
+parse_arguments $@
+
+if [[ ! -x $PYTHON ]] ; then
+    echo "I think $PYTHON is not Python interpreter."
+    exit
+fi
+
+PYTHON_VERSION=`$PYTHON -V 2>&1`
+PYTHON_VERSION=${PYTHON_VERSION/"Python "/""}
+PYTHON_VERSION_S=`echo $PYTHON_VERSION | sed -e "s/\(^[[:digit:]]\{1,\}.[[:digit:]]\{1,\}\).*/\1/"`
+
+if [[ $PYTHON_VERSION_S != "2.4" ]] && [[ $PYTHON_VERSION_S != "2.5" ]] && [[ $PYTHON_VERSION_S != "2.6" ]] ; then
+    printf "Python's version is $PYTHON_VERSION_S:
+  2.4 <= python < 3.0 is required.
+"
+    exit
+fi
+
+ROOT="$HOME/.pythonbrew"
+if [[ -n $PYTHONBREW_ROOT ]] ; then
+    ROOT=$PYTHONBREW_ROOT
+fi
+PATH_DISTS="$ROOT/dists"
+PATH_ETC="$ROOT/etc"
+
+mkdir -p $PATH_DISTS
+rm -rf $PATH_DISTS/pythonbrew.tar.gz
+rm -rf $PATH_DISTS/utahta-pythonbrew*
+
+TEMP_TARBALL="pythonbrew.tar.gz"
+DOWNLOAD_URL="http://github.com/utahta/pythonbrew/tarball/master"
+
+echo "Downloading $DOWNLOAD_URL"
+builtin cd $PATH_DISTS ; curl -L $DOWNLOAD_URL -o "$TEMP_TARBALL" > /dev/null 2>&1
+
+echo "Extracting $PATH_DISTS/$TEMP_TARBALL"
+builtin cd $PATH_DISTS ; tar zxf $TEMP_TARBALL
+
+TEMP_FILE=`ls $PATH_DISTS | grep utahta-pythonbrew`
+
+echo "Installing pythonbrew into $ROOT"
+$PYTHON $PATH_DISTS/$TEMP_FILE/pythonbrew_install.py
+if [[ $? == 1 ]] ; then
+    echo "Failed to install pythonbrew."
+    exit
+fi
+
+case $SHELL in
+    *tcsh)
+    shrc="cshrc"
+    yourshrc="tcshrc"
+    ;;
+
+    *csh)
+    shrc="cshrc"
+    yourshrc=$shrc
+    ;;
+
+    *)
+    shrc="bashrc"
+    yourshrc=$shrc
+    ;;
+esac
+
+printf "
+The pythonbrew is installed as:
+    
+  $ROOT/bin/pythonbrew
+
+You may trash the downloaded $0 from now on.
+
+Pythonbrew environment initiated, required directories are created under
+
+  $ROOT
+
+Well-done! Congratulations! Please add the following line to the end
+of your ~/.$yourshrc
+
+  source $PATH_ETC/$shrc
+
+After that, exit this shell, start a new one, and install some fresh
+pythons:
+
+  pythonbrew install 2.6.6
+  pythonbrew install 2.5.5
+
+For further instructions, run:
+
+  pythonbrew help
+
+The default help messages will popup and tell you what to do!
+
+Enjoy pythonbrew at $ROOT!!
+"
