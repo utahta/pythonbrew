@@ -6,3 +6,5 @@
   - Rename `search` to `list`.
   - Removed `init`.
   - Added syntax that `pythonbrew command <VERSION>`
+  - Change default PYTHONBREW_ROOT path as $HOME/.pythonbrew
+  

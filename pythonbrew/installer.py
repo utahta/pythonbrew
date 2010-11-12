@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     fp = open(PATH_BIN_PYTHONBREW, "w")
     fp.write("""#!/usr/bin/env bash
-%s %s/pythonbrew.py $@
+%s %s/pythonbrew.py "$@"
 """ % (sys.executable, PATH_SCRIPTS))
     fp.close()
     os.chmod(PATH_BIN_PYTHONBREW, 0755)
