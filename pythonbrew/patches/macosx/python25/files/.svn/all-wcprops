@@ -1,0 +1,89 @@
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/repository/macports/!svn/ver/60380/trunk/dports/lang/python25/files
+END
+patch-Misc-setuid-prog.c.diff
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/repository/macports/!svn/ver/34379/trunk/dports/lang/python25/files/patch-Misc-setuid-prog.c.diff
+END
+patch-FSIORefNum.diff
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repository/macports/!svn/ver/57516/trunk/dports/lang/python25/files/patch-FSIORefNum.diff
+END
+patch-Lib-cgi.py.diff
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/repository/macports/!svn/ver/34379/trunk/dports/lang/python25/files/patch-Lib-cgi.py.diff
+END
+patch-configure-arch_only.diff
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/repository/macports/!svn/ver/52864/trunk/dports/lang/python25/files/patch-configure-arch_only.diff
+END
+patch-Modules-posixmodule.c.diff
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/repository/macports/!svn/ver/34379/trunk/dports/lang/python25/files/patch-Modules-posixmodule.c.diff
+END
+patch-Lib-distutils-dist.py.diff
+K 25
+svn:wc:ra_dav:version-url
+V 101
+/repository/macports/!svn/ver/42997/trunk/dports/lang/python25/files/patch-Lib-distutils-dist.py.diff
+END
+patch-configure.diff
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/repository/macports/!svn/ver/34379/trunk/dports/lang/python25/files/patch-configure.diff
+END
+pyconfig.ed
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/repository/macports/!svn/ver/60380/trunk/dports/lang/python25/files/pyconfig.ed
+END
+python25
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/repository/macports/!svn/ver/50424/trunk/dports/lang/python25/files/python25
+END
+patch-configure-badcflags.diff
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/repository/macports/!svn/ver/40837/trunk/dports/lang/python25/files/patch-configure-badcflags.diff
+END
+patch-Makefile.pre.in.diff
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/repository/macports/!svn/ver/43000/trunk/dports/lang/python25/files/patch-Makefile.pre.in.diff
+END
+patch-setup.py.diff
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/repository/macports/!svn/ver/57388/trunk/dports/lang/python25/files/patch-setup.py.diff
+END
+patch-64bit.diff
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/repository/macports/!svn/ver/57388/trunk/dports/lang/python25/files/patch-64bit.diff
+END
+patch-pyconfig.h.in.diff
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/repository/macports/!svn/ver/55669/trunk/dports/lang/python25/files/patch-pyconfig.h.in.diff
+END

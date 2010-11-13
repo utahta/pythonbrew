@@ -1,6 +1,14 @@
 import sys
 import logging
 
+class LoggerInfo(object):
+    def log(self, level, msg, *arg, **keys):
+        sys.stdout.write("%s\n" % msg)
+
+class LoggerError(object):
+    def log(self, level, msg, *arg, **keys):
+        sys.stderr.write("ERROR: %s\n" % msg)
+
 class Logger(object):
     
     DEBUG = logging.DEBUG
@@ -9,18 +17,10 @@ class Logger(object):
     
     def __init__(self):
         self._consumers = []
-        consumer = logging.getLogger('info')
-        consumer.setLevel(Logger.INFO)
-        hdlr = logging.StreamHandler(sys.stdout)
-        hdlr.setFormatter(logging.Formatter("%(message)s"))
-        consumer.addHandler(hdlr)
+        consumer = LoggerInfo()
         self.add_consumer(Logger.INFO, consumer)
         
-        consumer = logging.getLogger('error')
-        consumer.setLevel(Logger.ERROR)
-        hdlr = logging.StreamHandler(sys.stderr)
-        hdlr.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-        consumer.addHandler(hdlr)
+        consumer = LoggerError()
         self.add_consumer(Logger.ERROR, consumer)
     
     def debug(self, msg, *args, **keys):

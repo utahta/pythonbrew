@@ -1,7 +1,21 @@
 import sys
 import urllib
+import urllib2
 from pythonbrew.util import size_format
 from pythonbrew.define import PYTHON_PACKAGE_URL, PYTHONBREW_UPDATE_URL
+from pythonbrew.log import logger
+
+def get_response_from_url(url):
+    try:
+        resp = urllib2.urlopen(url)
+    except urllib2.HTTPError, e:
+        logger.error("HTTP error %s while getting %s" % (e.code))
+        raise
+    except IOError, e:
+        # Typically an FTP error
+        logger.error("Error %s while getting %s" % (e))
+        raise
+    return resp
 
 class Downloader(object):
     def __init__(self):

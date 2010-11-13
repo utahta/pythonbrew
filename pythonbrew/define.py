@@ -18,6 +18,9 @@ PATH_LOG = "%s/log" % ROOT
 PATH_SCRIPTS = "%s/scripts" % ROOT
 PATH_SCRIPTS_PYTHONBREW = "%s/pythonbrew" % PATH_SCRIPTS
 PATH_SCRIPTS_PYTHONBREW_COMMANDS = "%s/commands" % PATH_SCRIPTS_PYTHONBREW
+PATH_PATCHES = "%s/patches" % ROOT
+PATH_PATCHES_MACOSX = "%s/macosx" % PATH_PATCHES
+PATH_PATCHES_MACOSX_PYTHON25 = "%s/python25" % PATH_PATCHES_MACOSX
 
 # file path
 PATH_BIN_PYTHONBREW = "%s/pythonbrew" % PATH_BIN
@@ -28,7 +31,8 @@ DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"
 
 # download pythonbrew url
 PYTHONBREW_UPDATE_URL = {
-    "head": "http://github.com/utahta/pythonbrew/tarball/master"
+    "head": "http://github.com/utahta/pythonbrew/tarball/master",
+    "0.5": "https://github.com/utahta/pythonbrew/tarball/0.5",
 }
 PYTHONBREW_DIRNAME = "utahta-pythonbrew"
 
@@ -46,11 +50,12 @@ _PYTHON_PACKAGE_VERSIONS = [
     "2.6", "2.6.1", "2.6.2", "2.6.3", "2.6.4", "2.6.5", "2.6.6",
     "2.7",
     "3.0", "3.0.1",
-    "3.1", "3.1.1", "3.1.2",    
+    "3.1", "3.1.1", "3.1.2",
 ]
 for version in _PYTHON_PACKAGE_VERSIONS:
     PYTHON_PACKAGE_URL[version] = "http://www.python.org/ftp/python/%s/Python-%s.tgz" % (version, version)
 del _PYTHON_PACKAGE_VERSIONS
 PYTHON_PACKAGE_URL["3.2a1"] = "http://www.python.org/ftp/python/3.2/Python-3.2a1.tgz"
 PYTHON_PACKAGE_URL["3.2a2"] = "http://www.python.org/ftp/python/3.2/Python-3.2a2.tgz"
+PYTHON_PACKAGE_URL["3.2a3"] = "http://www.python.org/ftp/python/3.2/Python-3.2a3.tgz"
 

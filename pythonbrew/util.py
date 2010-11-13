@@ -1,13 +1,13 @@
 import os
-import sys
 import errno
 import shutil
-import urllib
 import subprocess
 import re
+import posixpath
 from pythonbrew.define import PATH_BIN, PATH_PYTHONS
 from pythonbrew.exceptions import BuildingException
 from pythonbrew.log import logger
+import tarfile
 
 def size_format(b):
     kb = 1000
@@ -39,6 +39,18 @@ def is_archive_file(name):
         return True
     return False
 
+def is_html(content_type):
+    if content_type and content_type.startswith('text/html'):
+        return True
+    return False
+
+def is_gzip(content_type, filename):
+    if (content_type == 'application/x-gzip'
+          or tarfile.is_tarfile(filename)
+          or splitext(filename)[1].lower() in ('.tar', '.tar.gz', '.tar.bz2', '.tgz', '.tbz')):
+        return True
+    return False
+    
 def makedirs(path):
     try:
         os.makedirs(path)
@@ -73,7 +85,82 @@ def off():
                 continue
             unlink("%s/%s" % (root, f))
     unlink("%s/current" % PATH_PYTHONS)
-    
+
+def split_leading_dir(path):
+    path = str(path)
+    path = path.lstrip('/').lstrip('\\')
+    if '/' in path and (('\\' in path and path.find('/') < path.find('\\'))
+                        or '\\' not in path):
+        return path.split('/', 1)
+    elif '\\' in path:
+        return path.split('\\', 1)
+    else:
+        return path, ''
+
+def has_leading_dir(paths):
+    """Returns true if all the paths have the same leading path name
+    (i.e., everything is in one subdirectory in an archive)"""
+    common_prefix = None
+    for path in paths:
+        prefix, rest = split_leading_dir(path)
+        if not prefix:
+            return False
+        elif common_prefix is None:
+            common_prefix = prefix
+        elif prefix != common_prefix:
+            return False
+    return True
+
+def untar_file(filename, location):
+    if not os.path.exists(location):
+        makedirs(location)
+    if filename.lower().endswith('.gz') or filename.lower().endswith('.tgz'):
+        mode = 'r:gz'
+    elif filename.lower().endswith('.bz2') or filename.lower().endswith('.tbz'):
+        mode = 'r:bz2'
+    elif filename.lower().endswith('.tar'):
+        mode = 'r'
+    else:
+        logger.error('Cannot determine compression type for file %s' % filename)
+        mode = 'r:*'
+    tar = tarfile.open(filename, mode)
+    try:
+        # note: python<=2.5 doesnt seem to know about pax headers, filter them
+        leading = has_leading_dir([
+            member.name for member in tar.getmembers()
+            if member.name != 'pax_global_header'
+        ])
+        for member in tar.getmembers():
+            fn = member.name
+            if fn == 'pax_global_header':
+                continue
+            if leading:
+                fn = split_leading_dir(fn)[1]
+            path = os.path.join(location, fn)
+            if member.isdir():
+                if not os.path.exists(path):
+                    os.makedirs(path)
+            else:
+                try:
+                    fp = tar.extractfile(member)
+                except (KeyError, AttributeError), e:
+                    # Some corrupt tar files seem to produce this
+                    # (specifically bad symlinks)
+                    logger.error('In the tar file %s the member %s is invalid: %s'
+                                  % (filename, member.name, e))
+                    continue
+                if not os.path.exists(os.path.dirname(path)):
+                    os.makedirs(os.path.dirname(path))
+                destfp = open(path, 'wb')
+                try:
+                    shutil.copyfileobj(fp, destfp)
+                finally:
+                    destfp.close()
+                os.chmod(path, member.mode)
+                fp.close()
+    finally:
+        tar.close()
+
 class Subprocess(object):
     def __init__(self, log=None, shell=False, cwd=None, print_cmd=True):
         self._log = log
@@ -108,4 +195,23 @@ class Package(object):
         else:
             self.name = "Python-%s" % name
             self.version = name
+
+class Link(object):
+    def __init__(self, url):
+        self._url = url
+    
+    @property
+    def filename(self):
+        url = self._url
+        url = url.split('#', 1)[0]
+        url = url.split('?', 1)[0]
+        url = url.rstrip('/')
+        name = posixpath.basename(url)
+        assert name, ('URL %r produced no filename' % url)
+        return name
+    
+    @property
+    def show_msg(self):
+        return posixpath.basename(self._url.split('#', 1)[0].split('?', 1)[0])
+
         

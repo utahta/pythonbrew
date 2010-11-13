@@ -18,7 +18,7 @@ class UpdateCommand(Command):
             version = args[0]
             
         # check for latest version
-        if version == VERSION:
+        if version <= VERSION:
             logger.info("You are already running the installed latest version of pythonbrew.")
             sys.exit()
         

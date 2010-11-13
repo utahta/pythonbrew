@@ -35,6 +35,7 @@ Install some Pythons::
   pythonbrew install Python-2.5.5
   pythonbrew install --configure="CC=gcc_4.1" Python-2.6.6
   pythonbrew install --no-setuptools Python-2.6.6
+  pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.7.tgz
   
 Switch python in the $PATH::
 
