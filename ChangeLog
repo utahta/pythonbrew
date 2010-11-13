@@ -1,3 +1,7 @@
+* 0.6
+  - Compiling Python-2.5.5 and Python-2.4.6 on MacOSX SnowLeopard
+  - Bug fix
+
 * 0.5
   - This version is incompatible with the 0.4 or less.
   - Split the file.
@@ -7,4 +11,11 @@
   - Removed `init`.
   - Added syntax that `pythonbrew command <VERSION>`
   - Change default PYTHONBREW_ROOT path as $HOME/.pythonbrew
-  
+
+* 0.4
+* 0.3
+* 0.2
+  - Bug fix
+
+* 0.1
+  - First release  

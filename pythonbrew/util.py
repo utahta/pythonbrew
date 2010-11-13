@@ -8,6 +8,7 @@ from pythonbrew.define import PATH_BIN, PATH_PYTHONS
 from pythonbrew.exceptions import BuildingException
 from pythonbrew.log import logger
 import tarfile
+import platform
 
 def size_format(b):
     kb = 1000
@@ -50,7 +51,20 @@ def is_gzip(content_type, filename):
           or splitext(filename)[1].lower() in ('.tar', '.tar.gz', '.tar.bz2', '.tgz', '.tbz')):
         return True
     return False
-    
+
+def is_macosx_snowleopard():
+    mac_ver = platform.mac_ver()[0]
+    return mac_ver >= '10.6' and mac_ver < '10.7'
+
+def is_python24(version):
+    return version >= '2.4' and version < '2.5'
+
+def is_python25(version):
+    return version >= '2.5' and version < '2.6'
+
+def is_python26(version):
+    return version >= '2.6' and version < '2.7'
+
 def makedirs(path):
     try:
         os.makedirs(path)

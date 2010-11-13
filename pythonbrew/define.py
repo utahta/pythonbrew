@@ -1,30 +1,31 @@
 import os
 
-VERSION = "0.5"
+VERSION = "0.6"
 
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
 else:
-    ROOT = "%s/.pythonbrew" % os.environ["HOME"]
+    ROOT = os.path.join(os.environ["HOME"],".pythonbrew")
 
 INSTALLER_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-PATH_PYTHONS = "%s/pythons" % ROOT
-PATH_BUILD = "%s/build" % ROOT
-PATH_DISTS = "%s/dists" % ROOT
-PATH_ETC = "%s/etc" % ROOT
-PATH_BIN = "%s/bin" % ROOT
-PATH_LOG = "%s/log" % ROOT
-PATH_SCRIPTS = "%s/scripts" % ROOT
-PATH_SCRIPTS_PYTHONBREW = "%s/pythonbrew" % PATH_SCRIPTS
-PATH_SCRIPTS_PYTHONBREW_COMMANDS = "%s/commands" % PATH_SCRIPTS_PYTHONBREW
-PATH_PATCHES = "%s/patches" % ROOT
-PATH_PATCHES_MACOSX = "%s/macosx" % PATH_PATCHES
-PATH_PATCHES_MACOSX_PYTHON25 = "%s/python25" % PATH_PATCHES_MACOSX
+PATH_PYTHONS = os.path.join(ROOT,"pythons")
+PATH_BUILD = os.path.join(ROOT,"build")
+PATH_DISTS = os.path.join(ROOT,"dists")
+PATH_ETC = os.path.join(ROOT,"etc")
+PATH_BIN = os.path.join(ROOT,"bin")
+PATH_LOG = os.path.join(ROOT,"log")
+PATH_SCRIPTS = os.path.join(ROOT,"scripts")
+PATH_SCRIPTS_PYTHONBREW = os.path.join(PATH_SCRIPTS,"pythonbrew")
+PATH_SCRIPTS_PYTHONBREW_COMMANDS = os.path.join(PATH_SCRIPTS_PYTHONBREW,"commands")
+PATH_PATCHES = os.path.join(ROOT,"patches")
+PATH_PATCHES_MACOSX = os.path.join(PATH_PATCHES,"macosx")
+PATH_PATCHES_MACOSX_PYTHON25 = os.path.join(PATH_PATCHES_MACOSX,"python25")
+PATH_PATCHES_MACOSX_PYTHON24 = os.path.join(PATH_PATCHES_MACOSX,"python24")
 
 # file path
-PATH_BIN_PYTHONBREW = "%s/pythonbrew" % PATH_BIN
-PATH_BIN_PYBREW = "%s/pybrew" % PATH_BIN # pybrew is symlink as pythonbrew
+PATH_BIN_PYTHONBREW = os.path.join(PATH_BIN,"pythonbrew")
+PATH_BIN_PYBREW = os.path.join(PATH_BIN,"pybrew") # pybrew is symlink as pythonbrew
 
 # download setuptools url 
 DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"

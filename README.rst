@@ -17,7 +17,7 @@ The recommended way to download and install pythonbrew is to run these statement
   chmod +x pythonbrew-install
   ./pythonbrew-install
 
-After that, pythonbrew installs itself to ~/.pythonbrew/bin, and you should follow the instruction on screen to setup your .bashrc or .cshrc to put it in your PATH.
+After that, pythonbrew installs itself to ~/.pythonbrew, and you should follow the instruction on screen to setup your .bashrc or .cshrc to put it in your PATH.
 
 If you need to install pythonbrew into somewhere else, you can do that by setting a PYTHONBREW_ROOT environment variable.::
 
