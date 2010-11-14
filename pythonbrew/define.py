@@ -34,6 +34,7 @@ DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"
 PYTHONBREW_UPDATE_URL = {
     "head": "http://github.com/utahta/pythonbrew/tarball/master",
     "0.5": "https://github.com/utahta/pythonbrew/tarball/0.5",
+    "0.6": "https://github.com/utahta/pythonbrew/tarball/0.6",
 }
 PYTHONBREW_DIRNAME = "utahta-pythonbrew"
 
@@ -59,4 +60,9 @@ del _PYTHON_PACKAGE_VERSIONS
 PYTHON_PACKAGE_URL["3.2a1"] = "http://www.python.org/ftp/python/3.2/Python-3.2a1.tgz"
 PYTHON_PACKAGE_URL["3.2a2"] = "http://www.python.org/ftp/python/3.2/Python-3.2a2.tgz"
 PYTHON_PACKAGE_URL["3.2a3"] = "http://www.python.org/ftp/python/3.2/Python-3.2a3.tgz"
+
+LATEST_VERSIONS_OF_PYTHON = ['1.5.2', '1.6.1', 
+                             '2.0.1', '2.1.3', '2.2.3', '2.3.7', '2.4.6', '2.5.5', '2.6.6', '2.7', 
+                             '3.0.1', '3.1.2', '3.2a3']
+
 

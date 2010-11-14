@@ -9,12 +9,12 @@ def get_response_from_url(url):
     try:
         resp = urllib2.urlopen(url)
     except urllib2.HTTPError, e:
-        logger.error("HTTP error %s while getting %s" % (e.code))
-        raise
+        logger.error("HTTP error %s while getting %s" % (e.code, url))
+        sys.exit(1)
     except IOError, e:
         # Typically an FTP error
-        logger.error("Error %s while getting %s" % (e))
-        raise
+        logger.error("Error %s while getting %s" % (e, url))
+        sys.exit(1)
     return resp
 
 class Downloader(object):
