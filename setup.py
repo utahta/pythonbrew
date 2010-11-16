@@ -2,7 +2,7 @@ import os
 from setuptools import setup, find_packages
 from pythonbrew.define import VERSION
 
-README = os.path.join(os.path.dirname(__file__),'README.rst')
+README = os.path.join(os.path.dirname(__file__),'PKG-INFO')
 long_description = open(README).read() + "\n"
 
 setup(name='pythonbrew',
