@@ -2,7 +2,7 @@ import sys
 import urllib
 import urllib2
 from pythonbrew.util import size_format
-from pythonbrew.define import PYTHON_PACKAGE_URL, PYTHONBREW_UPDATE_URL
+from pythonbrew.define import PYTHON_VERSION_URL, PYTHONBREW_UPDATE_URL
 from pythonbrew.log import logger
 
 def get_response_from_url(url):
@@ -47,7 +47,7 @@ def get_pythonbrew_update_url(version):
         return PYTHONBREW_UPDATE_URL[version]
     return None
 
-def get_python_package_url(version):
-    if PYTHON_PACKAGE_URL.has_key(version):
-        return PYTHON_PACKAGE_URL[version]
+def get_python_version_url(version):
+    if PYTHON_VERSION_URL.has_key(version):
+        return PYTHON_VERSION_URL[version]
     return None

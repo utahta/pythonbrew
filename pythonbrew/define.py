@@ -37,11 +37,11 @@ PYTHONBREW_UPDATE_URL = {
     "0.6": "https://github.com/utahta/pythonbrew/tarball/0.6",
 }
 
-# download Python package url
-PYTHON_PACKAGE_URL = {}
-PYTHON_PACKAGE_URL["1.5.2"] = "http://www.python.org/ftp/python/src/py152.tgz"
-PYTHON_PACKAGE_URL["1.6.1"] = "http://www.python.org/download/releases/1.6.1/Python-1.6.1.tar.gz"
-_PYTHON_PACKAGE_VERSIONS = [
+# download Python version url
+PYTHON_VERSION_URL = {}
+PYTHON_VERSION_URL["1.5.2"] = "http://www.python.org/ftp/python/src/py152.tgz"
+PYTHON_VERSION_URL["1.6.1"] = "http://www.python.org/download/releases/1.6.1/Python-1.6.1.tar.gz"
+_PYTHON_VERSIONS_LIST = [
     "2.0", "2.0.1",
     "2.1", "2.1.1", "2.1.2", "2.1.3",
     "2.2", "2.2.1", "2.2.2", "2.2.3",
@@ -53,12 +53,12 @@ _PYTHON_PACKAGE_VERSIONS = [
     "3.0", "3.0.1",
     "3.1", "3.1.1", "3.1.2",
 ]
-for version in _PYTHON_PACKAGE_VERSIONS:
-    PYTHON_PACKAGE_URL[version] = "http://www.python.org/ftp/python/%s/Python-%s.tgz" % (version, version)
-del _PYTHON_PACKAGE_VERSIONS
-PYTHON_PACKAGE_URL["3.2a1"] = "http://www.python.org/ftp/python/3.2/Python-3.2a1.tgz"
-PYTHON_PACKAGE_URL["3.2a2"] = "http://www.python.org/ftp/python/3.2/Python-3.2a2.tgz"
-PYTHON_PACKAGE_URL["3.2a3"] = "http://www.python.org/ftp/python/3.2/Python-3.2a3.tgz"
+for version in _PYTHON_VERSIONS_LIST:
+    PYTHON_VERSION_URL[version] = "http://www.python.org/ftp/python/%s/Python-%s.tgz" % (version, version)
+del _PYTHON_VERSIONS_LIST
+PYTHON_VERSION_URL["3.2a1"] = "http://www.python.org/ftp/python/3.2/Python-3.2a1.tgz"
+PYTHON_VERSION_URL["3.2a2"] = "http://www.python.org/ftp/python/3.2/Python-3.2a2.tgz"
+PYTHON_VERSION_URL["3.2a3"] = "http://www.python.org/ftp/python/3.2/Python-3.2a3.tgz"
 
 LATEST_VERSIONS_OF_PYTHON = ['1.5.2', '1.6.1', 
                              '2.0.1', '2.1.3', '2.2.3', '2.3.7', '2.4.6', '2.5.5', '2.6.6', '2.7', 

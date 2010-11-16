@@ -36,6 +36,6 @@ class InstallCommand(Command):
             # Install Python
             PythonInstaller(args[0], options).install()
         else:
-            logger.error("Package not found.")
+            logger.info("Unknown python version.")
     
 InstallCommand()

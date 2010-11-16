@@ -12,7 +12,7 @@ from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_SCRIPTS_PYTHONBREW_COMMANDS, INSTALLER_ROOT, PATH_BIN_PYTHONBREW,\
     PATH_BIN_PYBREW, ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE, PATH_PATCHES,\
     PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24
-from pythonbrew.downloader import get_python_package_url, Downloader,\
+from pythonbrew.downloader import get_python_version_url, Downloader,\
     get_response_from_url
 from pythonbrew.log import logger
 
@@ -99,9 +99,9 @@ class PythonInstaller(object):
             pkg = Package(splitext(filename)[0])
         else:
             pkg = Package(arg)
-            self.download_url = get_python_package_url(pkg.version)
+            self.download_url = get_python_version_url(pkg.version)
             if not self.download_url:
-                logger.error("Unknown package: `%s`" % pkg.name)
+                logger.info("Unknown python version: `%s`" % pkg.name)
                 sys.exit(1)
             filename = Link(self.download_url).filename
         self.pkg = pkg
