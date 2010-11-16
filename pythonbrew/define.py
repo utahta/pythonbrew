@@ -36,7 +36,6 @@ PYTHONBREW_UPDATE_URL = {
     "0.5": "https://github.com/utahta/pythonbrew/tarball/0.5",
     "0.6": "https://github.com/utahta/pythonbrew/tarball/0.6",
 }
-PYTHONBREW_DIRNAME = "utahta-pythonbrew"
 
 # download Python package url
 PYTHON_PACKAGE_URL = {}

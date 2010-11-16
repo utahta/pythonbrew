@@ -89,7 +89,7 @@ def rm_r(path):
     """like rm -r command."""
     if os.path.isdir(path):
         shutil.rmtree(path)
-    else:
+    elif os.path.isfile(path):
         unlink(path)
 
 def off():
@@ -175,8 +175,17 @@ def untar_file(filename, location):
     finally:
         tar.close()
 
+def unpack_downloadfile(content_type, download_file, target_dir):
+    logger.info("Extracting %s" % os.path.basename(download_file))
+    if is_gzip(content_type, download_file):
+        untar_file(download_file, target_dir)
+    else:
+        logger.error("Cannot determine archive format of %s" % download_file)
+        return False
+    return True
+        
 class Subprocess(object):
-    def __init__(self, log=None, shell=False, cwd=None, print_cmd=True):
+    def __init__(self, log=None, shell=True, cwd=None, print_cmd=False):
         self._log = log
         self._shell = shell
         self._cwd = cwd

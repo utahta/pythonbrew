@@ -1,11 +1,13 @@
 import os
 import sys
-import re
 from pythonbrew.basecommand import Command
-from pythonbrew.define import PATH_DISTS, VERSION, PYTHONBREW_DIRNAME, ROOT
+from pythonbrew.define import PATH_DISTS, VERSION, ROOT,\
+    PATH_BUILD
 from pythonbrew.log import logger
-from pythonbrew.downloader import Downloader, get_pythonbrew_update_url
-from pythonbrew.util import Subprocess, rm_r
+from pythonbrew.downloader import Downloader, get_pythonbrew_update_url,\
+    get_response_from_url
+from pythonbrew.util import rm_r, is_html, unpack_downloadfile
+from pythonbrew.installer import PythonbrewInstaller
 
 class UpdateCommand(Command):
     name = "update"
@@ -26,39 +28,34 @@ class UpdateCommand(Command):
         if not download_url:
             logger.error("`%s` of pythonbrew not found." % version)
             sys.exit(1)
+        resp = get_response_from_url(download_url)
+        content_type = resp.info()['content-type']
+        if is_html(content_type):
+            logger.error("Invalid content-type: `%s`" % content_type)
+            sys.exit(1)
         
         distname = "pythonbrew.tgz"
-        download_path = "%s/%s" % (PATH_DISTS, distname)
+        download_file = os.path.join(PATH_DISTS, distname)
         try:
             d = Downloader()
-            d.download(distname, download_url, download_path)
+            d.download(distname, download_url, download_file)
         except:
             logger.error("Failed to download. `%s`" % download_url)
             sys.exit(1)
-
-        _re = re.compile("^%s.*" % PYTHONBREW_DIRNAME)
-        for name in os.listdir(PATH_DISTS):
-            if _re.match(name):
-                rm_r("%s/%s" % (PATH_DISTS, name))
-        try:
-            s = Subprocess(shell=True, cwd=PATH_DISTS, print_cmd=False)
-            logger.info("Extracting %s" % download_path)
-            s.check_call("tar zxf %s" % download_path)
-        except:
-            logger.error("Failed to update pythonbrew.")
+        
+        extract_dir = os.path.join(PATH_BUILD, "pythonbrew")
+        rm_r(extract_dir)
+        if not unpack_downloadfile(content_type, download_file, extract_dir):
             sys.exit(1)
         
-        for name in os.listdir(PATH_DISTS):
-            if _re.match(name):
-                try:
-                    installer_path = "%s/%s" % (PATH_DISTS, name)
-                    s = Subprocess(shell=True, cwd=PATH_DISTS, print_cmd=False)
-                    logger.info("Installing %s into %s" % (installer_path, ROOT))
-                    s.check_call("%s %s/pythonbrew_install.py" % (sys.executable, installer_path))
-                except:
-                    logger.error("Failed to update pythonbrew.")
-                    sys.exit(1)
-                break
+        try:
+            installer_path = "%s/pythonbrew" % (extract_dir)
+            logger.info("Installing %s into %s" % (extract_dir, ROOT))
+            PythonbrewInstaller().install(installer_path)
+        except:
+            logger.error("Failed to update pythonbrew.")
+            raise
+            sys.exit(1)
         logger.info("The pythonbrew has been updated.")
 
 UpdateCommand()

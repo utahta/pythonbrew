@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 PYTHON=`command -v python`
+CURL=`command -v curl`
 
 usage()
 {
@@ -31,8 +32,11 @@ parse_arguments()
 parse_arguments $@
 
 if [[ ! -x $PYTHON ]] ; then
-    echo "I think $PYTHON is not Python interpreter."
+    echo "Python (2.4, 2.5 or 2.6) is required."
     exit
+fi
+if [[ ! -x $CURL ]] ; then
+    echo "curl is required."
 fi
 
 PYTHON_VERSION=`$PYTHON -V 2>&1`
@@ -61,7 +65,7 @@ TEMP_TARBALL="pythonbrew.tar.gz"
 DOWNLOAD_URL="http://github.com/utahta/pythonbrew/tarball/master"
 
 echo "Downloading $DOWNLOAD_URL"
-builtin cd $PATH_DISTS ; curl -L $DOWNLOAD_URL -o "$TEMP_TARBALL" > /dev/null 2>&1
+builtin cd $PATH_DISTS ; curl -sL $DOWNLOAD_URL -o "$TEMP_TARBALL"
 
 echo "Extracting $PATH_DISTS/$TEMP_TARBALL"
 builtin cd $PATH_DISTS ; tar zxf $TEMP_TARBALL
@@ -74,51 +78,3 @@ if [[ $? == 1 ]] ; then
     echo "Failed to install pythonbrew."
     exit
 fi
-
-case $SHELL in
-    *tcsh)
-    shrc="cshrc"
-    yourshrc="tcshrc"
-    ;;
-
-    *csh)
-    shrc="cshrc"
-    yourshrc=$shrc
-    ;;
-
-    *)
-    shrc="bashrc"
-    yourshrc=$shrc
-    ;;
-esac
-
-printf "
-The pythonbrew is installed as:
-    
-  $ROOT/bin/pythonbrew
-
-You may trash the downloaded $0 from now on.
-
-Pythonbrew environment initiated, required directories are created under
-
-  $ROOT
-
-Well-done! Congratulations! Please add the following line to the end
-of your ~/.$yourshrc
-
-  source $PATH_ETC/$shrc
-
-After that, exit this shell, start a new one, and install some fresh
-pythons:
-
-  pythonbrew install 2.6.6
-  pythonbrew install 2.5.5
-
-For further instructions, run:
-
-  pythonbrew help
-
-The default help messages will popup and tell you what to do!
-
-Enjoy pythonbrew at $ROOT!!
-"

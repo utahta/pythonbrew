@@ -4,8 +4,9 @@ import glob
 import shutil
 import re
 from pythonbrew.util import makedirs, symlink, Package, is_url, splitext, Link,\
-    unlink, is_gzip, is_html, untar_file, Subprocess, rm_r,\
-    is_macosx_snowleopard, is_python25, is_python24, is_python26
+    unlink, is_html, Subprocess, rm_r,\
+    is_macosx_snowleopard, is_python25, is_python24, is_python26,\
+    unpack_downloadfile
 from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_ETC, PATH_SCRIPTS, PATH_SCRIPTS_PYTHONBREW,\
     PATH_SCRIPTS_PYTHONBREW_COMMANDS, INSTALLER_ROOT, PATH_BIN_PYTHONBREW,\
@@ -16,42 +17,79 @@ from pythonbrew.downloader import get_python_package_url, Downloader,\
 from pythonbrew.log import logger
 
 def install_pythonbrew():
-    makedirs(PATH_PYTHONS)
-    makedirs(PATH_BUILD)
-    makedirs(PATH_DISTS)
-    makedirs(PATH_ETC)
-    makedirs(PATH_BIN)
-    makedirs(PATH_LOG)
-    makedirs(PATH_SCRIPTS)
-    makedirs(PATH_SCRIPTS_PYTHONBREW)
-    makedirs(PATH_SCRIPTS_PYTHONBREW_COMMANDS)
-
-    for path in glob.glob(os.path.join(INSTALLER_ROOT,"*.py")):
-        shutil.copy(path, PATH_SCRIPTS_PYTHONBREW)
-
-    for path in glob.glob(os.path.join(INSTALLER_ROOT,"commands","*.py")):
-        shutil.copy(path, PATH_SCRIPTS_PYTHONBREW_COMMANDS)
+    PythonbrewInstaller().install(INSTALLER_ROOT)
     
-    rm_r(PATH_PATCHES)
-    shutil.copytree(os.path.join(INSTALLER_ROOT,"patches"), PATH_PATCHES)
+    m = re.search("(t?csh)", os.environ.get("SHELL"))
+    if m:
+        shrc = "cshrc"
+        yourshrc = m.group(1)+"rc"
+    else:
+        shrc = yourshrc = "bashrc"
     
-    fp = open("%s/pythonbrew_main.py" % PATH_SCRIPTS, "w")
-    fp.write("""import pythonbrew
+    logger.info("""
+Well-done! Congratulations!
+
+The pythonbrew is installed as:
+    
+  %(ROOT)s
+
+Please add the following line to the end of your ~/.%(yourshrc)s
+
+  source %(PATH_ETC)s/%(shrc)s
+
+After that, exit this shell, start a new one, and install some fresh
+pythons:
+
+  pythonbrew install 2.6.6
+  pythonbrew install 2.5.5
+
+For further instructions, run:
+
+  pythonbrew help
+
+The default help messages will popup and tell you what to do!
+
+Enjoy pythonbrew at %(ROOT)s!!
+""" % {'ROOT':ROOT, 'yourshrc':yourshrc, 'shrc':shrc, 'PATH_ETC':PATH_ETC})
+
+class PythonbrewInstaller(object):
+    def install(self, installer_root):
+        makedirs(PATH_PYTHONS)
+        makedirs(PATH_BUILD)
+        makedirs(PATH_DISTS)
+        makedirs(PATH_ETC)
+        makedirs(PATH_BIN)
+        makedirs(PATH_LOG)
+        makedirs(PATH_SCRIPTS)
+        makedirs(PATH_SCRIPTS_PYTHONBREW)
+        makedirs(PATH_SCRIPTS_PYTHONBREW_COMMANDS)
+    
+        for path in glob.glob(os.path.join(installer_root,"*.py")):
+            shutil.copy(path, PATH_SCRIPTS_PYTHONBREW)
+    
+        for path in glob.glob(os.path.join(installer_root,"commands","*.py")):
+            shutil.copy(path, PATH_SCRIPTS_PYTHONBREW_COMMANDS)
+        
+        rm_r(PATH_PATCHES)
+        shutil.copytree(os.path.join(installer_root,"patches"), PATH_PATCHES)
+        
+        fp = open("%s/pythonbrew_main.py" % PATH_SCRIPTS, "w")
+        fp.write("""import pythonbrew
 if __name__ == "__main__":
     pythonbrew.main()
 """)
-    fp.close()
-
-    fp = open(PATH_BIN_PYTHONBREW, "w")
-    fp.write("""#!/usr/bin/env bash
+        fp.close()
+    
+        fp = open(PATH_BIN_PYTHONBREW, "w")
+        fp.write("""#!/usr/bin/env bash
 %s %s/pythonbrew_main.py "$@"
 """ % (sys.executable, PATH_SCRIPTS))
-    fp.close()
-    os.chmod(PATH_BIN_PYTHONBREW, 0755)
-    symlink(PATH_BIN_PYTHONBREW, PATH_BIN_PYBREW) # pyb as pythonbrew
-
-    os.system("echo 'export PATH=%s/bin:%s/current/bin:${PATH}' > %s/bashrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
-    os.system("echo 'setenv PATH %s/bin:%s/current/bin:$PATH' > %s/cshrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
+        fp.close()
+        os.chmod(PATH_BIN_PYTHONBREW, 0755)
+        symlink(PATH_BIN_PYTHONBREW, PATH_BIN_PYBREW) # pybrew is symbolic pythonbrew
+        
+        os.system("echo 'export PATH=%s/bin:%s/current/bin:${PATH}' > %s/bashrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
+        os.system("echo 'setenv PATH %s/bin:%s/current/bin:$PATH' > %s/cshrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
 
 class PythonInstaller(object):
     def __init__(self, arg, options):
@@ -132,16 +170,13 @@ class PythonInstaller(object):
             sys.exit(1)
 
     def unpack(self):
-        logger.info("Extracting %s" % os.path.basename(self.download_file))
-        if is_gzip(self.content_type, self.download_file):
-            untar_file(self.download_file, self.build_dir)
-        else:
-            logger.error("Cannot determine archive format of %s" % self.download_file)
+        if not unpack_downloadfile(self.content_type, self.download_file, self.build_dir):
+            sys.exit(1)
     
     def patch(self):
         version = self.pkg.version
         try:
-            s = Subprocess(log=self.logfile, shell=True, cwd=self.build_dir, print_cmd=False)
+            s = Subprocess(log=self.logfile, cwd=self.build_dir)
             patches = []
             if is_macosx_snowleopard():
                 if is_python24(version):
@@ -179,11 +214,11 @@ class PythonInstaller(object):
             elif is_python26(version):
                 configure_option = '--with-universal-archs="intel" MACOSX_DEPLOYMENT_TARGET=10.6'
         
-        s = Subprocess(log=self.logfile, shell=True, cwd=self.build_dir, print_cmd=False)
+        s = Subprocess(log=self.logfile, cwd=self.build_dir)
         s.check_call("./configure --prefix=%s %s %s" % (self.install_dir, self.options.configure, configure_option))
         
     def make(self):
-        s = Subprocess(log=self.logfile, shell=True, cwd=self.build_dir, print_cmd=False)
+        s = Subprocess(log=self.logfile, cwd=self.build_dir)
         if self.options.force:
             s.check_call("make")
         else:
@@ -194,7 +229,7 @@ class PythonInstaller(object):
         version = self.pkg.version
         if version == "1.5.2" or version == "1.6.1":
             makedirs(self.install_dir)
-        s = Subprocess(log=self.logfile, shell=True, cwd=self.build_dir, print_cmd=False)
+        s = Subprocess(log=self.logfile, cwd=self.build_dir)
         s.check_call("make install")
             
     def install_setuptools(self):
@@ -227,12 +262,12 @@ class PythonInstaller(object):
             pyexec = os.path.join(install_dir,"bin","python")
         
         try:
-            s = Subprocess(log=self.logfile, shell=True, cwd=PATH_DISTS, print_cmd=False)
+            s = Subprocess(log=self.logfile, cwd=PATH_DISTS)
             logger.info("Installing distribute into %s" % install_dir)
             s.check_call("%s %s" % (pyexec, filename))
             if os.path.isfile("%s/bin/easy_install" % (install_dir)) and not is_python3:
                 logger.info("Installing pip into %s" % install_dir)
-                s.check_call("%s/bin/easy_install pip" % (install_dir), cwd=None)
+                s.check_call("%s/bin/easy_install pip" % (install_dir))
         except:
             logger.error("Failed to install setuptools. See %s/build.log to see why." % (ROOT))
             logger.info("Skip install setuptools.")

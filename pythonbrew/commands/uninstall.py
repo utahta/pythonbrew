@@ -16,7 +16,7 @@ class UninstallCommand(Command):
             pkgname = pkg.name
             pkgpath = "%s/%s" % (PATH_PYTHONS, pkgname)
             if not os.path.isdir(pkgpath):
-                logger.error("`%s` is not installed." % pkgname)
+                logger.info("`%s` is not installed." % pkgname)
                 sys.exit(1)
             if os.path.islink("%s/current" % PATH_PYTHONS):
                 curpath = os.path.realpath("%s/current" % PATH_PYTHONS)
