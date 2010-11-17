@@ -1,1 +1,2 @@
 recursive-include pythonbrew/patches *
+include pythonbrew_install.py

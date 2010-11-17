@@ -1,6 +1,6 @@
 import os
 
-VERSION = "0.6"
+VERSION = "0.6.1"
 
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
@@ -31,11 +31,11 @@ PATH_BIN_PYBREW = os.path.join(PATH_BIN,"pybrew") # pybrew is symlink as pythonb
 DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"
 
 # download pythonbrew url
-PYTHONBREW_UPDATE_URL = {
-    "head": "http://github.com/utahta/pythonbrew/tarball/master",
-    "0.5": "https://github.com/utahta/pythonbrew/tarball/0.5",
-    "0.6": "https://github.com/utahta/pythonbrew/tarball/0.6",
-}
+PYTHONBREW_UPDATE_URL_HEAD = "http://github.com/utahta/pythonbrew/tarball/master"
+PYTHONBREW_UPDATE_URL_PYPI = "http://pypi.python.org/packages/source/p/pythonbrew/pythonbrew-%s.tar.gz"
+
+# stable version url
+PYTHONBREW_STABLE_VERSION_URL = "https://github.com/utahta/pythonbrew/raw/master/stable-version.txt"
 
 # download Python version url
 PYTHON_VERSION_URL = {}

@@ -2,7 +2,8 @@ import sys
 import urllib
 import urllib2
 from pythonbrew.util import size_format
-from pythonbrew.define import PYTHON_VERSION_URL, PYTHONBREW_UPDATE_URL
+from pythonbrew.define import PYTHON_VERSION_URL, PYTHONBREW_STABLE_VERSION_URL, \
+    PYTHONBREW_UPDATE_URL_PYPI, PYTHONBREW_UPDATE_URL_HEAD
 from pythonbrew.log import logger
 
 def get_response_from_url(url):
@@ -16,6 +17,10 @@ def get_response_from_url(url):
         logger.error("Error %s while getting %s" % (e, url))
         sys.exit(1)
     return resp
+
+def get_stable_version():
+    resp = get_response_from_url(PYTHONBREW_STABLE_VERSION_URL)
+    return resp.read()
 
 class Downloader(object):
     def __init__(self):
@@ -43,9 +48,10 @@ class Downloader(object):
         self._last_msg = now_msg
 
 def get_pythonbrew_update_url(version):
-    if PYTHONBREW_UPDATE_URL.has_key(version):
-        return PYTHONBREW_UPDATE_URL[version]
-    return None
+    if version == "head":
+        return PYTHONBREW_UPDATE_URL_HEAD
+    else:
+        return PYTHONBREW_UPDATE_URL_PYPI % (version)
 
 def get_python_version_url(version):
     if PYTHON_VERSION_URL.has_key(version):
