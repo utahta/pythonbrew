@@ -1,0 +1,20 @@
+PYTHONBREW_ROOT="@ROOT@"
+PYTHONBREW_ETC="$PYTHONBREW_ROOT/etc"
+
+export PATH=$PYTHONBREW_ROOT/bin:$PYTHONBREW_ROOT/pythons/current/bin:${PATH}
+
+__pythonbrew_reload()
+{
+    if [[ -s "$PYTHONBREW_ETC/bashrc" ]] ; then
+        source "$PYTHONBREW_ETC/bashrc"
+    fi
+}
+
+pythonbrew()
+{
+    command pythonbrew "$@"
+    case $1 in
+        update) __pythonbrew_reload ;; 
+    esac
+    hash -r
+}

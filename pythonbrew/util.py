@@ -5,7 +5,7 @@ import subprocess
 import re
 import posixpath
 from pythonbrew.define import PATH_BIN, PATH_PYTHONS
-from pythonbrew.exceptions import BuildingException
+from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
 import tarfile
 import platform
@@ -183,7 +183,7 @@ def unpack_downloadfile(content_type, download_file, target_dir):
         logger.error("Cannot determine archive format of %s" % download_file)
         return False
     return True
-        
+    
 class Subprocess(object):
     def __init__(self, log=None, shell=True, cwd=None, print_cmd=False):
         self._log = log
@@ -205,7 +205,7 @@ class Subprocess(object):
             cmd = "(%s) >> '%s' 2>&1" % (cmd, self._log)
         retcode = subprocess.call(cmd, shell=self._shell, cwd=self._cwd)
         if retcode != 0:
-            raise BuildingException()
+            raise ShellCommandException('Failed to `%s` command' % cmd)
 
 class Package(object):
     def __init__(self, name):

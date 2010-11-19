@@ -52,6 +52,9 @@ The default help messages will popup and tell you what to do!
 Enjoy pythonbrew at %(ROOT)s!!
 """ % {'ROOT':ROOT, 'yourshrc':yourshrc, 'shrc':shrc, 'PATH_ETC':PATH_ETC})
 
+def upgrade_pythonbrew():
+    PythonbrewInstaller().install(INSTALLER_ROOT)
+
 class PythonbrewInstaller(object):
     def install(self, installer_root):
         makedirs(PATH_PYTHONS)
@@ -88,7 +91,11 @@ if __name__ == "__main__":
         os.chmod(PATH_BIN_PYTHONBREW, 0755)
         symlink(PATH_BIN_PYTHONBREW, PATH_BIN_PYBREW) # pybrew is symbolic pythonbrew
         
-        os.system("echo 'export PATH=%s/bin:%s/current/bin:${PATH}' > %s/bashrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
+        fp = open(os.path.join(PATH_ETC,'bashrc'), 'w')
+        for line in open(os.path.join(installer_root,'scripts','bashrc')):
+            line = line.replace('@ROOT@', ROOT)
+            fp.write(line)
+        fp.close()
         os.system("echo 'setenv PATH %s/bin:%s/current/bin:$PATH' > %s/cshrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
 
 class PythonInstaller(object):

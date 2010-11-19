@@ -6,8 +6,7 @@ from pythonbrew.define import PATH_DISTS, VERSION, ROOT,\
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader, get_pythonbrew_update_url,\
     get_response_from_url, get_stable_version
-from pythonbrew.util import rm_r, unpack_downloadfile, Link, is_gzip
-from pythonbrew.installer import PythonbrewInstaller
+from pythonbrew.util import rm_r, unpack_downloadfile, Link, is_gzip, Subprocess
 
 class UpdateCommand(Command):
     name = "update"
@@ -51,9 +50,9 @@ class UpdateCommand(Command):
             sys.exit(1)
         
         try:
-            installer_path = "%s/pythonbrew" % (extract_dir)
             logger.info("Installing %s into %s" % (extract_dir, ROOT))
-            PythonbrewInstaller().install(installer_path)
+            s = Subprocess()
+            s.check_call('%s %s/pythonbrew_install.py --upgrade' % (sys.executable, extract_dir))
         except:
             logger.error("Failed to update pythonbrew.")
             raise

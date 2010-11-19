@@ -13,9 +13,7 @@ Following python version is required to use pythonbrew:
 
 The recommended way to download and install pythonbrew is to run these statements in your shell.::
 
-  curl -LO http://github.com/utahta/pythonbrew/raw/master/pythonbrew-install
-  chmod +x pythonbrew-install
-  ./pythonbrew-install
+  curl -kL http://github.com/utahta/pythonbrew/raw/master/pythonbrew-install | bash
 
 After that, pythonbrew installs itself to ~/.pythonbrew, and you should follow the instruction on screen to setup your .bashrc or .cshrc to put it in your PATH.
 

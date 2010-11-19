@@ -32,11 +32,11 @@ parse_arguments()
 parse_arguments $@
 
 if [[ ! -x $PYTHON ]] ; then
-    echo "Python (2.4, 2.5 or 2.6) is required."
+    echo "pythonbrew required Python (2.4, 2.5 or 2.6)."
     exit
 fi
 if [[ ! -x $CURL ]] ; then
-    echo "curl is required."
+    echo "pythonbrew required curl. curl was not found in your path."
 fi
 
 PYTHON_VERSION=`$PYTHON -V 2>&1`
@@ -55,9 +55,8 @@ if [[ -n $PYTHONBREW_ROOT ]] ; then
     ROOT=$PYTHONBREW_ROOT
 fi
 PATH_DISTS="$ROOT/dists"
-PATH_ETC="$ROOT/etc"
 
-STABLE_VERSION=`curl -sL https://github.com/utahta/pythonbrew/raw/master/stable-version.txt`
+STABLE_VERSION=`curl -skL https://github.com/utahta/pythonbrew/raw/master/stable-version.txt`
 TEMP_FILE="pythonbrew-$STABLE_VERSION"
 TEMP_TARBALL="$TEMP_FILE.tar.gz"
 DOWNLOAD_URL="http://pypi.python.org/packages/source/p/pythonbrew/$TEMP_TARBALL"
@@ -67,7 +66,7 @@ rm -rf $PATH_DISTS/$TEMP_TARBALL
 rm -rf $PATH_DISTS/$TEMP_FILE
 
 echo "Downloading $DOWNLOAD_URL"
-builtin cd $PATH_DISTS ; curl -sL $DOWNLOAD_URL -o "$TEMP_TARBALL"
+builtin cd $PATH_DISTS ; curl --progress-bar -kL $DOWNLOAD_URL -o "$TEMP_TARBALL"
 
 echo "Extracting $PATH_DISTS/$TEMP_TARBALL"
 builtin cd $PATH_DISTS ; tar zxf $TEMP_TARBALL
