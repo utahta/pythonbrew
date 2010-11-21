@@ -5,7 +5,7 @@ from pythonbrew.define import PATH_DISTS, VERSION, ROOT,\
     PATH_BUILD
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader, get_pythonbrew_update_url,\
-    get_response_from_url, get_stable_version
+    get_stable_version, get_headerinfo_from_url
 from pythonbrew.util import rm_r, unpack_downloadfile, Link, is_gzip, Subprocess
 
 class UpdateCommand(Command):
@@ -28,8 +28,8 @@ class UpdateCommand(Command):
         if not download_url:
             logger.error("`%s` of pythonbrew not found." % version)
             sys.exit(1)
-        resp = get_response_from_url(download_url)
-        content_type = resp.info()['content-type']
+        headinfo = get_headerinfo_from_url(download_url)
+        content_type = headinfo['content-type']
         if not is_gzip(content_type, Link(download_url).filename):
             logger.error("Invalid content-type: `%s`" % content_type)
             sys.exit(1)

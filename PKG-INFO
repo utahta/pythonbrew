@@ -104,7 +104,7 @@ Options
 =======
 
 \-f | --force
-  Force installation of a Python.
+  Force installation of a Python. (skip `make test`)
 
 \-C | --configure
   Custom configure options.

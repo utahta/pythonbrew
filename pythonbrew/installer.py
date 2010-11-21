@@ -13,7 +13,7 @@ from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_BIN_PYBREW, ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE, PATH_PATCHES,\
     PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24
 from pythonbrew.downloader import get_python_version_url, Downloader,\
-    get_response_from_url
+    get_headerinfo_from_url
 from pythonbrew.log import logger
 
 def install_pythonbrew():
@@ -115,8 +115,8 @@ class PythonInstaller(object):
         self.install_dir = "%s/%s" % (PATH_PYTHONS, pkg.name)
         self.build_dir = "%s/%s" % (PATH_BUILD, pkg.name)
         self.download_file = "%s/%s" % (PATH_DISTS, filename)
-        resp = get_response_from_url(self.download_url)
-        self.content_type = resp.info()['content-type']
+        headerinfo = get_headerinfo_from_url(self.download_url)
+        self.content_type = headerinfo['content-type']
         self.options = options
         self.logfile = "%s/build.log" % PATH_LOG
     
