@@ -187,21 +187,22 @@ class PythonInstaller(object):
             patches = []
             if is_macosx_snowleopard():
                 if is_python24(version):
-                    patch_dir = os.path.join(PATH_PATCHES_MACOSX_PYTHON24,'files')
+                    patch_dir = PATH_PATCHES_MACOSX_PYTHON24
                     patches = ['patch-configure', 'patch-Makefile.pre.in',
-                               'patch-Lib-cgi.py', 'patch-Lib-site.py',
-                               'patch-setup.py', 'patch-Include-pyport.h',
+                               'patch-Lib-cgi.py.diff', 'patch-Lib-site.py.diff',
+                               'patch-setup.py.diff', 'patch-Include-pyport.h',
                                'patch-Mac-OSX-Makefile.in', 'patch-Mac-OSX-IDLE-Makefile.in',
                                'patch-Mac-OSX-PythonLauncher-Makefile.in', 'patch-configure-badcflags.diff',
                                'patch-configure-arch_only.diff', 'patch-macosmodule.diff',
-                               'patch-mactoolboxglue.diff', 'patch-pymactoolbox.diff']
+                               'patch-mactoolboxglue.diff', 'patch-pymactoolbox.diff',
+                               'patch-gestaltmodule.c.diff']
                 elif is_python25(version):
-                    patch_dir = os.path.join(PATH_PATCHES_MACOSX_PYTHON25,'files')
+                    patch_dir = PATH_PATCHES_MACOSX_PYTHON25
                     patches = ['patch-Makefile.pre.in.diff', 'patch-Lib-cgi.py.diff',
                                'patch-Lib-distutils-dist.py.diff', 'patch-setup.py.diff',
                                'patch-configure-badcflags.diff', 'patch-configure-arch_only.diff',
                                'patch-64bit.diff', 'patch-pyconfig.h.in.diff',
-                               'patch-Modules-posixmodule.c.diff']
+                               'patch-Modules-posixmodule.c.diff', 'patch-gestaltmodule.c.diff']
             if patches:
                 logger.info("Patching %s" % self.pkg.name)
                 for patch in patches:

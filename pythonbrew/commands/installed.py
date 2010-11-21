@@ -11,6 +11,7 @@ class InstalledCommand(Command):
     
     def run_command(self, options, args):
         cur = ""
+        
         if not os.path.islink("%s/current" % PATH_PYTHONS):
             logger.info("%s (*)" % sys.executable)
         elif os.path.islink("%s/current" % PATH_PYTHONS):
