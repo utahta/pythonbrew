@@ -142,6 +142,7 @@ class PythonInstaller(object):
             logger.error("Failed to install %s. See %s to see why." % (self.pkg.name, self.logfile))
             logger.info("  pythonbrew install --force %s" % self.pkg.version)
             sys.exit(1)
+        self.symlink()
         self.install_setuptools()
         logger.info("Installed %(pkgname)s successfully. Run the following command to switch to %(pkgname)s."
                     % {"pkgname":self.pkg.name})
@@ -239,7 +240,18 @@ class PythonInstaller(object):
             makedirs(self.install_dir)
         s = Subprocess(log=self.logfile, cwd=self.build_dir)
         s.check_call("make install")
-            
+    
+    def symlink(self):
+        install_dir = os.path.realpath(self.install_dir)
+        path_python = os.path.join(install_dir,'bin','python')
+        if not os.path.isfile(path_python):
+            path_python3 = os.path.join(install_dir,'bin','python3')
+            path_python3_0 = os.path.join(install_dir,'bin','python3.0')
+            if os.path.isfile(path_python3):
+                symlink(path_python3, path_python)
+            elif os.path.isfile(path_python3_0):
+                symlink(path_python3_0, path_python)
+    
     def install_setuptools(self):
         options = self.options
         pkgname = self.pkg.name

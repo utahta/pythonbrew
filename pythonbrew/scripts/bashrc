@@ -1,7 +1,36 @@
 PYTHONBREW_ROOT="@ROOT@"
 PYTHONBREW_ETC="$PYTHONBREW_ROOT/etc"
 
-export PATH=$PYTHONBREW_ROOT/bin:$PYTHONBREW_ROOT/pythons/current/bin:${PATH}
+__pythonbrew_set_default()
+{
+	PATH_PYTHONBREW="$PYTHONBREW_ROOT/bin"
+}
+
+__pythonbrew_set_path()
+{
+    PATH_WITHOUT_PYTHONBREW=$(printf $PATH | awk -v RS=: -v ORS=: "/${PYTHONBREW_ROOT//\//\/}/ {next} {print}" | sed -e 's#:$##')
+    export PATH=$PATH_PYTHONBREW:$PATH_WITHOUT_PYTHONBREW
+}
+
+__pythonbrew_set_temp_path()
+{
+    if [[ -s "$PYTHONBREW_ETC/temp" ]] ; then
+        source "$PYTHONBREW_ETC/temp"
+    else
+        __pythonbrew_set_default
+    fi
+    __pythonbrew_set_path
+}
+
+__pythonbrew_set_current_path()
+{
+    if [[ -s "$PYTHONBREW_ETC/current" ]] ; then
+        source "$PYTHONBREW_ETC/current"
+    else
+        __pythonbrew_set_default
+    fi
+    __pythonbrew_set_path
+}
 
 __pythonbrew_reload()
 {
@@ -10,11 +39,41 @@ __pythonbrew_reload()
     fi
 }
 
-pythonbrew()
+__pythonbrew_use()
 {
     command pythonbrew "$@"
-    case $1 in
-        update) __pythonbrew_reload ;; 
-    esac
-    hash -r
+    __pythonbrew_set_temp_path
 }
+
+__pythonbrew_switch()
+{
+    command pythonbrew "$@"
+    __pythonbrew_set_current_path
+}
+
+__pythonbrew_off()
+{
+    command pythonbrew "$@"
+    __pythonbrew_set_current_path
+}
+
+__pythonbrew_update()
+{
+    command pythonbrew "$@"
+    __pythonbrew_reload
+}
+
+pythonbrew()
+{
+    case $1 in
+        use) __pythonbrew_use "$@";;
+        switch) __pythonbrew_switch "$@" ;;
+        off) __pythonbrew_off "$@" ;;
+        update) __pythonbrew_update "$@" ;;
+        *) command pythonbrew "$@" ;;
+    esac
+    builtin hash -r
+}
+
+# main
+__pythonbrew_set_current_path

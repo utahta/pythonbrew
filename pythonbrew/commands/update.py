@@ -55,7 +55,6 @@ class UpdateCommand(Command):
             s.check_call('%s %s/pythonbrew_install.py --upgrade' % (sys.executable, extract_dir))
         except:
             logger.error("Failed to update pythonbrew.")
-            raise
             sys.exit(1)
         logger.info("The pythonbrew has been updated.")
 

@@ -1,6 +1,6 @@
 import os
 
-VERSION = "0.6.2"
+VERSION = "0.6.3"
 
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
@@ -24,8 +24,10 @@ PATH_PATCHES_MACOSX_PYTHON25 = os.path.join(PATH_PATCHES_MACOSX,"python25")
 PATH_PATCHES_MACOSX_PYTHON24 = os.path.join(PATH_PATCHES_MACOSX,"python24")
 
 # file path
-PATH_BIN_PYTHONBREW = os.path.join(PATH_BIN,"pythonbrew")
-PATH_BIN_PYBREW = os.path.join(PATH_BIN,"pybrew") # pybrew is symlink as pythonbrew
+PATH_BIN_PYTHONBREW = os.path.join(PATH_BIN,'pythonbrew')
+PATH_BIN_PYBREW = os.path.join(PATH_BIN,'pybrew') # pybrew is symlink as pythonbrew
+PATH_ETC_CURRENT = os.path.join(PATH_ETC,'current')
+PATH_ETC_TEMP = os.path.join(PATH_ETC,'temp')
 
 # download setuptools url 
 DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"

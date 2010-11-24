@@ -14,6 +14,6 @@ class CleanCommand(Command):
         
     def _clean(self, root):
         for dir in os.listdir(root):
-            rm_r("%s/%s" % (root, dir))
+            rm_r(os.path.join(root, dir))
 
 CleanCommand()

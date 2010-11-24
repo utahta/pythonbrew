@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PYTHON=`command -v python`
+PYTHONS="/usr/bin/python /usr/bin/python2 `command -v python`"
 CURL=`command -v curl`
 
 usage()
@@ -22,7 +22,7 @@ parse_arguments()
     for arg do
         val=`echo "$arg" | sed -e "s;--[^=]*=;;"`
         case "$arg" in
-            --python=*) PYTHON="$val" ;;
+            --python=*) PYTHONS="$val $PYTHONS" ;;
             --help) usage ;;
             *) echo "Can't find the option. :$arg";;
         esac
@@ -31,22 +31,28 @@ parse_arguments()
 
 parse_arguments $@
 
-if [[ ! -x $PYTHON ]] ; then
-    echo "pythonbrew required Python (2.4, 2.5 or 2.6)."
-    exit
-fi
 if [[ ! -x $CURL ]] ; then
     echo "pythonbrew required curl. curl was not found in your path."
+    exit
 fi
 
-PYTHON_VERSION=`$PYTHON -V 2>&1`
-PYTHON_VERSION=${PYTHON_VERSION/"Python "/""}
-PYTHON_VERSION_S=`echo $PYTHON_VERSION | sed -e "s/\(^[[:digit:]]\{1,\}.[[:digit:]]\{1,\}\).*/\1/"`
-
-if [[ $PYTHON_VERSION_S != "2.4" ]] && [[ $PYTHON_VERSION_S != "2.5" ]] && [[ $PYTHON_VERSION_S != "2.6" ]] ; then
-    printf "Python's version is $PYTHON_VERSION_S:
-  2.4 <= python < 3.0 is required.
-"
+for PYTHON in $PYTHONS ; do
+	if [[ ! -x $PYTHON ]] ; then
+	    continue
+	fi
+	
+	PYTHON_VERSION=`$PYTHON -V 2>&1`
+	PYTHON_VERSION=${PYTHON_VERSION/"Python "/""}
+	PYTHON_VERSION_S=`echo $PYTHON_VERSION | sed -e "s/\(^[[:digit:]]\{1,\}.[[:digit:]]\{1,\}\).*/\1/"`
+	
+	if [[ $PYTHON_VERSION_S = "2.4" ]] || [[ $PYTHON_VERSION_S = "2.5" ]] || [[ $PYTHON_VERSION_S = "2.6" ]] ; then
+		PYTHON_FOUND='1'
+		break
+	fi
+done
+if [[ $PYTHON_FOUND != '1' ]] ; then
+    echo "pythonbrew required Python (2.4, 2.5 or 2.6)."
+    #TODO Installing python.
     exit
 fi
 

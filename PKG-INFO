@@ -31,9 +31,9 @@ pythonbrew command [options]
 Install some Pythons::
 
   pythonbrew install 2.6.6
-  pythonbrew install Python-2.5.5
-  pythonbrew install --configure="CC=gcc_4.1" Python-2.6.6
-  pythonbrew install --no-setuptools Python-2.6.6
+  pythonbrew install --force 2.5.5
+  pythonbrew install --configure="CC=gcc_4.1" 2.6.6
+  pythonbrew install --no-setuptools 2.6.6
   pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.7.tgz
   
 Switch python in the $PATH::
@@ -41,10 +41,17 @@ Switch python in the $PATH::
   pythonbrew switch 2.6.6
   pythonbrew switch Python-2.5.5
 
+Using python in the PATH::
+
+  pythonbrew use 2.6.6
+
+List the installed versions of Python::
+
+  pythonbrew list
+
 List the available install versions of Python::
 
-  pythonbrew list 2.6
-  pythonbrew list 3.0
+  pythonbrew list -k
 
 Uninstall some Pythons::
 
@@ -80,12 +87,18 @@ installed
   List the installed versions of python.
 
 switch <version>
-  Switch to the given version.
+  Switch to the given version of python.
 
-list <version>
+use <version>
+  Using the given version of python.
+
+list
+  List the installed versions of Python.
+  
+list -k <version>
   List the available install version of python.
   
-uninstall Python-<version>
+uninstall <version>
   Uninstall the given version of python.
 
 clean

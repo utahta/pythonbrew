@@ -4,11 +4,13 @@ import shutil
 import subprocess
 import re
 import posixpath
-from pythonbrew.define import PATH_BIN, PATH_PYTHONS
-from pythonbrew.exceptions import ShellCommandException
-from pythonbrew.log import logger
 import tarfile
 import platform
+from pythonbrew.define import PATH_BIN, PATH_PYTHONS, PATH_ETC_CURRENT,\
+    PATH_ETC_TEMP
+from pythonbrew.exceptions import ShellCommandException
+from pythonbrew.log import logger
+from subprocess import PIPE, Popen
 
 def size_format(b):
     kb = 1000
@@ -99,6 +101,7 @@ def off():
                 continue
             unlink("%s/%s" % (root, f))
     unlink("%s/current" % PATH_PYTHONS)
+    write_current(PATH_BIN)
 
 def split_leading_dir(path):
     path = str(path)
@@ -183,7 +186,25 @@ def unpack_downloadfile(content_type, download_file, target_dir):
         logger.error("Cannot determine archive format of %s" % download_file)
         return False
     return True
-    
+
+def get_current_python_path():
+    p = Popen('command -v python', stdout=PIPE, shell=True)
+    p.wait()
+    if p.returncode == 0:
+        return p.stdout.read().strip()
+    else:
+        return None
+
+def write_current(path):
+    fp = open(PATH_ETC_CURRENT, 'w')
+    fp.write('PATH_PYTHONBREW="%s"\n' % (path))
+    fp.close()
+
+def write_temp(path):
+    fp = open(PATH_ETC_TEMP, 'w')
+    fp.write('PATH_PYTHONBREW="%s"\n' % (path))
+    fp.close()
+
 class Subprocess(object):
     def __init__(self, log=None, shell=True, cwd=None, print_cmd=False):
         self._log = log
