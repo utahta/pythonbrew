@@ -63,10 +63,12 @@ class PythonbrewInstaller(object):
         makedirs(PATH_ETC)
         makedirs(PATH_BIN)
         makedirs(PATH_LOG)
+        
+        rm_r(PATH_SCRIPTS)
         makedirs(PATH_SCRIPTS)
         makedirs(PATH_SCRIPTS_PYTHONBREW)
         makedirs(PATH_SCRIPTS_PYTHONBREW_COMMANDS)
-    
+        
         for path in glob.glob(os.path.join(installer_root,"*.py")):
             shutil.copy(path, PATH_SCRIPTS_PYTHONBREW)
     

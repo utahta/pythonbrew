@@ -1,21 +1,21 @@
-PYTHONBREW_ROOT="@ROOT@"
-PYTHONBREW_ETC="$PYTHONBREW_ROOT/etc"
+PATH_ROOT="@ROOT@"
+PATH_ETC="$PATH_ROOT/etc"
 
 __pythonbrew_set_default()
 {
-	PATH_PYTHONBREW="$PYTHONBREW_ROOT/bin"
+    PATH_PYTHONBREW="$PATH_ROOT/bin"
 }
 
 __pythonbrew_set_path()
 {
-    PATH_WITHOUT_PYTHONBREW=$(printf $PATH | awk -v RS=: -v ORS=: "/${PYTHONBREW_ROOT//\//\/}/ {next} {print}" | sed -e 's#:$##')
+    PATH_WITHOUT_PYTHONBREW=$(printf $PATH | awk -v RS=: -v ORS=: "/${PATH_ROOT//\//\/}/ {next} {print}" | sed -e 's#:$##')
     export PATH=$PATH_PYTHONBREW:$PATH_WITHOUT_PYTHONBREW
 }
 
 __pythonbrew_set_temp_path()
 {
-    if [[ -s "$PYTHONBREW_ETC/temp" ]] ; then
-        source "$PYTHONBREW_ETC/temp"
+    if [[ -s "$PATH_ETC/temp" ]] ; then
+        source "$PATH_ETC/temp"
     else
         __pythonbrew_set_default
     fi
@@ -24,8 +24,8 @@ __pythonbrew_set_temp_path()
 
 __pythonbrew_set_current_path()
 {
-    if [[ -s "$PYTHONBREW_ETC/current" ]] ; then
-        source "$PYTHONBREW_ETC/current"
+    if [[ -s "$PATH_ETC/current" ]] ; then
+        source "$PATH_ETC/current"
     else
         __pythonbrew_set_default
     fi
@@ -34,38 +34,52 @@ __pythonbrew_set_current_path()
 
 __pythonbrew_reload()
 {
-    if [[ -s "$PYTHONBREW_ETC/bashrc" ]] ; then
-        source "$PYTHONBREW_ETC/bashrc"
-    fi
+    [[ -s "$PATH_ETC/bashrc" ]] && source "$PATH_ETC/bashrc"
 }
 
 __pythonbrew_use()
 {
     command pythonbrew "$@"
-    __pythonbrew_set_temp_path
+    [[ $? == 0 ]] && __pythonbrew_set_temp_path
 }
 
 __pythonbrew_switch()
 {
     command pythonbrew "$@"
-    __pythonbrew_set_current_path
+    [[ $? == 0 ]] && __pythonbrew_set_current_path
 }
 
 __pythonbrew_off()
 {
     command pythonbrew "$@"
-    __pythonbrew_set_current_path
+    [[ $? == 0 ]] && __pythonbrew_set_current_path
 }
 
 __pythonbrew_update()
 {
     command pythonbrew "$@"
-    __pythonbrew_reload
+    [[ $? == 0 ]] && __pythonbrew_reload
+}
+
+__pythonbrew_find_command()
+{
+    command_name=""
+    for arg in "$@" ; do
+        case $arg in
+            --*) continue;;
+            -*) continue;;
+            *)
+            command_name=$arg 
+            break
+            ;;
+        esac
+    done
 }
 
 pythonbrew()
 {
-    case $1 in
+    __pythonbrew_find_command "$@"
+    case $command_name in
         use) __pythonbrew_use "$@";;
         switch) __pythonbrew_switch "$@" ;;
         off) __pythonbrew_off "$@" ;;
@@ -77,3 +91,4 @@ pythonbrew()
 
 # main
 __pythonbrew_set_current_path
+

@@ -8,9 +8,6 @@ pythonbrew is based on `perlbrew <http://github.com/gugod/App-perlbrew>`_.
 Installation
 ============
 
-Following python version is required to use pythonbrew:
- 2.4 <= Python < 3
-
 The recommended way to download and install pythonbrew is to run these statements in your shell.::
 
   easy_install pythonbrew

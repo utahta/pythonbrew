@@ -6,11 +6,11 @@ import re
 import posixpath
 import tarfile
 import platform
+from subprocess import PIPE, Popen
 from pythonbrew.define import PATH_BIN, PATH_PYTHONS, PATH_ETC_CURRENT,\
     PATH_ETC_TEMP
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
-from subprocess import PIPE, Popen
 
 def size_format(b):
     kb = 1000
