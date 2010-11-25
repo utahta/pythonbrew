@@ -1,3 +1,18 @@
+* 0.6.3
+  - Added use command
+  - Added some functions to bashrc
+  - Bug fix
+
+* 0.6.2
+  - Use curl instead of urllib
+  - Added patch-gestaltmodule.c.diff 
+  - Added some functions to bashrc 
+  
+* 0.6.1
+  - Add setup.py MANIFEST.in
+  - Added list option (--all-versions)
+  - Bug fix
+
 * 0.6
   - Compiling Python-2.5.5 and Python-2.4.6 on MacOSX SnowLeopard
   - Bug fix
