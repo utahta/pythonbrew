@@ -1,6 +1,6 @@
 import os
 
-VERSION = "0.6.4"
+VERSION = "0.6.5"
 
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
@@ -51,9 +51,9 @@ _PYTHON_VERSIONS_LIST = [
     "2.4", "2.4.1", "2.4.2", "2.4.3", "2.4.4", "2.4.5", "2.4.6",
     "2.5", "2.5.1", "2.5.2", "2.5.3", "2.5.4", "2.5.5",
     "2.6", "2.6.1", "2.6.2", "2.6.3", "2.6.4", "2.6.5", "2.6.6",
-    "2.7",
+    "2.7", "2.7.1",
     "3.0", "3.0.1",
-    "3.1", "3.1.1", "3.1.2",
+    "3.1", "3.1.1", "3.1.2", "3.1.3",
 ]
 for version in _PYTHON_VERSIONS_LIST:
     PYTHON_VERSION_URL[version] = "http://www.python.org/ftp/python/%s/Python-%s.tgz" % (version, version)
@@ -63,7 +63,7 @@ PYTHON_VERSION_URL["3.2a2"] = "http://www.python.org/ftp/python/3.2/Python-3.2a2
 PYTHON_VERSION_URL["3.2a3"] = "http://www.python.org/ftp/python/3.2/Python-3.2a3.tgz"
 
 LATEST_VERSIONS_OF_PYTHON = ['1.5.2', '1.6.1', 
-                             '2.0.1', '2.1.3', '2.2.3', '2.3.7', '2.4.6', '2.5.5', '2.6.6', '2.7', 
-                             '3.0.1', '3.1.2', '3.2a3']
+                             '2.0.1', '2.1.3', '2.2.3', '2.3.7', '2.4.6', '2.5.5', '2.6.6', '2.7.1', 
+                             '3.0.1', '3.1.3', '3.2a3']
 
 

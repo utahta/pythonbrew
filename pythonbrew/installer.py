@@ -3,10 +3,12 @@ import sys
 import glob
 import shutil
 import re
+import mimetypes
 from pythonbrew.util import makedirs, symlink, Package, is_url, splitext, Link,\
     unlink, is_html, Subprocess, rm_r,\
     is_macosx_snowleopard, is_python25, is_python24, is_python26,\
-    unpack_downloadfile
+    unpack_downloadfile, is_archive_file, path_to_fileurl, is_file,\
+    fileurl_to_path
 from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_ETC, PATH_SCRIPTS, PATH_SCRIPTS_PYTHONBREW,\
     PATH_SCRIPTS_PYTHONBREW_COMMANDS, INSTALLER_ROOT, PATH_BIN_PYTHONBREW,\
@@ -103,11 +105,20 @@ if __name__ == "__main__":
 class PythonInstaller(object):
     def __init__(self, arg, options):
         if is_url(arg):
-            self.download_url = arg
-            filename = Link(self.download_url).filename
-            pkg = Package(splitext(filename)[0])
+            name = arg
+        elif is_archive_file(arg):
+            name = path_to_fileurl(arg)
+        elif os.path.isdir(arg):
+            name = path_to_fileurl(arg)
         else:
-            pkg = Package(arg)
+            name = arg
+        
+        if is_url(name):
+            self.download_url = name
+            filename = Link(self.download_url).filename
+            pkg = Package(filename)
+        else:
+            pkg = Package(name)
             self.download_url = get_python_version_url(pkg.version)
             if not self.download_url:
                 logger.info("Unknown python version: `%s`" % pkg.name)
@@ -117,8 +128,12 @@ class PythonInstaller(object):
         self.install_dir = "%s/%s" % (PATH_PYTHONS, pkg.name)
         self.build_dir = "%s/%s" % (PATH_BUILD, pkg.name)
         self.download_file = "%s/%s" % (PATH_DISTS, filename)
-        headerinfo = get_headerinfo_from_url(self.download_url)
-        self.content_type = headerinfo['content-type']
+        if is_file(self.download_url):
+            path = fileurl_to_path(self.download_url)
+            self.content_type = mimetypes.guess_type(path)[0]
+        else:
+            headerinfo = get_headerinfo_from_url(self.download_url)
+            self.content_type = headerinfo['content-type']
         self.options = options
         self.logfile = "%s/build.log" % PATH_LOG
     
@@ -127,12 +142,11 @@ class PythonInstaller(object):
             logger.info("You are already installed `%s`" % self.pkg.name)
             sys.exit()
         self.ensure()
-        self.download()
+        self.download_unpack()
         logger.info("")
         logger.info("This could take a while. You can run the following command on another shell to track the status:")
         logger.info("  tail -f %s" % self.logfile)
         logger.info("")
-        self.unpack()
         self.patch()
         logger.info("Installing %s into %s" % (self.pkg.name, self.install_dir))
         try:
@@ -158,28 +172,31 @@ class PythonInstaller(object):
                 logger.info("`%s` is not supported on MacOSX Snow Leopard" % self.pkg.name)
                 sys.exit()
     
-    def download(self):
+    def download_unpack(self):
         content_type = self.content_type
         if is_html(content_type):
             logger.error("Invalid content-type: `%s`" % content_type)
             sys.exit(1)
+        if is_file(self.download_url):
+            path = fileurl_to_path(self.download_url)
+            if os.path.isdir(path):
+                logger.info('Copying %s into %s' % (path, self.build_dir))
+                if os.path.isdir(self.build_dir):
+                    shutil.rmtree(self.build_dir)
+                shutil.copytree(path, self.build_dir)
+                return
         if os.path.isfile(self.download_file):
             logger.info("Use the previously fetched %s" % (self.download_file))
-            return
-        msg = Link(self.download_url).show_msg
-        try:
-            dl = Downloader()
-            dl.download(
-                msg,
-                self.download_url,
-                self.download_file
-            )
-        except:
-            unlink(self.download_file)
-            logger.info("\nInterrupt to abort. `%s`" % (self.download_url))
-            sys.exit(1)
-
-    def unpack(self):
+        else:
+            msg = Link(self.download_url).show_msg
+            try:
+                dl = Downloader()
+                dl.download(msg, self.download_url, self.download_file)
+            except:
+                unlink(self.download_file)
+                logger.info("\nInterrupt to abort. `%s`" % (self.download_url))
+                sys.exit(1)
+        # unpack
         if not unpack_downloadfile(self.content_type, self.download_file, self.build_dir):
             sys.exit(1)
     
@@ -272,21 +289,11 @@ class PythonInstaller(object):
         dl.download(filename, download_url, download_file)
         
         install_dir = os.path.join(PATH_PYTHONS, pkgname)
-        if is_python3:
-            if os.path.isfile("%s/bin/python3" % (install_dir)):
-                pyexec = "%s/bin/python3" % (install_dir)
-            elif os.path.isfile("%s/bin/python3.0" % (install_dir)):
-                pyexec = "%s/bin/python3.0" % (install_dir)
-            else:
-                logger.error("Python3 binary not found. `%s`" % (install_dir))
-                return
-        else:
-            pyexec = os.path.join(install_dir,"bin","python")
-        
+        path_python = os.path.join(install_dir,"bin","python")
         try:
             s = Subprocess(log=self.logfile, cwd=PATH_DISTS)
             logger.info("Installing distribute into %s" % install_dir)
-            s.check_call("%s %s" % (pyexec, filename))
+            s.check_call("%s %s" % (path_python, filename))
             if os.path.isfile("%s/bin/easy_install" % (install_dir)) and not is_python3:
                 logger.info("Installing pip into %s" % install_dir)
                 s.check_call("%s/bin/easy_install pip" % (install_dir))

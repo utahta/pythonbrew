@@ -6,6 +6,7 @@ import re
 import posixpath
 import tarfile
 import platform
+import urllib
 from subprocess import PIPE, Popen
 from pythonbrew.define import PATH_BIN, PATH_PYTHONS, PATH_ETC_CURRENT,\
     PATH_ETC_TEMP
@@ -27,6 +28,12 @@ def is_url(name):
         return False
     scheme = name.split(':', 1)[0].lower()
     return scheme in ['http', 'https', 'file', 'ftp']
+
+def is_file(name):
+    if ':' not in name:
+        return False
+    scheme = name.split(':', 1)[0].lower()
+    return scheme == 'file'
 
 def splitext(name):
     base, ext = os.path.splitext(name)
@@ -205,6 +212,18 @@ def write_temp(path):
     fp.write('PATH_PYTHONBREW="%s"\n' % (path))
     fp.close()
 
+def path_to_fileurl(path):
+    path = os.path.normcase(os.path.abspath(path))
+    url = urllib.quote(path)
+    url = url.replace(os.path.sep, '/')
+    url = url.lstrip('/')
+    return 'file:///' + url
+
+def fileurl_to_path(url):
+    assert url.startswith('file:'), ('Illegal scheme:%s' % url)
+    url = '/' + url[len('file:'):].lstrip('/')
+    return urllib.unquote(url)
+
 class Subprocess(object):
     def __init__(self, log=None, shell=True, cwd=None, print_cmd=False):
         self._log = log
@@ -232,6 +251,8 @@ class Package(object):
     def __init__(self, name):
         self.name = None
         self.version = None
+        if is_archive_file(name):
+            name = splitext(name)[0]
         m = re.search("^Python-(.*)$", name)
         if m:
             self.name = name

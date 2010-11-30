@@ -1,3 +1,6 @@
+* 0.6.5
+  - Supported file: URIs
+
 * 0.6.4
   - Added some functions to bashrc 
   - Removed installed command

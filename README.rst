@@ -31,6 +31,8 @@ Install some Pythons::
   pythonbrew install --configure="CC=gcc_4.1" 2.6.6
   pythonbrew install --no-setuptools 2.6.6
   pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.7.tgz
+  pythonbrew install file:///path/to/Python-2.7.tgz
+  pythonbrew install /path/to/Python-2.7.tgz
   
 Switch python in the $PATH::
 
@@ -120,3 +122,13 @@ Options
 
 \-n | --no-setuptools
   Skip installation of setuptools.
+
+COPYRIGHT
+=========
+
+Copyright (c) 2010, utahta "<labs.ninxit@gmail.com>".
+
+LICENCE
+=======
+
+The MIT License
