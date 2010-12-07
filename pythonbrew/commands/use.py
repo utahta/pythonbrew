@@ -1,8 +1,8 @@
 import os
 import sys
 from pythonbrew.basecommand import Command
-from pythonbrew.define import PATH_PYTHONS, PATH_BIN
-from pythonbrew.util import Package, write_temp
+from pythonbrew.define import PATH_PYTHONS, PATH_BIN, PATH_ETC_TEMP
+from pythonbrew.util import Package
 from pythonbrew.log import logger
 
 class UseCommand(Command):
@@ -22,8 +22,14 @@ class UseCommand(Command):
             sys.exit(1)
         pkgbin = os.path.join(pkgdir,'bin')
         
-        write_temp('%s:%s' % (PATH_BIN, pkgbin))
+        self._set_temp('%s:%s' % (PATH_BIN, pkgbin))
         
         logger.info("Using `%s`" % pkgname)
+
+    def _set_temp(self, path):
+        fp = open(PATH_ETC_TEMP, 'w')
+        fp.write('PATH_PYTHONBREW="%s"\n' % (path))
+        fp.close()
+
 
 UseCommand()

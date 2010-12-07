@@ -34,12 +34,12 @@ Install some Pythons::
   pythonbrew install file:///path/to/Python-2.7.tgz
   pythonbrew install /path/to/Python-2.7.tgz
   
-Switch python in the $PATH::
+Switch python in the PATH::
 
   pythonbrew switch 2.6.6
   pythonbrew switch 2.5.5
 
-Using python in the PATH::
+Using python in the PATH (current shell only)::
 
   pythonbrew use 2.6.6
 
@@ -95,6 +95,10 @@ switch <version>
 
 use <version>
   Using the given version of python.
+  (current shell only)
+
+py <python file>
+  Runs a named python file against specified and/or all pythons.
 
 list
   List the installed all pythons.

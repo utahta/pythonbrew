@@ -186,7 +186,7 @@ def untar_file(filename, location):
         tar.close()
 
 def unpack_downloadfile(content_type, download_file, target_dir):
-    logger.info("Extracting %s" % os.path.basename(download_file))
+    logger.info("Extracting %s into %s" % (os.path.basename(download_file), target_dir))
     if is_gzip(content_type, download_file):
         untar_file(download_file, target_dir)
     else:
@@ -201,16 +201,6 @@ def get_current_python_path():
         return p.stdout.read().strip()
     else:
         return None
-
-def write_current(path):
-    fp = open(PATH_ETC_CURRENT, 'w')
-    fp.write('PATH_PYTHONBREW="%s"\n' % (path))
-    fp.close()
-
-def write_temp(path):
-    fp = open(PATH_ETC_TEMP, 'w')
-    fp.write('PATH_PYTHONBREW="%s"\n' % (path))
-    fp.close()
 
 def path_to_fileurl(path):
     path = os.path.normcase(os.path.abspath(path))

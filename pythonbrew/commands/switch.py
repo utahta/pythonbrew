@@ -1,8 +1,8 @@
 import os
 import sys
 from pythonbrew.basecommand import Command
-from pythonbrew.define import PATH_PYTHONS, PATH_BIN
-from pythonbrew.util import Package, write_current
+from pythonbrew.define import PATH_PYTHONS, PATH_BIN, PATH_ETC_CURRENT
+from pythonbrew.util import Package
 from pythonbrew.log import logger
 
 class SwitchCommand(Command):
@@ -22,8 +22,14 @@ class SwitchCommand(Command):
             sys.exit(1)
         pkgbin = os.path.join(pkgdir,'bin')
         
-        write_current('%s:%s' % (PATH_BIN, pkgbin))
+        self._set_current('%s:%s' % (PATH_BIN, pkgbin))
         
         logger.info("Switched to %s" % pkgname)
+        
+    def _set_current(self, path):
+        fp = open(PATH_ETC_CURRENT, 'w')
+        fp.write('PATH_PYTHONBREW="%s"\n' % (path))
+        fp.close()
+
 
 SwitchCommand()

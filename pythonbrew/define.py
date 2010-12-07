@@ -1,6 +1,6 @@
 import os
 
-VERSION = "0.6.5"
+VERSION = "0.6.6"
 
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
@@ -61,9 +61,11 @@ del _PYTHON_VERSIONS_LIST
 PYTHON_VERSION_URL["3.2a1"] = "http://www.python.org/ftp/python/3.2/Python-3.2a1.tgz"
 PYTHON_VERSION_URL["3.2a2"] = "http://www.python.org/ftp/python/3.2/Python-3.2a2.tgz"
 PYTHON_VERSION_URL["3.2a3"] = "http://www.python.org/ftp/python/3.2/Python-3.2a3.tgz"
+PYTHON_VERSION_URL["3.2a4"] = "http://www.python.org/ftp/python/3.2/Python-3.2a4.tgz"
+PYTHON_VERSION_URL["3.2b1"] = "http://www.python.org/ftp/python/3.2/Python-3.2b1.tgz"
 
 LATEST_VERSIONS_OF_PYTHON = ['1.5.2', '1.6.1', 
                              '2.0.1', '2.1.3', '2.2.3', '2.3.7', '2.4.6', '2.5.5', '2.6.6', '2.7.1', 
-                             '3.0.1', '3.1.3', '3.2a3']
+                             '3.0.1', '3.1.3', '3.2b1']
 
 
