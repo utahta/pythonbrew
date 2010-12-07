@@ -43,6 +43,12 @@ Using python in the PATH::
 
   pythonbrew use 2.6.6
 
+Runs a named python file against specified and/or all pythons::
+
+  pythonbrew py test.py
+  pythonbrew py -v test.py # Show version
+  pythonbrew py -p 2.6.6 -p 3.1.2 test.py # Using specified python versions
+
 List the installed versions of Python::
 
   pythonbrew list
@@ -75,7 +81,7 @@ COMMANDS
 ========
 
 install <version>
-  Build and install the given version of Python.
+  Build and install the given version of python.
   
   Setuptools and pip is automatically installed.
   
@@ -91,10 +97,10 @@ use <version>
   Using the given version of python.
 
 list
-  List the installed versions of Python.
+  List the installed all pythons.
   
 list -k <version>
-  List the available install version of python.
+  List the available install pythons.
   
 uninstall <version>
   Uninstall the given version of python.
@@ -115,7 +121,7 @@ Options
 =======
 
 \-f | --force
-  Force installation of a Python. (skip `make test`)
+  Force installation of a python. (skip `make test`)
 
 \-C | --configure
   Custom configure options.

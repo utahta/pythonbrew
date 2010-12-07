@@ -9,7 +9,7 @@ from pythonbrew.log import logger
 class ListCommand(Command):
     name = "list"
     usage = "%prog [VERSION]"
-    summary = "List the installed versions of Python"
+    summary = "List the installed all pythons"
     
     def __init__(self):
         super(ListCommand, self).__init__()
@@ -37,7 +37,7 @@ class ListCommand(Command):
     def installed(self, options, args):
         logger.info('# installed pythons')
         cur = get_current_python_path()
-        for d in sorted(os.listdir('%s/' % PATH_PYTHONS)):
+        for d in sorted(os.listdir(PATH_PYTHONS)):
             if cur == os.path.join(PATH_PYTHONS, d, 'bin','python'):
                 logger.info('%s (*)' % d)
                 cur = None
