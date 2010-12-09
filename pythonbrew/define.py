@@ -1,6 +1,6 @@
 import os
 
-VERSION = "0.6.6"
+VERSION = "0.6.7"
 
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
