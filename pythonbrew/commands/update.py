@@ -22,7 +22,7 @@ class UpdateCommand(Command):
         # check for latest version
         if version <= VERSION:
             logger.info("You are already running the installed latest version of pythonbrew.")
-            sys.exit()
+            return
         
         download_url = get_pythonbrew_update_url(version)
         if not download_url:

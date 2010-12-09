@@ -4,7 +4,7 @@ import glob
 import shutil
 import re
 import mimetypes
-from pythonbrew.util import makedirs, symlink, Package, is_url, splitext, Link,\
+from pythonbrew.util import makedirs, symlink, Package, is_url, Link,\
     unlink, is_html, Subprocess, rm_r,\
     is_macosx_snowleopard, is_python25, is_python24, is_python26,\
     unpack_downloadfile, is_archive_file, path_to_fileurl, is_file,\

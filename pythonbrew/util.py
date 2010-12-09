@@ -8,8 +8,7 @@ import tarfile
 import platform
 import urllib
 from subprocess import PIPE, Popen
-from pythonbrew.define import PATH_BIN, PATH_PYTHONS, PATH_ETC_CURRENT,\
-    PATH_ETC_TEMP
+from pythonbrew.define import PATH_BIN, PATH_PYTHONS, PATH_ETC_CURRENT
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
 
@@ -108,7 +107,7 @@ def off():
                 continue
             unlink("%s/%s" % (root, f))
     unlink("%s/current" % PATH_PYTHONS)
-    write_current(PATH_BIN)
+    set_current_path(PATH_BIN)
 
 def split_leading_dir(path):
     path = str(path)
@@ -201,6 +200,11 @@ def get_current_python_path():
         return p.stdout.read().strip()
     else:
         return None
+
+def set_current_path(path):
+    fp = open(PATH_ETC_CURRENT, 'w')
+    fp.write('PATH_PYTHONBREW="%s"\n' % (path))
+    fp.close()
 
 def path_to_fileurl(path):
     path = os.path.normcase(os.path.abspath(path))

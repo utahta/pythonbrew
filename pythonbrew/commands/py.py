@@ -4,7 +4,7 @@ from pythonbrew.basecommand import Command
 from pythonbrew.define import PATH_PYTHONS
 from pythonbrew.util import Package
 from pythonbrew.log import logger
-from subprocess import PIPE, Popen
+from subprocess import Popen
 
 class PyCommand(Command):
     name = "py"
