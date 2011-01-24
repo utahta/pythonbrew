@@ -236,11 +236,11 @@ class PythonInstaller(object):
         if is_macosx_snowleopard():
             version = self.pkg.version
             if is_python24(version):
-                configure_option = '--with-universal-archs="intel" MACOSX_DEPLOYMENT_TARGET=10.6 CPPFLAGS="-D__DARWIN_UNIX03"'
+                configure_option = '--with-universal-archs="intel" --enable-universalsdk MACOSX_DEPLOYMENT_TARGET=10.6 CPPFLAGS="-D__DARWIN_UNIX03"'
             elif is_python25(version):
-                configure_option = '--with-universal-archs="intel" MACOSX_DEPLOYMENT_TARGET=10.6 CPPFLAGS="-D_DARWIN_C_SOURCE"'
+                configure_option = '--with-universal-archs="intel" --enable-universalsdk MACOSX_DEPLOYMENT_TARGET=10.6 CPPFLAGS="-D_DARWIN_C_SOURCE"'
             elif is_python26(version):
-                configure_option = '--with-universal-archs="intel" MACOSX_DEPLOYMENT_TARGET=10.6'
+                configure_option = '--with-universal-archs="intel" --enable-universalsdk MACOSX_DEPLOYMENT_TARGET=10.6'
         
         s = Subprocess(log=self.logfile, cwd=self.build_dir)
         s.check_call("./configure --prefix=%s %s %s" % (self.install_dir, self.options.configure, configure_option))
