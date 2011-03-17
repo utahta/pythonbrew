@@ -67,9 +67,9 @@ TEMP_FILE="pythonbrew-$STABLE_VERSION"
 TEMP_TARBALL="$TEMP_FILE.tar.gz"
 DOWNLOAD_URL="http://pypi.python.org/packages/source/p/pythonbrew/$TEMP_TARBALL"
 
-mkdir -p $PATH_DISTS
-rm -rf $PATH_DISTS/$TEMP_TARBALL
-rm -rf $PATH_DISTS/$TEMP_FILE
+mkdir -p "$PATH_DISTS"
+rm -rf "$PATH_DISTS/$TEMP_TARBALL"
+rm -rf "$PATH_DISTS/$TEMP_FILE"
 
 echo "Downloading $DOWNLOAD_URL"
 builtin cd $PATH_DISTS ; curl --progress-bar -kL $DOWNLOAD_URL -o "$TEMP_TARBALL"

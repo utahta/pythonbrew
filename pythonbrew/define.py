@@ -1,6 +1,6 @@
 import os
 
-VERSION = "0.6.7"
+VERSION = "0.6.8"
 
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
@@ -9,6 +9,7 @@ else:
 
 INSTALLER_ROOT = os.path.dirname(os.path.abspath(__file__))
 
+# directories
 PATH_PYTHONS = os.path.join(ROOT,"pythons")
 PATH_BUILD = os.path.join(ROOT,"build")
 PATH_DISTS = os.path.join(ROOT,"dists")
@@ -23,23 +24,23 @@ PATH_PATCHES_MACOSX = os.path.join(PATH_PATCHES,"macosx")
 PATH_PATCHES_MACOSX_PYTHON25 = os.path.join(PATH_PATCHES_MACOSX,"python25")
 PATH_PATCHES_MACOSX_PYTHON24 = os.path.join(PATH_PATCHES_MACOSX,"python24")
 
-# file path
+# files
 PATH_BIN_PYTHONBREW = os.path.join(PATH_BIN,'pythonbrew')
-PATH_BIN_PYBREW = os.path.join(PATH_BIN,'pybrew') # pybrew is symlink as pythonbrew
+PATH_BIN_PYBREW = os.path.join(PATH_BIN,'pybrew') # pybrew is symbolic link of pythonbrew
 PATH_ETC_CURRENT = os.path.join(PATH_ETC,'current')
 PATH_ETC_TEMP = os.path.join(PATH_ETC,'temp')
 
-# download setuptools url 
+# setuptools download
 DISTRIBUTE_SETUP_DLSITE = "http://python-distribute.org/distribute_setup.py"
 
-# download pythonbrew url
+# pythonbrew download
 PYTHONBREW_UPDATE_URL_HEAD = "http://github.com/utahta/pythonbrew/tarball/master"
 PYTHONBREW_UPDATE_URL_PYPI = "http://pypi.python.org/packages/source/p/pythonbrew/pythonbrew-%s.tar.gz"
 
-# stable version url
+# stable version text
 PYTHONBREW_STABLE_VERSION_URL = "https://github.com/utahta/pythonbrew/raw/master/stable-version.txt"
 
-# download Python version url
+# python download
 PYTHON_VERSION_URL = {}
 PYTHON_VERSION_URL["1.5.2"] = "http://www.python.org/ftp/python/src/py152.tgz"
 PYTHON_VERSION_URL["1.6.1"] = "http://www.python.org/download/releases/1.6.1/Python-1.6.1.tar.gz"
@@ -54,18 +55,12 @@ _PYTHON_VERSIONS_LIST = [
     "2.7", "2.7.1",
     "3.0", "3.0.1",
     "3.1", "3.1.1", "3.1.2", "3.1.3",
+    "3.2",
 ]
 for version in _PYTHON_VERSIONS_LIST:
     PYTHON_VERSION_URL[version] = "http://www.python.org/ftp/python/%s/Python-%s.tgz" % (version, version)
 del _PYTHON_VERSIONS_LIST
-PYTHON_VERSION_URL["3.2a1"] = "http://www.python.org/ftp/python/3.2/Python-3.2a1.tgz"
-PYTHON_VERSION_URL["3.2a2"] = "http://www.python.org/ftp/python/3.2/Python-3.2a2.tgz"
-PYTHON_VERSION_URL["3.2a3"] = "http://www.python.org/ftp/python/3.2/Python-3.2a3.tgz"
-PYTHON_VERSION_URL["3.2a4"] = "http://www.python.org/ftp/python/3.2/Python-3.2a4.tgz"
-PYTHON_VERSION_URL["3.2b1"] = "http://www.python.org/ftp/python/3.2/Python-3.2b1.tgz"
 
 LATEST_VERSIONS_OF_PYTHON = ['1.5.2', '1.6.1', 
                              '2.0.1', '2.1.3', '2.2.3', '2.3.7', '2.4.6', '2.5.5', '2.6.6', '2.7.1', 
-                             '3.0.1', '3.1.3', '3.2b1']
-
-
+                             '3.0.1', '3.1.3', '3.2']

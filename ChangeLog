@@ -1,3 +1,6 @@
+* 0.6.8
+  - Added Python-3.2 to the installation list
+
 * 0.6.7
   - Bug fixed: Off command did not work.
   - Added tests.

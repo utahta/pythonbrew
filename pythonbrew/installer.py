@@ -20,7 +20,7 @@ from pythonbrew.log import logger
 
 def install_pythonbrew():
     PythonbrewInstaller().install(INSTALLER_ROOT)
-    
+            
     m = re.search("(t?csh)", os.environ.get("SHELL"))
     if m:
         shrc = "cshrc"
@@ -59,6 +59,7 @@ def upgrade_pythonbrew():
 
 class PythonbrewInstaller(object):
     def install(self, installer_root):
+        # create directories
         makedirs(PATH_PYTHONS)
         makedirs(PATH_BUILD)
         makedirs(PATH_DISTS)
@@ -66,35 +67,41 @@ class PythonbrewInstaller(object):
         makedirs(PATH_BIN)
         makedirs(PATH_LOG)
         
+        # remove old and create new script directories
         rm_r(PATH_SCRIPTS)
         makedirs(PATH_SCRIPTS)
         makedirs(PATH_SCRIPTS_PYTHONBREW)
         makedirs(PATH_SCRIPTS_PYTHONBREW_COMMANDS)
         
+        # copy all py files
         for path in glob.glob(os.path.join(installer_root,"*.py")):
             shutil.copy(path, PATH_SCRIPTS_PYTHONBREW)
     
         for path in glob.glob(os.path.join(installer_root,"commands","*.py")):
             shutil.copy(path, PATH_SCRIPTS_PYTHONBREW_COMMANDS)
         
+        # remove old and create patches direcotry
         rm_r(PATH_PATCHES)
         shutil.copytree(os.path.join(installer_root,"patches"), PATH_PATCHES)
         
+        # create main file
         fp = open("%s/pythonbrew_main.py" % PATH_SCRIPTS, "w")
         fp.write("""import pythonbrew
 if __name__ == "__main__":
     pythonbrew.main()
 """)
         fp.close()
-    
+        
+        # create entry point
         fp = open(PATH_BIN_PYTHONBREW, "w")
         fp.write("""#!/usr/bin/env bash
 %s %s/pythonbrew_main.py "$@"
 """ % (sys.executable, PATH_SCRIPTS))
         fp.close()
         os.chmod(PATH_BIN_PYTHONBREW, 0755)
-        symlink(PATH_BIN_PYTHONBREW, PATH_BIN_PYBREW) # pybrew is symbolic pythonbrew
+        symlink(PATH_BIN_PYTHONBREW, PATH_BIN_PYBREW) # pybrew is symbolic link of pythonbrew
         
+        # create bashrc
         fp = open(os.path.join(PATH_ETC,'bashrc'), 'w')
         for line in open(os.path.join(installer_root,'scripts','bashrc')):
             line = line.replace('@ROOT@', ROOT)
@@ -125,9 +132,9 @@ class PythonInstaller(object):
                 sys.exit(1)
             filename = Link(self.download_url).filename
         self.pkg = pkg
-        self.install_dir = "%s/%s" % (PATH_PYTHONS, pkg.name)
-        self.build_dir = "%s/%s" % (PATH_BUILD, pkg.name)
-        self.download_file = "%s/%s" % (PATH_DISTS, filename)
+        self.install_dir = os.path.join(PATH_PYTHONS, pkg.name)
+        self.build_dir = os.path.join(PATH_BUILD, pkg.name)
+        self.download_file = os.path.join(PATH_DISTS, filename)
         if is_file(self.download_url):
             path = fileurl_to_path(self.download_url)
             self.content_type = mimetypes.guess_type(path)[0]
@@ -135,7 +142,7 @@ class PythonInstaller(object):
             headerinfo = get_headerinfo_from_url(self.download_url)
             self.content_type = headerinfo['content-type']
         self.options = options
-        self.logfile = "%s/build.log" % PATH_LOG
+        self.logfile = os.path.join(PATH_LOG, 'build.log')
     
     def install(self):
         if os.path.isdir(self.install_dir):
@@ -240,7 +247,7 @@ class PythonInstaller(object):
             elif is_python25(version):
                 configure_option = '--with-universal-archs="intel" MACOSX_DEPLOYMENT_TARGET=10.6 CPPFLAGS="-D_DARWIN_C_SOURCE"'
             elif is_python26(version):
-                configure_option = '--with-universal-archs="intel" MACOSX_DEPLOYMENT_TARGET=10.6'
+                configure_option = '--with-universal-archs="intel" --enable-universalsdk=/ MACOSX_DEPLOYMENT_TARGET=10.6'
         
         s = Subprocess(log=self.logfile, cwd=self.build_dir)
         s.check_call("./configure --prefix=%s %s %s" % (self.install_dir, self.options.configure, configure_option))
@@ -294,9 +301,11 @@ class PythonInstaller(object):
             s = Subprocess(log=self.logfile, cwd=PATH_DISTS)
             logger.info("Installing distribute into %s" % install_dir)
             s.check_call("%s %s" % (path_python, filename))
-            if os.path.isfile("%s/bin/easy_install" % (install_dir)) and not is_python3:
+            # Using easy_install install pip
+            easy_install = os.path.join(install_dir, 'bin', 'easy_install')
+            if os.path.isfile(easy_install) and not is_python3:
                 logger.info("Installing pip into %s" % install_dir)
-                s.check_call("%s/bin/easy_install pip" % (install_dir))
+                s.check_call("%s pip" % (easy_install))
         except:
             logger.error("Failed to install setuptools. See %s/build.log to see why." % (ROOT))
             logger.info("Skip install setuptools.")
