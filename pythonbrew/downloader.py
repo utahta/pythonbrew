@@ -9,7 +9,7 @@ def get_headerinfo_from_url(url):
 
 def get_stable_version():
     c = Curl()
-    return c.read(PYTHONBREW_STABLE_VERSION_URL)
+    return c.read(PYTHONBREW_STABLE_VERSION_URL).strip()
 
 class Downloader(object):
     def download(self, msg, url, path):

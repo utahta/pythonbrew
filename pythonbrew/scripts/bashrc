@@ -89,6 +89,10 @@ pythonbrew()
     builtin hash -r
 }
 
+pybrew()
+{
+    pythonbrew "$@"
+}
+
 # main
 __pythonbrew_set_current_path
-

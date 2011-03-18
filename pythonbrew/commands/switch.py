@@ -8,7 +8,7 @@ from pythonbrew.log import logger
 class SwitchCommand(Command):
     name = "switch"
     usage = "%prog VERSION"
-    summary = "Switch to the given version of python"
+    summary = "Permanently use the specified python as default"
     
     def run_command(self, options, args):
         if not args:

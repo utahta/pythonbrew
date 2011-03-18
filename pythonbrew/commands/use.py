@@ -8,7 +8,7 @@ from pythonbrew.log import logger
 class UseCommand(Command):
     name = "use"
     usage = "%prog VERSION"
-    summary = "Using the given version of python"
+    summary = "Use the specified python in current shell"
     
     def run_command(self, options, args):
         if not args:

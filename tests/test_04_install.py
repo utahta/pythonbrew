@@ -7,5 +7,6 @@ class InstallOptions(object):
 
 def test_install():
     from pythonbrew.commands.install import InstallCommand
-    c = InstallCommand()
-    c.run_command(InstallOptions(), [TESTPY_VERSION])
+    for py_version in TESTPY_VERSION:
+        c = InstallCommand()
+        c.run_command(InstallOptions(), [py_version])

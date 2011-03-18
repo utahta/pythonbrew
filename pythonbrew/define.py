@@ -26,7 +26,6 @@ PATH_PATCHES_MACOSX_PYTHON24 = os.path.join(PATH_PATCHES_MACOSX,"python24")
 
 # files
 PATH_BIN_PYTHONBREW = os.path.join(PATH_BIN,'pythonbrew')
-PATH_BIN_PYBREW = os.path.join(PATH_BIN,'pybrew') # pybrew is symbolic link of pythonbrew
 PATH_ETC_CURRENT = os.path.join(PATH_ETC,'current')
 PATH_ETC_TEMP = os.path.join(PATH_ETC,'temp')
 

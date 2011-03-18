@@ -12,7 +12,7 @@ from pythonbrew.util import makedirs, symlink, Package, is_url, Link,\
 from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_ETC, PATH_SCRIPTS, PATH_SCRIPTS_PYTHONBREW,\
     PATH_SCRIPTS_PYTHONBREW_COMMANDS, INSTALLER_ROOT, PATH_BIN_PYTHONBREW,\
-    PATH_BIN_PYBREW, ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE, PATH_PATCHES,\
+    ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE, PATH_PATCHES,\
     PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24
 from pythonbrew.downloader import get_python_version_url, Downloader,\
     get_headerinfo_from_url
@@ -99,7 +99,6 @@ if __name__ == "__main__":
 """ % (sys.executable, PATH_SCRIPTS))
         fp.close()
         os.chmod(PATH_BIN_PYTHONBREW, 0755)
-        symlink(PATH_BIN_PYTHONBREW, PATH_BIN_PYBREW) # pybrew is symbolic link of pythonbrew
         
         # create bashrc
         fp = open(os.path.join(PATH_ETC,'bashrc'), 'w')

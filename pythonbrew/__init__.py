@@ -5,10 +5,9 @@ from pythonbrew.baseparser import parser
 def main():
     options, args = parser.parse_args(sys.argv[1:])
     if options.help and not args:
-        args = ["help"]
+        args = ['help']
     if not args:
-        parser.error('You must give a command (use "pythonbrew help" to see a list of commands)')
-        return
+        args = ['help'] # as default
     
     load_all_commands()
     command = args[0].lower()
