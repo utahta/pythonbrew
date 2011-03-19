@@ -55,7 +55,7 @@ PYTHONBREW_STABLE_VERSION_URL = _get_or_default('pythonbrew', 'stable-version')
 # python download
 LATEST_VERSIONS_OF_PYTHON = []
 PYTHON_VERSION_URL = {}
-PYTHON_VERSION_URL["1.5.6"] = _get_or_default('Python-1.5.6', 'url')
+PYTHON_VERSION_URL["1.5.2"] = _get_or_default('Python-1.5.2', 'url')
 PYTHON_VERSION_URL["1.6.1"] = _get_or_default('Python-1.6.1', 'url')
 for section in sorted(config.sections()):
     m = re.search("^Python-(.*)$", section)
