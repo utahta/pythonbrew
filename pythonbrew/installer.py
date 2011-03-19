@@ -13,21 +13,16 @@ from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_ETC, PATH_SCRIPTS, PATH_SCRIPTS_PYTHONBREW,\
     PATH_SCRIPTS_PYTHONBREW_COMMANDS, INSTALLER_ROOT, PATH_BIN_PYTHONBREW,\
     ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE, PATH_PATCHES,\
-    PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24
+    PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24, PATH_ETC_CONFIG
 from pythonbrew.downloader import get_python_version_url, Downloader,\
     get_headerinfo_from_url
 from pythonbrew.log import logger
 
 def install_pythonbrew():
     PythonbrewInstaller().install(INSTALLER_ROOT)
-            
-    m = re.search("(t?csh)", os.environ.get("SHELL"))
-    if m:
-        shrc = "cshrc"
-        yourshrc = m.group(1)+"rc"
-    else:
-        shrc = yourshrc = "bashrc"
     
+    # pythonbrew is only for bash
+    shrc = yourshrc = "bashrc"
     logger.info("""
 Well-done! Congratulations!
 
@@ -84,7 +79,7 @@ class PythonbrewInstaller(object):
         rm_r(PATH_PATCHES)
         shutil.copytree(os.path.join(installer_root,"patches"), PATH_PATCHES)
         
-        # create main file
+        # create a main file
         fp = open("%s/pythonbrew_main.py" % PATH_SCRIPTS, "w")
         fp.write("""import pythonbrew
 if __name__ == "__main__":
@@ -92,7 +87,7 @@ if __name__ == "__main__":
 """)
         fp.close()
         
-        # create entry point
+        # create entry point file
         fp = open(PATH_BIN_PYTHONBREW, "w")
         fp.write("""#!/usr/bin/env bash
 %s %s/pythonbrew_main.py "$@"
@@ -100,13 +95,15 @@ if __name__ == "__main__":
         fp.close()
         os.chmod(PATH_BIN_PYTHONBREW, 0755)
         
-        # create bashrc
+        # create a bashrc for pythonbrew
         fp = open(os.path.join(PATH_ETC,'bashrc'), 'w')
-        for line in open(os.path.join(installer_root,'scripts','bashrc')):
+        for line in open(os.path.join(installer_root,'etc','bashrc')):
             line = line.replace('@ROOT@', ROOT)
             fp.write(line)
         fp.close()
-        os.system("echo 'setenv PATH %s/bin:%s/current/bin:$PATH' > %s/cshrc" % (ROOT, PATH_PYTHONS, PATH_ETC))
+        
+        # copy config.cfg
+        shutil.copy(os.path.join(installer_root,'etc','config.cfg'), PATH_ETC_CONFIG)
 
 class PythonInstaller(object):
     def __init__(self, arg, options):
