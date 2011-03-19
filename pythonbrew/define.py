@@ -2,7 +2,7 @@ import os
 import re
 import ConfigParser
 
-VERSION = "0.6.8"
+VERSION = "0.6.9"
 
 if os.environ.has_key("PYTHONBREW_ROOT"):
     ROOT = os.environ["PYTHONBREW_ROOT"]
