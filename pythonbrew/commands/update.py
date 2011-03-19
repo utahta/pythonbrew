@@ -2,7 +2,7 @@ import os
 import sys
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PATH_DISTS, VERSION, ROOT,\
-    PATH_BUILD
+    PATH_BUILD, PYTHONBREW_UPDATE_URL_CONFIG, PATH_ETC_CONFIG
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader, get_pythonbrew_update_url,\
     get_stable_version, get_headerinfo_from_url
@@ -11,18 +11,58 @@ from pythonbrew.util import rm_r, unpack_downloadfile, Link, is_gzip, Subprocess
 class UpdateCommand(Command):
     name = "update"
     usage = "%prog"
-    summary = "Upgrades pythonbrew to the latest version"
+    summary = "Update pythonbrew to the latest version"
+    
+    def __init__(self):
+        super(UpdateCommand, self).__init__()
+        self.parser.add_option(
+            '--head',
+            dest='head',
+            action='store_true',
+            default=False,
+            help='Update pythonbrew to the github version'
+        )
+        self.parser.add_option(
+            '--config',
+            dest='config',
+            action='store_true',
+            default=False,
+            help='Update config.cfg'
+        )
     
     def run_command(self, options, args):
-        if args:
-            version = args[0]
+        if options.config:
+            self._update_config(options, args)
+        else:
+            self._update_pythonbrew(options, args)
+    
+    def _update_config(self, options, args):
+        # config.cfg update
+        # TODO: Automatically create for config.cfg
+        download_url = PYTHONBREW_UPDATE_URL_CONFIG
+        if not download_url:
+            logger.error("Invalid download url in config.cfg. `%s`" % download_url)
+            sys.exit(1)
+        distname = Link(PYTHONBREW_UPDATE_URL_CONFIG).filename
+        download_file = PATH_ETC_CONFIG
+        try:
+            d = Downloader()
+            d.download(distname, download_url, download_file)
+        except:
+            logger.error("Failed to download. `%s`" % download_url)
+            sys.exit(1)
+        logger.info("The config.cfg has been updated.")
+    
+    def _update_pythonbrew(self, options, args):
+        # pythonbrew update
+        if options.head:
+            version = 'head'
         else:
             version = get_stable_version()
-            
-        # check for latest version
-        if version <= VERSION:
-            logger.info("You are already running the installed latest version of pythonbrew.")
-            return
+            # check for version
+            if version <= VERSION:
+                logger.info("You are already running the installed latest version of pythonbrew.")
+                return
         
         download_url = get_pythonbrew_update_url(version)
         if not download_url:
@@ -30,7 +70,8 @@ class UpdateCommand(Command):
             sys.exit(1)
         headinfo = get_headerinfo_from_url(download_url)
         content_type = headinfo['content-type']
-        if not is_gzip(content_type, Link(download_url).filename):
+        # head is only for gzip.
+        if not options.head and not is_gzip(content_type, Link(download_url).filename):
             logger.error("Invalid content-type: `%s`" % content_type)
             sys.exit(1)
         

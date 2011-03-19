@@ -35,22 +35,28 @@ PATH_ETC_CONFIG = os.path.join(PATH_ETC,'config.cfg')
 # read config.cfg
 config = ConfigParser.SafeConfigParser()
 config.read([PATH_ETC_CONFIG, os.path.join(INSTALLER_ROOT,'etc','config.cfg')])
+def _get_or_default(section, option, default=''):
+    try:
+        return config.get(section, option)
+    except:
+        return default
 
 # setuptools download
-DISTRIBUTE_SETUP_DLSITE = config.get('distribute', 'url')
+DISTRIBUTE_SETUP_DLSITE = _get_or_default('distribute', 'url')
 
 # pythonbrew download
-PYTHONBREW_UPDATE_URL_HEAD = config.get('pythonbrew', 'head')
-PYTHONBREW_UPDATE_URL_PYPI = config.get('pythonbrew', 'pypi')
+PYTHONBREW_UPDATE_URL_HEAD = _get_or_default('pythonbrew', 'head')
+PYTHONBREW_UPDATE_URL_PYPI = _get_or_default('pythonbrew', 'pypi')
+PYTHONBREW_UPDATE_URL_CONFIG = _get_or_default('pythonbrew', 'config')
 
 # stable version text
-PYTHONBREW_STABLE_VERSION_URL = config.get('pythonbrew', 'stable-version')
+PYTHONBREW_STABLE_VERSION_URL = _get_or_default('pythonbrew', 'stable-version')
 
 # python download
 LATEST_VERSIONS_OF_PYTHON = []
 PYTHON_VERSION_URL = {}
-PYTHON_VERSION_URL["1.5.6"] = config.get('Python-1.5.6', 'url')
-PYTHON_VERSION_URL["1.6.1"] = config.get('Python-1.6.1', 'url')
+PYTHON_VERSION_URL["1.5.6"] = _get_or_default('Python-1.5.6', 'url')
+PYTHON_VERSION_URL["1.6.1"] = _get_or_default('Python-1.6.1', 'url')
 for section in sorted(config.sections()):
     m = re.search("^Python-(.*)$", section)
     if m:
