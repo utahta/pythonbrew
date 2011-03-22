@@ -14,21 +14,27 @@ class InstallCommand(Command):
             dest="force",
             action="store_true",
             default=False,
-            help="Force installation of a Python."
+            help="Force install of python.(skip make test)"
         )
         self.parser.add_option(
             "-C", "--configure",
             dest="configure",
             default="",
             metavar="CONFIGURE_OPTIONS",
-            help="Custom configure options."
+            help="Options passed directly to configure."
         )
         self.parser.add_option(
             "-n", "--no-setuptools",
             dest="no_setuptools",
             action="store_true",
             default=False,
-            help="Skip installation of setuptools."
+            help="Skip install of setuptools."
+        )
+        self.parser.add_option(
+            "--as",
+            dest="alias",
+            default=None,
+            help="Install a python under an alias."
         )
     
     def run_command(self, options, args):

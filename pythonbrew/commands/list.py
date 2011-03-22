@@ -38,7 +38,7 @@ class ListCommand(Command):
         logger.info('# installed pythons')
         cur = get_current_python_path()
         for d in sorted(os.listdir(PATH_PYTHONS)):
-            if cur == os.path.join(PATH_PYTHONS, d, 'bin','python'):
+            if cur and os.path.samefile(cur, os.path.join(PATH_PYTHONS, d, 'bin','python')):
                 logger.info('%s (*)' % d)
                 cur = None
             else:

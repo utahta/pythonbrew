@@ -242,18 +242,22 @@ class Subprocess(object):
             raise ShellCommandException('Failed to `%s` command' % cmd)
 
 class Package(object):
-    def __init__(self, name):
+    def __init__(self, name, alias=None):
         self.name = None
         self.version = None
+        self.alias = None
         if is_archive_file(name):
             name = splitext(name)[0]
         m = re.search("^Python-(.*)$", name)
         if m:
             self.name = name
-            self.version = m.group(1)
+            self.version = self.alias = m.group(1)
         else:
             self.name = "Python-%s" % name
-            self.version = name
+            self.version = self.alias = name
+        if alias:
+            self.name = 'Python-%s' % alias
+            self.alias = alias
 
 class Link(object):
     def __init__(self, url):

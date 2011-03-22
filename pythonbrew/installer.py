@@ -119,9 +119,9 @@ class PythonInstaller(object):
         if is_url(name):
             self.download_url = name
             filename = Link(self.download_url).filename
-            pkg = Package(filename)
+            pkg = Package(filename, options.alias)
         else:
-            pkg = Package(name)
+            pkg = Package(name, options.alias)
             self.download_url = get_python_version_url(pkg.version)
             if not self.download_url:
                 logger.info("Unknown python version: `%s`" % pkg.name)
@@ -166,7 +166,7 @@ class PythonInstaller(object):
         logger.info("Installed %(pkgname)s successfully. Run the following command to switch to %(pkgname)s."
                     % {"pkgname":self.pkg.name})
         logger.info("")
-        logger.info("  pythonbrew switch %s" % self.pkg.version)
+        logger.info("  pythonbrew switch %s" % self.pkg.alias)
     
     def ensure(self):
         if is_macosx_snowleopard():
