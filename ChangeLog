@@ -1,3 +1,7 @@
+* 0.7
+  - Added symlink command.
+  - Added --as option.
+
 * 0.6.9
   - Bug fixed.
   - Added config.cfg

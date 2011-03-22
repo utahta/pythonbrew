@@ -52,7 +52,7 @@ Use the specified python in current shell::
 Runs a named python file against specified and/or all pythons::
 
   pythonbrew py test.py
-  pythonbrew py -v test.py # Show version
+  pythonbrew py -v test.py # Show running python version
   pythonbrew py -p 2.6.6 -p 3.1.2 test.py # Use the specified pythons
 
 List the installed pythons::
@@ -78,6 +78,12 @@ Upgrades pythonbrew to the latest version::
 Disable pythonbrew::
 
   pythonbrew off
+  
+Create/Remove a symbolic link to python::
+
+  pythonbrew symlink # Create a symbolic link, like "py2.5.5"
+  pythonbrew symlink -p 2.5.5
+  pythonbrew symlink -r # Remove a symbolic link
 
 Show version::
 
@@ -91,10 +97,7 @@ install <version>
   
   Setuptools and pip is automatically installed.
   
-  options: --force, --no-setuptools and --configure.
-
-installed
-  List the installed versions of python.
+  options: --force, --no-setuptools, --configure and --as.
 
 switch <version>
   Permanently use the specified python as default.
@@ -137,6 +140,9 @@ Options
 
 \-n | --no-setuptools
   Skip installation of setuptools.
+
+\--as
+  Install a python under an alias.
 
 LICENCE
 =======
