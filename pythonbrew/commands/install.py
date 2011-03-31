@@ -36,6 +36,13 @@ class InstallCommand(Command):
             default=None,
             help="Install a python under an alias."
         )
+        self.parser.add_option(
+            '-j', "--jobs",
+            dest="jobs",
+            type='int',
+            default=0,
+            help="Enable parallel make."
+        )
     
     def run_command(self, options, args):
         if args:

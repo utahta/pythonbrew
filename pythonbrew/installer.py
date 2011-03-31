@@ -249,11 +249,13 @@ class PythonInstaller(object):
         s.check_call("./configure --prefix=%s %s %s" % (self.install_dir, self.options.configure, configure_option))
         
     def make(self):
+        jobs = self.options.jobs
+        make = ((jobs > 0 and 'make -j%s' % jobs) or 'make')
         s = Subprocess(log=self.logfile, cwd=self.build_dir)
         if self.options.force:
-            s.check_call("make")
+            s.check_call(make)
         else:
-            s.check_call("make")
+            s.check_call(make)
             s.check_call("make test")
             
     def make_install(self):
