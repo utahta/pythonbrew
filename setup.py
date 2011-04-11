@@ -10,7 +10,7 @@ setup(name='pythonbrew',
       description="Manage python installations in your $HOME",
       long_description=long_description,
       classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Topic :: Software Development :: Build Tools',

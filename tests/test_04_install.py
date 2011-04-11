@@ -5,6 +5,7 @@ class InstallOptions(object):
     configure = ""
     no_setuptools = False
     alias = None
+    jobs = 2
 
 def test_install():
     from pythonbrew.commands.install import InstallCommand
