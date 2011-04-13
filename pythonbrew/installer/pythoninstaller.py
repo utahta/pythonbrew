@@ -180,7 +180,7 @@ class PythonInstallerMacOSX(PythonInstaller):
     """Python installer for MacOSX SnowLeopard
     """
     def __init__(self, arg, options):
-        super(PythonInstaller).__init__(arg, options)
+        super(PythonInstallerMacOSX, self).__init__(arg, options)
         version = self.pkg.version
         # check for version
         if version < '2.6' and (version != '2.4.6' and version != '2.5.5'):
