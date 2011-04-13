@@ -1,6 +1,8 @@
 from pythonbrew.basecommand import Command
 from pythonbrew.log import logger
-from pythonbrew.installer import PythonInstaller
+from pythonbrew.installer.pythoninstaller import PythonInstaller,\
+    PythonInstallerMacOSX
+from pythonbrew.util import is_macosx_snowleopard
 
 class InstallCommand(Command):
     name = "install"
@@ -47,7 +49,11 @@ class InstallCommand(Command):
     def run_command(self, options, args):
         if args:
             # Install Python
-            PythonInstaller(args[0], options).install()
+            if is_macosx_snowleopard():
+                p = PythonInstallerMacOSX(args[0], options)
+            else:
+                p = PythonInstaller(args[0], options)
+            p.install()
         else:
             logger.info("Unknown python version.")
     
