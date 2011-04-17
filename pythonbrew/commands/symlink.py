@@ -29,7 +29,7 @@ class SymlinkCommand(Command):
             dest="bin",
             action="append",
             default=[],
-            help="Create the specified binary symbolic link"
+            help="Create a symbolic link to the specified script in bin directory"
         )
     
     def run_command(self, options, args):

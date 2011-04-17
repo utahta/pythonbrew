@@ -34,12 +34,13 @@ pythonbrew command [options]
 Install some pythons::
 
   pythonbrew install 2.6.6
-  pythonbrew install --force 2.5.5
+  pythonbrew install --force 2.6.6
   pythonbrew install --configure="CC=gcc_4.1" 2.6.6
   pythonbrew install --no-setuptools 2.6.6
-  pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.7.tgz
-  pythonbrew install file:///path/to/Python-2.7.tgz
-  pythonbrew install /path/to/Python-2.7.tgz
+  pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.6.6.tgz
+  pythonbrew install file:///path/to/Python-2.6.6.tgz
+  pythonbrew install /path/to/Python-2.6.6.tgz
+  pythonbrew install 2.5.5 2.6.6
   
 Permanently use the specified python as default::
 
@@ -67,6 +68,7 @@ List the available install pythons::
 Uninstall the specified python::
 
   pythonbrew uninstall 2.6.6
+  pythonbrew uninstall 2.5.5 2.6.6
 
 Remove stale source folders and archives::
 
@@ -84,6 +86,7 @@ Create/Remove a symbolic link to python::
 
   pythonbrew symlink # Create a symbolic link, like "py2.5.5"
   pythonbrew symlink -p 2.5.5
+  pythonbrew symlink -b pip # Create a symbolic link to the specified script in bin directory
   pythonbrew symlink -r # Remove a symbolic link
 
 Show version::
