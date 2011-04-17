@@ -18,14 +18,14 @@ class ListCommand(Command):
             dest='all_versions',
             action='store_true',
             default=False,
-            help='All versions of Python are visible'
+            help='Show the all python versions'
         )
         self.parser.add_option(
             '-k', '--known',
             dest='known',
             action='store_true',
             default=False,
-            help='List the available install versions of Python'
+            help='List the available latest python versions'
         )
     
     def run_command(self, options, args):

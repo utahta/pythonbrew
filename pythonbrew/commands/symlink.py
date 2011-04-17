@@ -15,28 +15,47 @@ class SymlinkCommand(Command):
             dest="pythons",
             action="append",
             default=[],
-            help="Using specified python versions."
+            help="Use the specified python versions"
         )
         self.parser.add_option(
             "-r", "--remove",
             dest="remove",
             action="store_true",
             default=False,
-            help="Remove a symbolic link."
+            help="Remove the all symbolic link"
+        )
+        self.parser.add_option(
+            "-b", "--bin",
+            dest="bin",
+            action="append",
+            default=[],
+            help="Create the specified binary symbolic link"
         )
     
     def run_command(self, options, args):
         pythons = self._get_pythons(options.pythons)
-        for python in pythons:
-            version = Package(python).version
-            src = os.path.join(PATH_PYTHONS, python, 'bin', 'python')
-            dst = os.path.join(PATH_BIN, 'py%s' % (version))
+        for pkgname in pythons:
             if options.remove:
-                unlink(dst)
+                for bin in os.listdir(PATH_BIN):
+                    path = os.path.join(PATH_BIN, bin)
+                    if os.path.islink(path):
+                        unlink(path)
             else:
-                symlink(src, dst)
+                self._symlink('python', 'py', pkgname)
+                for bin in options.bin:
+                    self._symlink(bin, bin, pkgname)
+                    
+    def _symlink(self, srcbin, dstbin, pkgname):
+        """Create the symlink
+        """
+        version = Package(pkgname).version
+        src = os.path.join(PATH_PYTHONS, pkgname, 'bin', srcbin)
+        dst = os.path.join(PATH_BIN, '%s%s' % (dstbin, version))
+        symlink(src, dst)
     
     def _get_pythons(self, _pythons):
+        """Get the installed python versions. 
+        """
         pythons = [Package(p).name for p in _pythons]
         return [d for d in sorted(os.listdir(PATH_PYTHONS)) 
                 if not pythons or d in pythons]
