@@ -6,7 +6,7 @@ from pythonbrew.util import Package, symlink, unlink
 class SymlinkCommand(Command):
     name = "symlink"
     usage = "%prog"
-    summary = "Create/Remove a symbolic link to python"
+    summary = "Create/Remove a symbolic link"
     
     def __init__(self):
         super(SymlinkCommand, self).__init__()
@@ -15,21 +15,22 @@ class SymlinkCommand(Command):
             dest="pythons",
             action="append",
             default=[],
-            help="Use the specified python versions"
+            help="Use the specified python version.",
+            metavar='VERSION'
         )
         self.parser.add_option(
             "-r", "--remove",
             dest="remove",
             action="store_true",
             default=False,
-            help="Remove the all symbolic link"
+            help="Remove the all symbolic link."
         )
         self.parser.add_option(
             "-b", "--bin",
             dest="bin",
             action="append",
             default=[],
-            help="Create a symbolic link to the specified script in bin directory"
+            help="Create a symbolic link to the specified script name in bin directory."
         )
     
     def run_command(self, options, args):

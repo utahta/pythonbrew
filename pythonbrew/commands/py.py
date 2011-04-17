@@ -18,14 +18,15 @@ class PyCommand(Command):
             dest="pythons",
             action="append",
             default=[],
-            help="Using specified python versions."
+            help="Use the specified python version.",
+            metavar='VERSION'
         )
         self.parser.add_option(
             "-v", "--verbose",
             dest="verbose",
             action="store_true",
             default=False,
-            help="Show python version."
+            help="Show the running python version."
         )
     
     def run_command(self, options, args):

@@ -20,21 +20,21 @@ class UpdateCommand(Command):
             dest='head',
             action='store_true',
             default=False,
-            help='Update the pythonbrew to the github version'
+            help='Update the pythonbrew to the github version.'
         )
         self.parser.add_option(
             '--config',
             dest='config',
             action='store_true',
             default=False,
-            help='Update config.cfg'
+            help='Update config.cfg.'
         )
         self.parser.add_option(
             '-f', '--force',
             dest='force',
             action='store_true',
             default=False,
-            help='Force update the pythonbrew'
+            help='Force update the pythonbrew.'
         )
     
     def run_command(self, options, args):
