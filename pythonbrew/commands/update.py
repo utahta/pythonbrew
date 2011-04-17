@@ -11,7 +11,7 @@ from pythonbrew.util import rm_r, unpack_downloadfile, Link, is_gzip, Subprocess
 class UpdateCommand(Command):
     name = "update"
     usage = "%prog"
-    summary = "Update pythonbrew to the latest version"
+    summary = "Update the pythonbrew to the latest version"
     
     def __init__(self):
         super(UpdateCommand, self).__init__()
@@ -20,7 +20,7 @@ class UpdateCommand(Command):
             dest='head',
             action='store_true',
             default=False,
-            help='Update pythonbrew to the github version'
+            help='Update the pythonbrew to the github version'
         )
         self.parser.add_option(
             '--config',
@@ -28,6 +28,13 @@ class UpdateCommand(Command):
             action='store_true',
             default=False,
             help='Update config.cfg'
+        )
+        self.parser.add_option(
+            '-f', '--force',
+            dest='force',
+            action='store_true',
+            default=False,
+            help='Force update the pythonbrew'
         )
     
     def run_command(self, options, args):
@@ -60,7 +67,7 @@ class UpdateCommand(Command):
         else:
             version = get_stable_version()
             # check for version
-            if version <= VERSION:
+            if not options.force and version <= VERSION:
                 logger.info("You are already running the installed latest version of pythonbrew.")
                 return
         
