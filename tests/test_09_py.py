@@ -6,7 +6,7 @@ class PyOptions(object):
 
 def _create_pyfile():
     fp = open(TESTPY_FILE, 'w')
-    fp.write("print 'test'")
+    fp.write("print('test')")
     fp.close()
 
 def test_py():

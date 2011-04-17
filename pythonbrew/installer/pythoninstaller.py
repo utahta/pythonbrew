@@ -14,6 +14,8 @@ from pythonbrew.define import PATH_BUILD, PATH_DISTS, PATH_PYTHONS,\
 from pythonbrew.downloader import get_python_version_url, Downloader,\
     get_headerinfo_from_url
 from pythonbrew.log import logger
+from pythonbrew.exceptions import UnknownVersionException,\
+    AlreadyInstalledException, NotSupportedVersionException
 
 class PythonInstaller(object):
     """Python installer
@@ -38,7 +40,7 @@ class PythonInstaller(object):
             self.download_url = get_python_version_url(pkg.version)
             if not self.download_url:
                 logger.info("Unknown python version: `%s`" % pkg.name)
-                sys.exit(1)
+                raise UnknownVersionException
             filename = Link(self.download_url).filename
         self.pkg = pkg
         self.install_dir = os.path.join(PATH_PYTHONS, pkg.name)
@@ -57,7 +59,7 @@ class PythonInstaller(object):
     def install(self):
         if os.path.isdir(self.install_dir):
             logger.info("You are already installed `%s`" % self.pkg.name)
-            sys.exit()
+            raise AlreadyInstalledException
         self.download_unpack()
         logger.info("")
         logger.info("This could take a while. You can run the following command on another shell to track the status:")
@@ -78,7 +80,6 @@ class PythonInstaller(object):
         self.install_setuptools()
         logger.info("Installed %(pkgname)s successfully. Run the following command to switch to %(pkgname)s."
                     % {"pkgname":self.pkg.name})
-        logger.info("")
         logger.info("  pythonbrew switch %s" % self.pkg.alias)
         
     def download_unpack(self):
@@ -185,7 +186,7 @@ class PythonInstallerMacOSX(PythonInstaller):
         # check for version
         if version < '2.6' and (version != '2.4.6' and version != '2.5.5'):
             logger.info("`%s` is not supported on MacOSX Snow Leopard" % self.pkg.name)
-            sys.exit()
+            raise NotSupportedVersionException
         # set configure options
         if is_python24(version):
             self.configure_options = '--with-universal-archs="intel" MACOSX_DEPLOYMENT_TARGET=10.6 CPPFLAGS="-D__DARWIN_UNIX03"'
