@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 
+shopt -s extglob
+
 PYTHONS="/usr/bin/python /usr/bin/python2 `command -v python`"
 CURL=`command -v curl`
+
+trim()
+{
+    trimmed=$1
+    trimmed="${trimmed#"${trimmed%%[![:space:]]*}"}"   # remove leading whitespace characters
+    trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"   # remove trailing whitespace characters
+
+    echo $trimmed
+}
 
 usage()
 {
@@ -38,13 +49,13 @@ fi
 
 for PYTHON in $PYTHONS ; do
 	if [[ ! -x $PYTHON ]] ; then
-	    continue
+            continue
 	fi
-	
+
 	PYTHON_VERSION=`$PYTHON -V 2>&1`
 	PYTHON_VERSION=${PYTHON_VERSION/"Python "/""}
 	PYTHON_VERSION_S=`echo $PYTHON_VERSION | sed -e "s/\(^[[:digit:]]\{1,\}.[[:digit:]]\{1,\}\).*/\1/"`
-	
+
 	if [[ $PYTHON_VERSION_S = "2.4" ]] || [[ $PYTHON_VERSION_S = "2.5" ]] || [[ $PYTHON_VERSION_S = "2.6" ]] || [[ $PYTHON_VERSION_S = "2.7" ]] ; then
 		PYTHON_FOUND='1'
 		break
@@ -63,6 +74,7 @@ fi
 PATH_DISTS="$ROOT/dists"
 
 STABLE_VERSION=`curl -skL https://github.com/utahta/pythonbrew/raw/master/stable-version.txt`
+STABLE_VERSION=`trim $STABLE_VERSION`
 if [[ $STABLE_VERSION = "" ]] ; then
     echo 'Could not get stable-version of pythonbrew.'
     exit 1
