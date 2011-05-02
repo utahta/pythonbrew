@@ -10,7 +10,8 @@ from pythonbrew.util import makedirs, symlink, Package, is_url, Link,\
     fileurl_to_path
 from pythonbrew.define import PATH_BUILD, PATH_DISTS, PATH_PYTHONS,\
     ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE,\
-    PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24
+    PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24,\
+    PATH_PATCHES_MACOSX_PYTHON26
 from pythonbrew.downloader import get_python_version_url, Downloader,\
     get_headerinfo_from_url
 from pythonbrew.log import logger
@@ -200,6 +201,7 @@ class PythonInstallerMacOSX(PythonInstaller):
         try:
             s = Subprocess(log=self.logfile, cwd=self.build_dir)
             patches = []
+            eds = {}
             if is_python24(version):
                 patch_dir = PATH_PATCHES_MACOSX_PYTHON24
                 patches = ['patch-configure', 'patch-Makefile.pre.in',
@@ -212,15 +214,38 @@ class PythonInstallerMacOSX(PythonInstaller):
                            'patch-gestaltmodule.c.diff']
             elif is_python25(version):
                 patch_dir = PATH_PATCHES_MACOSX_PYTHON25
-                patches = ['patch-Makefile.pre.in.diff', 'patch-Lib-cgi.py.diff',
-                           'patch-Lib-distutils-dist.py.diff', 'patch-setup.py.diff',
-                           'patch-configure-badcflags.diff', 'patch-configure-arch_only.diff',
-                           'patch-64bit.diff', 'patch-pyconfig.h.in.diff',
-                           'patch-Modules-posixmodule.c.diff', 'patch-gestaltmodule.c.diff']
-            if patches:
+                patches = ['patch-Makefile.pre.in.diff', 
+                           'patch-Lib-cgi.py.diff',
+                           'patch-Lib-distutils-dist.py.diff', 
+                           'patch-setup.py.diff',
+                           'patch-configure-badcflags.diff', 
+                           'patch-configure-arch_only.diff',
+                           'patch-64bit.diff', 
+                           'patch-pyconfig.h.in.diff',
+                           'patch-gestaltmodule.c.diff']
+                eds = {'_localemodule.c.ed': 'Modules/_localemodule.c', 
+                       'locale.py.ed': 'Lib/locale.py'}
+            elif is_python26(version):
+                patch_dir = PATH_PATCHES_MACOSX_PYTHON26
+                patches = ['patch-Lib-cgi.py.diff', 
+                           'patch-Lib-distutils-dist.py.diff',
+                           'patch-Mac-IDLE-Makefile.in.diff',
+                           'patch-Mac-Makefile.in.diff',
+                           'patch-Mac-PythonLauncher-Makefile.in.diff',
+                           'patch-Mac-Tools-Doc-setup.py.diff',
+                           'patch-setup.py-db46.diff',
+                           'patch-Lib-ctypes-macholib-dyld.py.diff',
+                           'patch-setup_no_tkinter.py.diff']
+                eds = {'_localemodule.c.ed': 'Modules/_localemodule.c', 
+                       'locale.py.ed': 'Lib/locale.py'}
+                
+            if patches or eds:
                 logger.info("Patching %s" % self.pkg.name)
                 for patch in patches:
                     s.check_call("patch -p0 < %s" % os.path.join(patch_dir, patch))
+                for (ed, source) in eds.items():
+                    ed = os.path.join(patch_dir, ed)
+                    s.check_call('ed - %s < %s' % (source, ed))
         except:
             logger.error("Failed to patch `%s`" % self.build_dir)
             sys.exit(1)
