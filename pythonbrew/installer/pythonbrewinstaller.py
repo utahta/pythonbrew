@@ -8,6 +8,7 @@ from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_SCRIPTS_PYTHONBREW_COMMANDS, PATH_BIN_PYTHONBREW,\
     ROOT, PATH_LOG, PATH_PATCHES, PATH_ETC_CONFIG,\
     PATH_SCRIPTS_PYTHONBREW_INSTALLER
+import stat
 
 class PythonbrewInstaller(object):
     """pythonbrew installer:
@@ -55,7 +56,8 @@ if __name__ == "__main__":
 %s %s/pythonbrew_main.py "$@"
 """ % (sys.executable, PATH_SCRIPTS))
         fp.close()
-        os.chmod(PATH_BIN_PYTHONBREW, 0755)
+        # mode 0755
+        os.chmod(PATH_BIN_PYTHONBREW, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH)
         
         # create a bashrc for pythonbrew
         fp = open(os.path.join(PATH_ETC,'bashrc'), 'w')

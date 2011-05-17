@@ -2,6 +2,7 @@ from pythonbrew.define import PYTHON_VERSION_URL, PYTHONBREW_STABLE_VERSION_URL,
     PYTHONBREW_UPDATE_URL_PYPI, PYTHONBREW_UPDATE_URL_HEAD
 from pythonbrew.log import logger
 from pythonbrew.curl import Curl
+from pythonbrew.util import u
 
 def get_headerinfo_from_url(url):
     c = Curl()
@@ -9,7 +10,7 @@ def get_headerinfo_from_url(url):
 
 def get_stable_version():
     c = Curl()
-    return c.read(PYTHONBREW_STABLE_VERSION_URL).strip()
+    return u(c.read(PYTHONBREW_STABLE_VERSION_URL).strip())
 
 class Downloader(object):
     def download(self, msg, url, path):
@@ -24,6 +25,4 @@ def get_pythonbrew_update_url(version):
         return PYTHONBREW_UPDATE_URL_PYPI % (version)
 
 def get_python_version_url(version):
-    if PYTHON_VERSION_URL.has_key(version):
-        return PYTHON_VERSION_URL[version]
-    return None
+    return PYTHON_VERSION_URL.get(version)

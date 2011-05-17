@@ -3,6 +3,7 @@ import re
 import subprocess
 from subprocess import Popen, PIPE
 from pythonbrew.log import logger
+from pythonbrew.util import u
 
 class Curl(object):
     def __init__(self):
@@ -25,11 +26,11 @@ class Curl(object):
             raise
         respinfo = {}
         for line in p.stdout:
-            line = line.strip()
+            line = u(line.strip())
             if re.match('^HTTP.*? 200 OK$', line):
                 break
         for line in p.stdout:
-            line = line.strip().split(":", 1)
+            line = u(line.strip()).split(":", 1)
             if len(line) == 2:
                 respinfo[line[0].strip().lower()] = line[1].strip()
         return respinfo

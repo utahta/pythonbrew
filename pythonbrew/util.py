@@ -11,6 +11,7 @@ from subprocess import PIPE, Popen
 from pythonbrew.define import PATH_BIN, PATH_PYTHONS, PATH_ETC_CURRENT
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
+import sys
 
 def size_format(b):
     kb = 1000
@@ -76,8 +77,9 @@ def is_python26(version):
 def makedirs(path):
     try:
         os.makedirs(path)
-    except OSError, (e, es):
-        if errno.EEXIST != e:
+    except OSError:
+        e = sys.exc_info()[1]
+        if errno.EEXIST != e.errno:
             raise
 
 def symlink(src, dst):
@@ -89,8 +91,9 @@ def symlink(src, dst):
 def unlink(path):
     try:
         os.unlink(path)
-    except OSError, (e, es):
-        if errno.ENOENT != e:
+    except OSError:
+        e = sys.exc_info()[1]
+        if errno.ENOENT != e.errno:
             raise
         
 def rm_r(path):
@@ -166,7 +169,8 @@ def untar_file(filename, location):
             else:
                 try:
                     fp = tar.extractfile(member)
-                except (KeyError, AttributeError), e:
+                except (KeyError, AttributeError):
+                    e = sys.exc_info()[1]
                     # Some corrupt tar files seem to produce this
                     # (specifically bad symlinks)
                     logger.error('In the tar file %s the member %s is invalid: %s'
@@ -217,6 +221,18 @@ def fileurl_to_path(url):
     assert url.startswith('file:'), ('Illegal scheme:%s' % url)
     url = '/' + url[len('file:'):].lstrip('/')
     return urllib.unquote(url)
+
+def u(val):
+    """to unicode
+    """
+    try:
+        # for python3
+        if type(val) == bytes:
+            return val.decode()
+    except:
+        if type(val) == str:
+            return val.decode("utf-8")
+    return val            
 
 class Subprocess(object):
     def __init__(self, log=None, shell=True, cwd=None, print_cmd=False):

@@ -1,14 +1,19 @@
 import os
 import re
-import ConfigParser
+try:
+    import ConfigParser
+except:
+    import configparser as ConfigParser
 
+# pythonbrew version
 VERSION = "0.7.2"
 
-if os.environ.has_key("PYTHONBREW_ROOT"):
-    ROOT = os.environ["PYTHONBREW_ROOT"]
-else:
+# pythonbrew root path
+ROOT = os.environ.get("PYTHONBREW_ROOT")
+if not ROOT:
     ROOT = os.path.join(os.environ["HOME"],".pythonbrew")
 
+# pythonbrew installer root path
 INSTALLER_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # directories
