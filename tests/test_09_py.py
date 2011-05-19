@@ -3,6 +3,8 @@ from tests import TESTPY_FILE
 class PyOptions(object):
     pythons = []
     verbose = False
+    bin = "python"
+    options = ""
 
 def _create_pyfile():
     fp = open(TESTPY_FILE, 'w')
