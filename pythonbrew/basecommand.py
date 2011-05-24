@@ -18,7 +18,7 @@ class Command(object):
         
     def run(self, args):
         options, args = self.parser.parse_args(args)
-        self.run_command(options, args[1:])
+        self.run_command(options, args)
 
 def load_command(name):
     full_name = 'pythonbrew.commands.%s' % name

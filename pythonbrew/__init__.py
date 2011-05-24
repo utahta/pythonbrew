@@ -15,4 +15,4 @@ def main():
         parser.error("Unknown command: `%s`" % command)
         return
     command = command_dict[command]
-    command.run(args)
+    command.run(args[1:])
