@@ -3,7 +3,6 @@ import sys
 import re
 from optparse import OptionParser
 from pythonbrew import commands
-from pythonbrew.define import PATH_BIN_PYTHONBREW
 
 command_dict = {}
 
@@ -14,7 +13,7 @@ class Command(object):
     
     def __init__(self):
         self.parser = OptionParser(usage=self.usage,
-                                   prog='%s %s' % (PATH_BIN_PYTHONBREW, self.name))
+                                   prog='%s %s' % ("pythonbrew", self.name))
         command_dict[self.name] = self
         
     def run(self, args):

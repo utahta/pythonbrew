@@ -1,8 +1,8 @@
 from optparse import OptionParser
-from pythonbrew.define import VERSION, PATH_BIN_PYTHONBREW
+from pythonbrew.define import VERSION
 
 parser = OptionParser(usage="%prog COMMAND [OPTIONS]",
-                      prog=PATH_BIN_PYTHONBREW,
+                      prog="pythonbrew",
                       version=VERSION,
                       add_help_option=False)
 parser.add_option(
