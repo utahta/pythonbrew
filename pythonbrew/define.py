@@ -6,7 +6,7 @@ except:
     import configparser as ConfigParser
 
 # pythonbrew version
-VERSION = "0.7.2"
+VERSION = "0.7.3"
 
 # pythonbrew root path
 ROOT = os.environ.get("PYTHONBREW_ROOT")
