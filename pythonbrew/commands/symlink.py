@@ -35,8 +35,7 @@ class SymlinkCommand(Command):
     
     def run_command(self, options, args):
         if options.default:
-            """create only one instance as default of an application.
-            """
+            # create only one instance as default of an application.
             pythons = self._get_pythons([options.default])
             for pkgname in pythons:
                 if args:
@@ -48,11 +47,13 @@ class SymlinkCommand(Command):
             pythons = self._get_pythons(options.pythons)
             for pkgname in pythons:
                 if options.remove:
+                    # remove symlinks
                     for bin in os.listdir(PATH_BIN):
                         path = os.path.join(PATH_BIN, bin)
                         if os.path.islink(path):
                             unlink(path)
                 else:
+                    # create symlinks
                     if args:
                         bin = args[0]
                         self._symlink_version_suffix(bin, bin, pkgname)

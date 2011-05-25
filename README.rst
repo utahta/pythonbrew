@@ -3,7 +3,7 @@ Overview
 
 pythonbrew is a program to automate the building and installation of Python in the users HOME.
 
-pythonbrew is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_.
+pythonbrew is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_ and `rvm <https://github.com/wayneeseguin/rvm>`_.
 
 Installation
 ============
