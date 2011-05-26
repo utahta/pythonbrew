@@ -1,3 +1,10 @@
+* 0.7.3
+  - Improved symlink command.
+  - support python3
+
+* 0.7.2
+  - Bug fixed.
+
 * 0.7.1
   - Enable parallel make option (--jobs).
   - The pythonbrew-install script accept Python-2.7.
