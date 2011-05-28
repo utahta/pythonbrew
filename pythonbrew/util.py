@@ -74,6 +74,9 @@ def is_python25(version):
 def is_python26(version):
     return version >= '2.6' and version < '2.7'
 
+def is_python27(version):
+    return version >= '2.7' and version < '2.8'
+
 def makedirs(path):
     try:
         os.makedirs(path)
