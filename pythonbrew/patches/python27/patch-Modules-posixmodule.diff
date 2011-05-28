@@ -1,0 +1,11 @@
+--- Modules/posixmodule.c.bak	2011-05-28 14:09:48.000000000 -0400
++++ Modules/posixmodule.c	2011-05-28 14:10:34.000000000 -0400
+@@ -477,7 +477,7 @@
+     d = PyDict_New();
+     if (d == NULL)
+         return NULL;
+-#ifdef WITH_NEXT_FRAMEWORK
++#ifdef __APPLE__
+     if (environ == NULL)
+         environ = *_NSGetEnviron();
+ #endif
