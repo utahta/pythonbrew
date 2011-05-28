@@ -243,8 +243,6 @@ class PythonInstallerMacOSX(PythonInstaller):
             elif is_python27(version):
                 patch_dir = PATH_PATCHES_MACOSX_PYTHON27
                 patches = ['patch-Modules-posixmodule.diff']
-                #eds = {'_localemodule.c.ed': 'Modules/_localemodule.c',
-                       #'locale.py.ed': 'Lib/locale.py'}
 
             if patches or eds:
                 logger.info("Patching %s" % self.pkg.name)
