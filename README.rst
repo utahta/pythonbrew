@@ -85,7 +85,7 @@ Create/Remove a symbolic link to python::
 
   pythonbrew symlink # Create a symbolic link, like "py2.5.5"
   pythonbrew symlink -p 2.5.5
-  pythonbrew symlink -b pip # Create a symbolic link to the specified script in bin directory
+  pythonbrew symlink pip # Create a symbolic link to the specified script in bin directory
   pythonbrew symlink -r # Remove a symbolic link
 
 Show version::
