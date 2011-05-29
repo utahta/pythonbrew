@@ -152,10 +152,6 @@ class PythonInstaller(object):
         if options.no_setuptools:
             logger.info("Skip installation setuptools.")
             return
-        if re.match("^Python-3.*", pkgname):
-            is_python3 = True
-        else:
-            is_python3 = False
         download_url = DISTRIBUTE_SETUP_DLSITE
         filename = Link(download_url).filename
         download_file = os.path.join(PATH_DISTS, filename)
@@ -171,7 +167,7 @@ class PythonInstaller(object):
             s.check_call("%s %s" % (path_python, filename))
             # Using easy_install install pip
             easy_install = os.path.join(install_dir, 'bin', 'easy_install')
-            if os.path.isfile(easy_install) and not is_python3:
+            if os.path.isfile(easy_install):
                 logger.info("Installing pip into %s" % install_dir)
                 s.check_call("%s pip" % (easy_install))
         except:
@@ -196,6 +192,8 @@ class PythonInstallerMacOSX(PythonInstaller):
         elif is_python26(version):
             self.configure_options = '--with-universal-archs="intel" --enable-universalsdk=/ MACOSX_DEPLOYMENT_TARGET=10.6'
         elif is_python27(version):
+            self.configure_options = '--with-universal-archs="intel" --enable-universalsdk=/ MACOSX_DEPLOYMENT_TARGET=10.6'
+        else:
             self.configure_options = '--with-universal-archs="intel" --enable-universalsdk=/ MACOSX_DEPLOYMENT_TARGET=10.6'
 
     def patch(self):
