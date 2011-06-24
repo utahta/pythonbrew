@@ -7,7 +7,7 @@ from pythonbrew.log import logger
 class SymlinkCommand(Command):
     name = "symlink"
     usage = "%prog [OPTIONS] [SCRIPT]"
-    summary = "Create/Remove a symbolic link"
+    summary = "Create/Remove a symbolic link on your $PATH"
     
     def __init__(self):
         super(SymlinkCommand, self).__init__()
