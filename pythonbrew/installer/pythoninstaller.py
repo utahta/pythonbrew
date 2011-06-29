@@ -1,7 +1,6 @@
 import os
 import sys
 import shutil
-import re
 import mimetypes
 from pythonbrew.util import makedirs, symlink, Package, is_url, Link,\
     unlink, is_html, Subprocess, rm_r,\
