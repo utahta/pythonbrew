@@ -40,12 +40,12 @@ class PyCommand(Command):
                 logger.info('*** %s ***' % d)
             path = os.path.join(PATH_PYTHONS, d, 'bin', args[0])
             if os.path.isfile(path) and os.access(path, os.X_OK):
-                p = Popen("%s %s" % (path, ' '.join(args[1:])), shell=True)
+                p = Popen([path] + args[1:])
                 p.wait()
             else:
                 path = os.path.join(PATH_PYTHONS, d, 'bin', 'python')
                 if os.path.isfile(path) and os.access(path, os.X_OK):
-                    p = Popen("%s %s" % (path, ' '.join(args)), shell=True)
+                    p = Popen([path] + args)
                     p.wait()
                 else:
                     logger.info('%s: No such file or directory.' % path)
