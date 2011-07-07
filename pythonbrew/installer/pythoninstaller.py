@@ -6,7 +6,7 @@ from pythonbrew.util import makedirs, symlink, Package, is_url, Link,\
     unlink, is_html, Subprocess, rm_r,\
     is_python25, is_python24, is_python26, is_python27,\
     unpack_downloadfile, is_archive_file, path_to_fileurl, is_file,\
-    fileurl_to_path
+    fileurl_to_path, is_python30, is_python31, is_python32
 from pythonbrew.define import PATH_BUILD, PATH_DISTS, PATH_PYTHONS,\
     ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE,\
     PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24,\
@@ -113,12 +113,28 @@ class PythonInstaller(object):
 
     def patch(self):
         version = self.pkg.version
+        # ubuntu 11.04(Natty)
         if is_python25(version):
             patch_dir = os.path.join(PATH_PATCHES_ALL, "python25")
             self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
-        else:
+        elif is_python26(version):
             patch_dir = os.path.join(PATH_PATCHES_ALL, "common")
             self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
+        elif is_python27(version):
+            if version < '2.7.2':
+                patch_dir = os.path.join(PATH_PATCHES_ALL, "common")
+                self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
+        elif is_python30(version):
+            patch_dir = os.path.join(PATH_PATCHES_ALL, "python30")
+            self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
+        elif is_python31(version):
+            if version < '3.1.4':
+                patch_dir = os.path.join(PATH_PATCHES_ALL, "common")
+                self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
+        elif is_python32(version):
+            if version == '3.2':
+                patch_dir = os.path.join(PATH_PATCHES_ALL, "python32")
+                self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
         self._do_patch()
     
     def _do_patch(self):
