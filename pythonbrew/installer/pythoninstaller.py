@@ -114,7 +114,10 @@ class PythonInstaller(object):
     def patch(self):
         version = self.pkg.version
         # ubuntu 11.04(Natty)
-        if is_python25(version):
+        if is_python24(version):
+            patch_dir = os.path.join(PATH_PATCHES_ALL, "python24")
+            self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
+        elif is_python25(version):
             patch_dir = os.path.join(PATH_PATCHES_ALL, "python25")
             self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
         elif is_python26(version):
