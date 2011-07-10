@@ -131,7 +131,7 @@ version
   
 See more details below::
 
-  `pythonbrew help <command>`
+  pythonbrew help <command>
 
 LICENCE
 =======
