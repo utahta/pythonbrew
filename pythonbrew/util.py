@@ -215,8 +215,8 @@ def extract_downloadfile(content_type, download_file, target_dir):
 def get_current_python_path():
     """return: python path or ''
     """
-    p = subprocess.Popen(['command', '-v', 'python'], stdout=subprocess.PIPE)
-    return p.communicate()[0].strip()
+    p = subprocess.Popen('command -v python', stdout=subprocess.PIPE, shell=True)
+    return to_str(p.communicate()[0].strip())
 
 def set_current_path(path):
     fp = open(PATH_ETC_CURRENT, 'w')
