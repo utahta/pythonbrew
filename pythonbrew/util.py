@@ -1,17 +1,17 @@
 import os
+import sys
 import errno
 import shutil
-import subprocess
 import re
 import posixpath
 import tarfile
 import platform
 import urllib
-from subprocess import PIPE, Popen
-from pythonbrew.define import PATH_BIN, PATH_PYTHONS, PATH_ETC_CURRENT
+import subprocess
+import shlex
+from pythonbrew.define import PATH_BIN, PATH_ETC_CURRENT
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
-import sys
 
 def size_format(b):
     kb = 1000
@@ -61,9 +61,15 @@ def is_gzip(content_type, filename):
         return True
     return False
 
-def is_macosx_snowleopard():
+def is_macosx():
     mac_ver = platform.mac_ver()[0]
-    return mac_ver >= '10.6' and mac_ver < '10.7'
+    return mac_ver >= '10.6'
+
+def get_macosx_deployment_target():
+    m = re.search('^([0-9]+\.[0-9]+)', platform.mac_ver()[0])
+    if m:
+        return m.group(1)
+    return None
 
 def is_python24(version):
     return version >= '2.4' and version < '2.5'
@@ -76,6 +82,15 @@ def is_python26(version):
 
 def is_python27(version):
     return version >= '2.7' and version < '2.8'
+
+def is_python30(version):
+    return version >= '3.0' and version < '3.1'
+
+def is_python31(version):
+    return version >= '3.1' and version < '3.2'
+
+def is_python32(version):
+    return version >= '3.2' and version < '3.3'
 
 def makedirs(path):
     try:
@@ -107,12 +122,6 @@ def rm_r(path):
         unlink(path)
 
 def off():
-    for root, dirs, files in os.walk(PATH_BIN):
-        for f in files:
-            if f == "pythonbrew" or f == "pybrew":
-                continue
-            unlink("%s/%s" % (root, f))
-    unlink("%s/current" % PATH_PYTHONS)
     set_current_path(PATH_BIN)
 
 def split_leading_dir(path):
@@ -142,7 +151,7 @@ def has_leading_dir(paths):
 
 def untar_file(filename, location):
     if not os.path.exists(location):
-        makedirs(location)
+        os.makedirs(location)
     if filename.lower().endswith('.gz') or filename.lower().endswith('.tgz'):
         mode = 'r:gz'
     elif filename.lower().endswith('.bz2') or filename.lower().endswith('.tbz'):
@@ -186,12 +195,15 @@ def untar_file(filename, location):
                     shutil.copyfileobj(fp, destfp)
                 finally:
                     destfp.close()
-                os.chmod(path, member.mode)
                 fp.close()
+                # note: configure ...etc
+                os.chmod(path, member.mode)
+                # note: the file timestamps should be such that asdl_c.py is not invoked.
+                os.utime(path, (member.mtime, member.mtime))
     finally:
         tar.close()
 
-def unpack_downloadfile(content_type, download_file, target_dir):
+def extract_downloadfile(content_type, download_file, target_dir):
     logger.info("Extracting %s into %s" % (os.path.basename(download_file), target_dir))
     if is_gzip(content_type, download_file):
         untar_file(download_file, target_dir)
@@ -201,12 +213,10 @@ def unpack_downloadfile(content_type, download_file, target_dir):
     return True
 
 def get_current_python_path():
-    p = Popen('command -v python', stdout=PIPE, shell=True)
-    p.wait()
-    if p.returncode == 0:
-        return p.stdout.read().strip()
-    else:
-        return None
+    """return: python path or ''
+    """
+    p = subprocess.Popen('command -v python', stdout=subprocess.PIPE, shell=True)
+    return to_str(p.communicate()[0].strip())
 
 def set_current_path(path):
     fp = open(PATH_ETC_CURRENT, 'w')
@@ -225,40 +235,71 @@ def fileurl_to_path(url):
     url = '/' + url[len('file:'):].lstrip('/')
     return urllib.unquote(url)
 
-def u(val):
-    """to unicode
-    """
+def to_str(val):
     try:
-        # for python3
-        if type(val) == bytes:
+        # python3
+        if type(val) is bytes:
             return val.decode()
     except:
-        if type(val) == str:
-            return val.decode("utf-8")
-    return val            
+        if type(val) is unicode:
+            return val.encode("utf-8")
+    return val
+
+def is_str(val):
+    try:
+        # python2
+        return isinstance(val, basestring)
+    except:
+        # python3
+        return isinstance(val, str)
+    return False
 
 class Subprocess(object):
-    def __init__(self, log=None, shell=True, cwd=None, print_cmd=False):
+    def __init__(self, log=None, cwd=None, verbose=False, debug=False):
         self._log = log
-        self._shell = shell
         self._cwd = cwd
-        self._print_cmd = print_cmd
+        self._verbose = verbose
+        self._debug = debug
     
     def chdir(self, cwd):
         self._cwd = cwd
     
-    def check_call(self, cmd, shell=None, cwd=None):
-        if shell:
-            self._shell = shell
-        if cwd:
-            self._cwd = cwd
-        if self._print_cmd:
+    def shell(self, cmd):
+        if self._debug:
             logger.info(cmd)
         if self._log:
-            cmd = "(%s) >> '%s' 2>&1" % (cmd, self._log)
-        retcode = subprocess.call(cmd, shell=self._shell, cwd=self._cwd)
-        if retcode != 0:
-            raise ShellCommandException('Failed to `%s` command' % cmd)
+            if self._verbose:
+                cmd = "(%s) 2>&1 | tee '%s'" % (cmd, self._log)
+            else:
+                cmd = "(%s) >> '%s' 2>&1" % (cmd, self._log)
+        returncode = subprocess.call(cmd, shell=True, cwd=self._cwd)
+        if returncode:
+            raise ShellCommandException('%s: failed to `%s`' % (returncode, cmd))
+    
+    def call(self, cmd):
+        if is_str(cmd):
+            cmd = shlex.split(cmd)
+        if self._debug:
+            logger.info(cmd)
+        
+        fp = ((self._log and open(self._log, 'a')) or None)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self._cwd)
+        while p.returncode is None:
+            p.poll()
+            line = to_str(p.stdout.readline())
+            if self._verbose:
+                logger.info(line.strip())
+            if fp:
+                fp.write(line)
+                fp.flush()
+        if fp:
+            fp.close()
+        return p.returncode
+    
+    def check_call(self, cmd):
+        returncode = self.call(cmd)
+        if returncode:
+            raise ShellCommandException('%s: failed to `%s`' % (returncode, cmd))
 
 class Package(object):
     def __init__(self, name, alias=None):
@@ -293,7 +334,7 @@ class Link(object):
         return name
     
     @property
-    def show_msg(self):
+    def base_url(self):
         return posixpath.basename(self._url.split('#', 1)[0].split('?', 1)[0])
 
         

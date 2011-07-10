@@ -1,10 +1,10 @@
 import os
 import sys
+import subprocess
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PATH_PYTHONS
 from pythonbrew.util import Package
 from pythonbrew.log import logger
-from subprocess import Popen
 
 class PyCommand(Command):
     name = "py"
@@ -40,13 +40,11 @@ class PyCommand(Command):
                 logger.info('*** %s ***' % d)
             path = os.path.join(PATH_PYTHONS, d, 'bin', args[0])
             if os.path.isfile(path) and os.access(path, os.X_OK):
-                p = Popen([path] + args[1:])
-                p.wait()
+                subprocess.call([path] + args[1:])
             else:
                 path = os.path.join(PATH_PYTHONS, d, 'bin', 'python')
                 if os.path.isfile(path) and os.access(path, os.X_OK):
-                    p = Popen([path] + args)
-                    p.wait()
+                    subprocess.call([path] + args)
                 else:
                     logger.info('%s: No such file or directory.' % path)
     

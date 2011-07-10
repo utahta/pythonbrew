@@ -22,6 +22,6 @@ class HelpCommand(Command):
         for command in commands:
             logger.info("  %s: %s" % (command.name, command.summary))
         logger.info("\nFurther Instructions:")
-        logger.info("  http://github.com/utahta/pythonbrew")
+        logger.info("  https://github.com/utahta/pythonbrew")
 
 HelpCommand()

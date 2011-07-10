@@ -2,7 +2,7 @@ from pythonbrew.basecommand import Command
 from pythonbrew.log import logger
 from pythonbrew.installer.pythoninstaller import PythonInstaller,\
     PythonInstallerMacOSX
-from pythonbrew.util import is_macosx_snowleopard
+from pythonbrew.util import is_macosx
 from pythonbrew.exceptions import UnknownVersionException,\
     AlreadyInstalledException, NotSupportedVersionException
 
@@ -18,7 +18,21 @@ class InstallCommand(Command):
             dest="force",
             action="store_true",
             default=False,
-            help="Force install of python.(skip make test)"
+            help="Force installation of python."
+        )
+        self.parser.add_option(
+            "-n", "--no-test",
+            dest="no_test",
+            action="store_true",
+            default=False,
+            help="Skip `make test`."
+        )
+        self.parser.add_option(
+            "-v", "--verbose",
+            dest="verbose",
+            action="store_true",
+            default=False,
+            help="Display log information on the console."
         )
         self.parser.add_option(
             "-C", "--configure",
@@ -28,11 +42,11 @@ class InstallCommand(Command):
             help="Options passed directly to configure."
         )
         self.parser.add_option(
-            "-n", "--no-setuptools",
+            "--no-setuptools",
             dest="no_setuptools",
             action="store_true",
             default=False,
-            help="Skip install of setuptools."
+            help="Skip installation of setuptools."
         )
         self.parser.add_option(
             "--as",
@@ -50,10 +64,10 @@ class InstallCommand(Command):
     
     def run_command(self, options, args):
         if args:
-            # Install pythons
+            # installing python
             for arg in args:
                 try:
-                    if is_macosx_snowleopard():
+                    if is_macosx():
                         p = PythonInstallerMacOSX(arg, options)
                     else:
                         p = PythonInstaller(arg, options)

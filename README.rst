@@ -1,7 +1,7 @@
 Overview
 ========
 
-pythonbrew is a program to automate the building and installation of Python in the users HOME.
+pythonbrew is a program to automate the building and installation of Python in the users $HOME.
 
 pythonbrew is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_ and `rvm <https://github.com/wayneeseguin/rvm>`_.
 
@@ -10,20 +10,16 @@ Installation
 
 The recommended way to download and install pythonbrew is to run these statements in your shell::
 
-  curl -kLO http://github.com/utahta/pythonbrew/raw/master/pythonbrew-install
-  chmod +x pythonbrew-install
-  ./pythonbrew-install
-
-or more simply like this::
-
-  curl -kL http://github.com/utahta/pythonbrew/raw/master/pythonbrew-install | bash
+  curl -kL http://xrl.us/pythonbrewinstall | bash
 
 After that, pythonbrew installs itself to ~/.pythonbrew, and you should follow the instruction on screen to setup your .bashrc to put it in your PATH.
 
 If you need to install pythonbrew into somewhere else, you can do that by setting a PYTHONBREW_ROOT environment variable::
 
   export PYTHONBREW_ROOT=/path/to/pythonbrew
-  ./pythonbrew-install
+  curl -kLO http://xrl.us/pythonbrewinstall
+  chmod +x pythonbrewinstall
+  ./pythonbrewinstall
 
 Usage
 =====
@@ -32,50 +28,54 @@ pythonbrew command [options]
     
 Install some pythons::
 
-  pythonbrew install 2.6.6
-  pythonbrew install --force 2.6.6
-  pythonbrew install --configure="CC=gcc_4.1" 2.6.6
-  pythonbrew install --no-setuptools 2.6.6
-  pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.6.6.tgz
-  pythonbrew install file:///path/to/Python-2.6.6.tgz
-  pythonbrew install /path/to/Python-2.6.6.tgz
-  pythonbrew install 2.5.5 2.6.6
+  pythonbrew install 2.7.2
+  pythonbrew install --verbose 2.7.2
+  pythonbrew install --force 2.7.2
+  pythonbrew install --no-test 2.7.2
+  pythonbrew install --configure="CC=gcc_4.1" 2.7.2
+  pythonbrew install --no-setuptools 2.7.2
+  pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.7.2.tgz
+  pythonbrew install /path/to/Python-2.7.2.tgz
+  pythonbrew install /path/to/Python-2.7.2
+  pythonbrew install 2.7.2 3.2
   
-Permanently use the specified python as default::
+Permanently use the specified python::
 
-  pythonbrew switch 2.6.6
-  pythonbrew switch 2.5.5
+  pythonbrew switch 2.7.2
+  pythonbrew switch 3.2
 
 Use the specified python in current shell::
 
-  pythonbrew use 2.6.6
+  pythonbrew use 2.7.2
 
 Runs a named python file against specified and/or all pythons::
 
   pythonbrew py test.py
   pythonbrew py -v test.py # Show running python version
-  pythonbrew py -p 2.6.6 -p 3.1.2 test.py # Use the specified pythons
+  pythonbrew py -p 2.7.2 -p 3.2 test.py # Use the specified pythons
 
 List the installed pythons::
 
   pythonbrew list
 
-List the available install pythons::
+List the available installation pythons::
 
   pythonbrew list -k
 
 Uninstall the specified python::
 
-  pythonbrew uninstall 2.6.6
-  pythonbrew uninstall 2.5.5 2.6.6
+  pythonbrew uninstall 2.7.2
+  pythonbrew uninstall 2.7.2 3.2
 
 Remove stale source folders and archives::
 
-  pythonbrew clean
+  pythonbrew cleanup
 
 Upgrades pythonbrew to the latest version::
 
   pythonbrew update
+  pythonbrew update --master
+  pythonbrew update --develop
 
 Disable pythonbrew::
 
@@ -83,8 +83,8 @@ Disable pythonbrew::
   
 Create/Remove a symbolic link to python (in a directory on your $PATH)::
 
-  pythonbrew symlink # Create a symbolic link, like "py2.5.5", for each installed version
-  pythonbrew symlink -p 2.5.5
+  pythonbrew symlink # Create a symbolic link, like "py2.7.2", for each installed version
+  pythonbrew symlink -p 2.7.2
   pythonbrew symlink pip # Create a symbolic link to the specified script in bin directory
   pythonbrew symlink -r # Remove a symbolic link
 
@@ -97,10 +97,7 @@ COMMANDS
 
 install <version>
   Build and install the given version of python.
-  
-  Setuptools and pip is automatically installed.
-  
-  options: --force, --no-setuptools, --configure and --as.
+  Install setuptools and pip automatically.
 
 switch <version>
   Permanently use the specified python as default.
@@ -120,7 +117,7 @@ list -k <version>
 uninstall <version>
   Uninstall the given version of python.
 
-clean
+cleanup
   Remove stale source folders and archives.
 
 update
@@ -131,21 +128,10 @@ off
 
 version
   Show version.
+  
+See more details below::
 
-Options
-=======
-
-\-f | --force
-  Force installation of a python. (skip `make test`)
-
-\-C | --configure
-  Custom configure options.
-
-\-n | --no-setuptools
-  Skip installation of setuptools.
-
-\--as
-  Install a python under an alias.
+  pythonbrew help <command>
 
 LICENCE
 =======

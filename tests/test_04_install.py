@@ -2,6 +2,8 @@ from tests import TESTPY_VERSION
 
 class InstallOptions(object):
     force = True
+    no_test = True
+    verbose = False
     configure = ""
     no_setuptools = False
     alias = None

@@ -6,7 +6,7 @@ except:
     import configparser as ConfigParser
 
 # pythonbrew version
-VERSION = "0.7.3"
+VERSION = "0.8"
 
 # pythonbrew root path
 ROOT = os.environ.get("PYTHONBREW_ROOT")
@@ -28,6 +28,7 @@ PATH_SCRIPTS_PYTHONBREW = os.path.join(PATH_SCRIPTS,"pythonbrew")
 PATH_SCRIPTS_PYTHONBREW_COMMANDS = os.path.join(PATH_SCRIPTS_PYTHONBREW,"commands")
 PATH_SCRIPTS_PYTHONBREW_INSTALLER = os.path.join(PATH_SCRIPTS_PYTHONBREW,"installer")
 PATH_PATCHES = os.path.join(ROOT,"patches")
+PATH_PATCHES_ALL = os.path.join(PATH_PATCHES,"all")
 PATH_PATCHES_MACOSX = os.path.join(PATH_PATCHES,"macosx")
 PATH_PATCHES_MACOSX_PYTHON27 = os.path.join(PATH_PATCHES_MACOSX,"python27")
 PATH_PATCHES_MACOSX_PYTHON26 = os.path.join(PATH_PATCHES_MACOSX,"python26")
@@ -53,7 +54,8 @@ def _get_or_default(section, option, default=''):
 DISTRIBUTE_SETUP_DLSITE = _get_or_default('distribute', 'url')
 
 # pythonbrew download
-PYTHONBREW_UPDATE_URL_HEAD = _get_or_default('pythonbrew', 'head')
+PYTHONBREW_UPDATE_URL_MASTER = _get_or_default('pythonbrew', 'master')
+PYTHONBREW_UPDATE_URL_DEVELOP = _get_or_default('pythonbrew', 'develop')
 PYTHONBREW_UPDATE_URL_PYPI = _get_or_default('pythonbrew', 'pypi')
 PYTHONBREW_UPDATE_URL_CONFIG = _get_or_default('pythonbrew', 'config')
 
