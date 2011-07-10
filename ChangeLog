@@ -1,9 +1,20 @@
+* 0.8
+  - Fixed issue #21 Added Ubuntu 11.04(Natty) support
+  - Fixed issue #24 non-framework python27 now defines environ properly. Thanks npinto.
+  - Fixed issue #27 Cleanup of OS X python build flags
+  - Fixed issue #28 Describe the 'symlink' command better. Thanks tgs.
+  - Fixed issue #30 py command does not accept arguments with a space
+  - Fixed bug: `pythonbrew off` need not have removed the symlink in bin directory
+  - Added --no-test option to the install command
+  - Added --verbose option to the install command
+  - `pythonbrew clean` has been renamed. Added `pythonbrew cleanup` instead.
+
 * 0.7.3
-  - Improved symlink command.
-  - support python3
+  - Improved symlink command
+  - Added python3 support
 
 * 0.7.2
-  - Bug fixed.
+  - Bug fixed
 
 * 0.7.1
   - Enable parallel make option (--jobs).

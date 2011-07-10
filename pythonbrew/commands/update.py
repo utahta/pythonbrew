@@ -6,7 +6,7 @@ from pythonbrew.define import PATH_DISTS, VERSION, ROOT,\
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader, get_pythonbrew_update_url,\
     get_stable_version, get_headerinfo_from_url
-from pythonbrew.util import rm_r, unpack_downloadfile, Link, is_gzip, Subprocess
+from pythonbrew.util import rm_r, extract_downloadfile, Link, is_gzip, Subprocess
 
 class UpdateCommand(Command):
     name = "update"
@@ -16,11 +16,18 @@ class UpdateCommand(Command):
     def __init__(self):
         super(UpdateCommand, self).__init__()
         self.parser.add_option(
-            '--head',
-            dest='head',
+            '--master',
+            dest='master',
             action='store_true',
             default=False,
-            help='Update the pythonbrew to the github version.'
+            help='Update the pythonbrew to the `master` branch on github.'
+        )
+        self.parser.add_option(
+            '--develop',
+            dest='develop',
+            action='store_true',
+            default=False,
+            help='Update the pythonbrew to the `develop` branch on github.'
         )
         self.parser.add_option(
             '--config',
@@ -61,9 +68,10 @@ class UpdateCommand(Command):
         logger.info("The config.cfg has been updated.")
     
     def _update_pythonbrew(self, options, args):
-        # pythonbrew update
-        if options.head:
-            version = 'head'
+        if options.master:
+            version = 'master'
+        elif options.develop:
+            version = 'develop'
         else:
             version = get_stable_version()
             # check for version
@@ -77,10 +85,10 @@ class UpdateCommand(Command):
             sys.exit(1)
         headinfo = get_headerinfo_from_url(download_url)
         content_type = headinfo['content-type']
-        # head is only for gzip.
-        if not options.head and not is_gzip(content_type, Link(download_url).filename):
-            logger.error("Invalid content-type: `%s`" % content_type)
-            sys.exit(1)
+        if not options.master and not options.develop:
+            if not is_gzip(content_type, Link(download_url).filename):
+                logger.error("content type should be gzip. content-type:`%s`" % content_type)
+                sys.exit(1)
         
         filename = "pythonbrew-%s" % version
         distname = "%s.tgz" % filename
@@ -94,13 +102,13 @@ class UpdateCommand(Command):
         
         extract_dir = os.path.join(PATH_BUILD, filename)
         rm_r(extract_dir)
-        if not unpack_downloadfile(content_type, download_file, extract_dir):
+        if not extract_downloadfile(content_type, download_file, extract_dir):
             sys.exit(1)
         
         try:
             logger.info("Installing %s into %s" % (extract_dir, ROOT))
             s = Subprocess()
-            s.check_call('%s %s/pythonbrew_install.py --upgrade' % (sys.executable, extract_dir))
+            s.check_call([sys.executable, os.path.join(extract_dir,'pythonbrew_install.py'), '--upgrade'])
         except:
             logger.error("Failed to update pythonbrew.")
             sys.exit(1)

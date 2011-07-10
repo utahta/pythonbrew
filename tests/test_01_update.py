@@ -1,5 +1,6 @@
 class UpdateOptions(object):
-    head = False
+    master = False
+    develop = False
     config = False
     force = False
 

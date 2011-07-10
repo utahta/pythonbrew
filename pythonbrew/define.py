@@ -6,7 +6,7 @@ except:
     import configparser as ConfigParser
 
 # pythonbrew version
-VERSION = "0.7.3"
+VERSION = "0.8"
 
 # pythonbrew root path
 ROOT = os.environ.get("PYTHONBREW_ROOT")
@@ -54,7 +54,8 @@ def _get_or_default(section, option, default=''):
 DISTRIBUTE_SETUP_DLSITE = _get_or_default('distribute', 'url')
 
 # pythonbrew download
-PYTHONBREW_UPDATE_URL_HEAD = _get_or_default('pythonbrew', 'head')
+PYTHONBREW_UPDATE_URL_MASTER = _get_or_default('pythonbrew', 'master')
+PYTHONBREW_UPDATE_URL_DEVELOP = _get_or_default('pythonbrew', 'develop')
 PYTHONBREW_UPDATE_URL_PYPI = _get_or_default('pythonbrew', 'pypi')
 PYTHONBREW_UPDATE_URL_CONFIG = _get_or_default('pythonbrew', 'config')
 
