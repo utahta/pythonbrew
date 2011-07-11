@@ -9,6 +9,7 @@ import platform
 import urllib
 import subprocess
 import shlex
+import select
 from pythonbrew.define import PATH_BIN, PATH_ETC_CURRENT
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
@@ -254,6 +255,16 @@ def is_str(val):
         return isinstance(val, str)
     return False
 
+def bltin_any(iter):
+    try:
+        return any(iter)
+    except:
+        # python2.4
+        for it in iter:
+            if it:
+                return True
+        return False
+
 class Subprocess(object):
     def __init__(self, log=None, cwd=None, verbose=False, debug=False):
         self._log = log
@@ -285,13 +296,16 @@ class Subprocess(object):
         fp = ((self._log and open(self._log, 'a')) or None)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self._cwd)
         while p.returncode is None:
+            while bltin_any(select.select([p.stdout], [], [])):
+                line = to_str(p.stdout.readline())
+                if not line:
+                    break
+                if self._verbose:
+                    logger.info(line.strip())
+                if fp:
+                    fp.write(line)
+                    fp.flush()
             p.poll()
-            line = to_str(p.stdout.readline())
-            if self._verbose:
-                logger.info(line.strip())
-            if fp:
-                fp.write(line)
-                fp.flush()
         if fp:
             fp.close()
         return p.returncode
