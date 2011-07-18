@@ -53,6 +53,9 @@ def _get_or_default(section, option, default=''):
 # setuptools download
 DISTRIBUTE_SETUP_DLSITE = _get_or_default('distribute', 'url')
 
+# buildout bootstrap download
+BOOTSTRAP_DLSITE = _get_or_default('bootstrap', 'url')
+
 # pythonbrew download
 PYTHONBREW_UPDATE_URL_MASTER = _get_or_default('pythonbrew', 'master')
 PYTHONBREW_UPDATE_URL_DEVELOP = _get_or_default('pythonbrew', 'develop')
