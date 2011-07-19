@@ -10,7 +10,7 @@ import urllib
 import subprocess
 import shlex
 import select
-from pythonbrew.define import PATH_BIN, PATH_ETC_CURRENT
+from pythonbrew.define import PATH_BIN, PATH_ETC_CURRENT, PATH_PYTHONS
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
 
@@ -94,12 +94,8 @@ def is_python32(version):
     return version >= '3.2' and version < '3.3'
 
 def makedirs(path):
-    try:
+    if not os.path.exists(path):
         os.makedirs(path)
-    except OSError:
-        e = sys.exc_info()[1]
-        if errno.EEXIST != e.errno:
-            raise
 
 def symlink(src, dst):
     try:
@@ -213,12 +209,22 @@ def extract_downloadfile(content_type, download_file, target_dir):
         return False
     return True
 
-def get_current_python_path():
-    """return: python path or ''
-    """
+def get_current_use_pkgname():
+    """return: Python-<VERSION> or None"""
     p = subprocess.Popen('command -v python', stdout=subprocess.PIPE, shell=True)
-    return to_str(p.communicate()[0].strip())
+    path = to_str(p.communicate()[0].strip())
+    for d in sorted(os.listdir(PATH_PYTHONS)):
+        if path and os.path.samefile(path, os.path.join(PATH_PYTHONS, d, 'bin','python')):
+            return d
+    return None
 
+def is_installed(name):
+    pkgname = Package(name).name
+    pkgdir = os.path.join(PATH_PYTHONS, pkgname)
+    if not os.path.isdir(pkgdir):
+        return False
+    return True
+    
 def set_current_path(path):
     fp = open(PATH_ETC_CURRENT, 'w')
     fp.write('PATH_PYTHONBREW="%s"\n' % (path))

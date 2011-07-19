@@ -3,7 +3,7 @@ import sys
 import subprocess
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PATH_PYTHONS, BOOTSTRAP_DLSITE, PATH_DISTS
-from pythonbrew.util import Package, get_current_python_path, Link
+from pythonbrew.util import Package, get_current_use_pkgname, Link, is_installed
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader
 
@@ -21,18 +21,19 @@ class BuildoutCommand(Command):
             help="Use the specified version of python.",
             metavar='VERSION'
         )
-        self.parser.disable_interspersed_args()
     
     def run_command(self, options, args):
         if options.python:
-            python = Package(options.python).name
-            python = os.path.join(PATH_PYTHONS, python, 'bin', 'python')
-            if not os.path.isfile(python):
-                logger.info('%s is not installed.' % options.python)
-                sys.exit(1)
+            pkgname = Package(options.python).name
         else:
-            python = get_current_python_path()
-        logger.info('Using %s' % python)
+            pkgname = get_current_use_pkgname()
+        if not is_installed(pkgname):
+            logger.info('%s is not installed.' % pkgname)
+            sys.exit(1)
+        logger.info('Using %s' % pkgname)
+        
+        # build a path
+        python = os.path.join(PATH_PYTHONS, pkgname, 'bin', 'python')
         
         # Download bootstrap.py
         download_url = BOOTSTRAP_DLSITE

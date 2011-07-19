@@ -3,7 +3,7 @@ import re
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PYTHON_VERSION_URL, LATEST_VERSIONS_OF_PYTHON,\
     PATH_PYTHONS
-from pythonbrew.util import Package, get_current_python_path
+from pythonbrew.util import Package, get_current_use_pkgname
 from pythonbrew.log import logger
 
 class ListCommand(Command):
@@ -36,9 +36,9 @@ class ListCommand(Command):
     
     def installed(self, options, args):
         logger.info('# installed pythons')
-        cur = get_current_python_path()
+        cur = get_current_use_pkgname()
         for d in sorted(os.listdir(PATH_PYTHONS)):
-            if cur and os.path.samefile(cur, os.path.join(PATH_PYTHONS, d, 'bin','python')):
+            if cur and cur == d:
                 logger.info('%s (*)' % d)
                 cur = None
             else:
