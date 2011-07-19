@@ -51,7 +51,7 @@ Use the specified python in current shell::
 Runs a named python file against specified and/or all pythons::
 
   pythonbrew py test.py
-  pythonbrew py -v test.py # Show running python version
+  pythonbrew py -v test.py # Show verbose output
   pythonbrew py -p 2.7.2 -p 3.2 test.py # Use the specified pythons
 
 List the installed pythons::
@@ -87,6 +87,11 @@ Create/Remove a symbolic link to python (in a directory on your $PATH)::
   pythonbrew symlink -p 2.7.2
   pythonbrew symlink pip # Create a symbolic link to the specified script in bin directory
   pythonbrew symlink -r # Remove a symbolic link
+
+Runs the buildout with specified or current using python::
+  
+  pythonbrew buildout
+  pythonbrew buildout -p 2.6.6
 
 Show version::
 
@@ -125,11 +130,17 @@ update
 
 off
   Disable pythonbrew.
-
+  
+symlink
+  Create/Remove a symbolic link to python (in a directory on your $PATH)
+  
+buildout
+  Runs the buildout with specified or current using python.
+  
 version
   Show version.
   
-See more details below::
+See more details below:
 
   pythonbrew help <command>
 

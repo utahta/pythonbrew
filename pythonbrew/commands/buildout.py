@@ -10,7 +10,7 @@ from pythonbrew.downloader import Downloader
 class BuildoutCommand(Command):
     name = "buildout"
     usage = "%prog"
-    summary = "Runs the buildout against specified or currently use python"
+    summary = "Runs the buildout with specified or current using python"
     
     def __init__(self):
         super(BuildoutCommand, self).__init__()
