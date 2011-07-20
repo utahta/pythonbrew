@@ -32,21 +32,19 @@ class VenvCommand(Command):
         
         if options.python:
             pkgname = Package(options.python).name
+            if not is_installed(pkgname):
+                logger.error('%s is not installed.' % pkgname)
+                sys.exit(1)
         else:
             pkgname = get_using_python_pkgname()
-        if not is_installed(pkgname):
-            logger.error("%s is not installed." % pkgname)
-            sys.exit(1)
+            if not pkgname:
+                logger.error('Can not create virtual environment before using a python.  Try \'pythonbrew install <some python>\'.')
+                sys.exit(1)
         pkg_dir = os.path.join(PATH_PYTHONS, pkgname)
         pkg_bin_dir = os.path.join(pkg_dir, 'bin')
         
         self._pkg_bin_dir = pkg_bin_dir
         self._venv_dir = os.path.join(PATH_VENVS, pkgname)
-        
-        # check python package name
-        if not pkgname:
-            logger.error('Can not create virtual environment before using a python.  Try \'pythonbrew switch <some python>\'.')
-            sys.exit(1)
         
         # has virtualenv & virtualenvwrapper?
         if(not os.path.exists(os.path.join(pkg_bin_dir, 'virtualenvwrapper.sh')) or 
