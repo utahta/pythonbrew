@@ -1,11 +1,10 @@
 import os
 import sys
-import subprocess
 from pythonbrew.basecommand import Command
-from pythonbrew.define import PATH_PYTHONS, BOOTSTRAP_DLSITE, PATH_DISTS
-from pythonbrew.util import Package, get_current_use_pkgname, Link
+from pythonbrew.define import PATH_PYTHONS, PATH_VENVS, PATH_ETC_VENV
+from pythonbrew.util import get_using_python_pkgname, Subprocess, Package,\
+    is_installed
 from pythonbrew.log import logger
-from pythonbrew.downloader import Downloader
 
 class VenvCommand(Command):
     name = "venv"
@@ -24,61 +23,53 @@ class VenvCommand(Command):
     
     def run_command(self, options, args):
         if not args:
-            logger.error('Unrecognized command line argument: argument not found.')
-            sys.exit(1)            
+            logger.error('Unrecognized command line argument: ( see: \'pythonbrew help venv\' )')
+            sys.exit(1)
         cmd = args[0]
         if not cmd in ('create', 'use', 'delete', 'list'):
-            logger.error('%s command not found.' % cmd)
+            logger.error('Unrecognized command line argument: ( see: \'pythonbrew help venv\' )')
             sys.exit(1)
         
-        # Decide which version of python to use.
         if options.python:
             pkgname = Package(options.python).name
         else:
-            pkgname = get_current_use_pkgname()
-        logger.info('Using %s' % pkgname)
+            pkgname = get_using_python_pkgname()
+        if not is_installed(pkgname):
+            logger.error("%s is not installed." % pkgname)
+            sys.exit(1)
+        pkg_dir = os.path.join(PATH_PYTHONS, pkgname)
+        pkg_bin_dir = os.path.join(pkg_dir, 'bin')
         
-        if cmd == 'create':
-            self._create(args[1:])
-        elif cmd == 'use':
-            self._use(args[1])
-        elif cmd == 'delete':
-            self._delete(args[1:])
+        self._pkg_bin_dir = pkg_bin_dir
+        self._venv_dir = os.path.join(PATH_VENVS, pkgname)
+        
+        # check python package name
+        if not pkgname:
+            logger.error('Can not create virtual environment before using a python.  Try \'pythonbrew switch <some python>\'.')
+            sys.exit(1)
+        
+        # has virtualenv & virtualenvwrapper?
+        if(not os.path.exists(os.path.join(pkg_bin_dir, 'virtualenvwrapper.sh')) or 
+           not os.path.exists(os.path.join(pkg_bin_dir, 'virtualenv'))):
+            logger.info('Installing virtualenv into %s' % pkg_dir)
+            s = Subprocess(verbose=True)
+            s.shell('%s %s %s' % (os.path.join(pkg_bin_dir,'pip'), 'install', 'virtualenvwrapper'))
+        
+        # Initialize virtualenv
+        self._init()
+        
+        # check
+        if cmd == 'use':
+            if len(args) < 2:
+                logger.error("Unrecognized command line argument: ( 'pythonbrew venv use <project>' )")
+                sys.exit(1)
         elif cmd == 'list':
-            self._list()
-        
-        # Download bootstrap.py
-#        download_url = BOOTSTRAP_DLSITE
-#        filename = Link(download_url).filename
-#        bootstrap = os.path.join(PATH_DISTS, filename)
-#        try:
-#            d = Downloader()
-#            d.download(filename, download_url, bootstrap)
-#        except:
-#            logger.error("Failed to download. `%s`" % download_url)
-#            sys.exit(1)
-#
-#        # Using bootstrap.py
-#        if subprocess.call([python, bootstrap, '-d']):
-#            logger.error('Failed to bootstrap.')
-#            sys.exit(1)
-#
-#        # Using buildout
-#        subprocess.call(['./bin/buildout'])
-        
-    def _create(self, projects):
-        """Create python environment"""
-        for proj in projects:
-            print proj
-            
-    def _use(self, project):
-        print project
-        
-    def _delete(self, projects):
-        for proj in projects:
-            print proj
-        
-    def _list(self):
-        print 'list'
+            logger.info('# virtualenv for %s (found in %s)' % (pkgname, self._venv_dir))
+    
+    def _init(self):
+        fp = open(PATH_ETC_VENV, 'w')
+        fp.write("VIRTUALENVWRAPPER_PYTHON=%s\n" % os.path.join(self._pkg_bin_dir, 'python'))
+        fp.write("WORKON_HOME=%s" % self._venv_dir)
+        fp.close()
 
 VenvCommand()

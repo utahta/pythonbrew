@@ -3,7 +3,7 @@ import sys
 import subprocess
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PATH_PYTHONS, BOOTSTRAP_DLSITE, PATH_DISTS
-from pythonbrew.util import Package, get_current_use_pkgname, Link, is_installed
+from pythonbrew.util import Package, get_using_python_pkgname, Link, is_installed
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader
 
@@ -26,7 +26,7 @@ class BuildoutCommand(Command):
         if options.python:
             pkgname = Package(options.python).name
         else:
-            pkgname = get_current_use_pkgname()
+            pkgname = get_using_python_pkgname()
         if not is_installed(pkgname):
             logger.info('%s is not installed.' % pkgname)
             sys.exit(1)

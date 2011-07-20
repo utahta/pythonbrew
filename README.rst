@@ -93,6 +93,13 @@ Runs the buildout with specified or current using python::
   pythonbrew buildout
   pythonbrew buildout -p 2.6.6
 
+Create isolated python environments::
+  
+  pythonbrew venv create proj1
+  pythonbrew venv list
+  pythonbrew venv use proj1
+  pythonbrew venv delete proj1
+
 Show version::
 
   pythonbrew version
@@ -136,6 +143,9 @@ symlink
   
 buildout
   Runs the buildout with specified or current using python.
+  
+venv
+  Create isolated python environments.
   
 version
   Show version.

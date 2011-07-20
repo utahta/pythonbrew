@@ -7,7 +7,7 @@
   - Fixed bug: `pythonbrew off` need not have removed the symlink in bin directory
   - Added --no-test option to the install command
   - Added --verbose option to the install command
-  - `pythonbrew clean` has been renamed. Added `pythonbrew cleanup` instead.
+  - `pythonbrew clean` has been removed. Added `pythonbrew cleanup` instead.
 
 * 0.7.3
   - Improved symlink command

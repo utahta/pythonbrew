@@ -1,7 +1,7 @@
 import os
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PATH_PYTHONS, PATH_BIN
-from pythonbrew.util import off, rm_r, Package, get_current_use_pkgname, unlink,\
+from pythonbrew.util import off, rm_r, Package, get_using_python_pkgname, unlink,\
     is_installed
 from pythonbrew.log import logger
 
@@ -20,7 +20,7 @@ class UninstallCommand(Command):
                 if not is_installed(pkgname):
                     logger.info("`%s` is not installed." % pkgname)
                     continue
-                if get_current_use_pkgname() == pkgname:
+                if get_using_python_pkgname() == pkgname:
                     off()
                 for d in os.listdir(PATH_BIN):
                     # remove symlink

@@ -209,10 +209,13 @@ def extract_downloadfile(content_type, download_file, target_dir):
         return False
     return True
 
-def get_current_use_pkgname():
-    """return: Python-<VERSION> or None"""
+def get_using_python_path():
     p = subprocess.Popen('command -v python', stdout=subprocess.PIPE, shell=True)
-    path = to_str(p.communicate()[0].strip())
+    return to_str(p.communicate()[0].strip())
+
+def get_using_python_pkgname():
+    """return: Python-<VERSION> or None"""
+    path = get_using_python_path()
     for d in sorted(os.listdir(PATH_PYTHONS)):
         if path and os.path.samefile(path, os.path.join(PATH_PYTHONS, d, 'bin','python')):
             return d
