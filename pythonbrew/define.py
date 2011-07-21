@@ -41,7 +41,7 @@ PATH_BIN_PYTHONBREW = os.path.join(PATH_BIN,'pythonbrew')
 PATH_ETC_CURRENT = os.path.join(PATH_ETC,'current')
 PATH_ETC_TEMP = os.path.join(PATH_ETC,'temp')
 PATH_ETC_CONFIG = os.path.join(PATH_ETC,'config.cfg')
-PATH_ETC_VENV = os.path.join(PATH_ETC, 'venv')
+PATH_ETC_VENV = os.path.join(PATH_ETC, 'venv.run')
 
 # read config.cfg
 config = ConfigParser.SafeConfigParser()

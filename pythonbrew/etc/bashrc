@@ -65,35 +65,10 @@ __pythonbrew_venv()
 {
     command pythonbrew "$@"
     if [[ $? == 0 ]] ; then
-        source "$PATH_ETC/venv"
-        args=()
-        for arg in "$@" ; do
-            if [[ $param_skip = 1 ]] ; then
-                param_skip=0
-                continue
-            fi
-            case $arg in
-                -p) param_skip=1 ; continue ;;
-                --python) param_skip=1 ; continue ;;
-            esac
-            args=("${args[@]}" $arg)
-        done
-        for arg in ${args[@]} ; do
-            case $arg in
-                create)
-                    for proj in ${args[@]:2} ; do
-                        mkvirtualenv $proj
-                    done
-                    ;;
-                delete)
-                    for proj in ${args[@]:2} ; do
-                       rmvirtualenv $proj
-                    done
-                    ;;
-                use) workon ${args[2]} ;;
-                list) workon ;;
-            esac
-        done
+        if [[ -s "$PATH_ETC/venv.run" ]] ; then
+            source "$PATH_ETC/venv.run"
+            cat /dev/null > "$PATH_ETC/venv.run"
+        fi
     fi
 }
 
