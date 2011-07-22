@@ -1,3 +1,7 @@
+* 0.9
+  - Added `buildout` command.
+  - Added `venv` command.
+
 * 0.8
   - Fixed issue #21 Added Ubuntu 11.04(Natty) support
   - Fixed issue #24 non-framework python27 now defines environ properly. Thanks npinto.

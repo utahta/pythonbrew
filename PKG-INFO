@@ -95,10 +95,10 @@ Runs the buildout with specified or current using python::
 
 Create isolated python environments::
   
-  pythonbrew venv create proj1
+  pythonbrew venv create proj
   pythonbrew venv list
-  pythonbrew venv use proj1
-  pythonbrew venv delete proj1
+  pythonbrew venv use proj
+  pythonbrew venv delete proj
 
 Show version::
 
