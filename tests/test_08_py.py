@@ -1,4 +1,7 @@
-from tests import TESTPY_FILE
+from tests import PYTHONBREW_ROOT
+import os
+
+TESTPY_FILE = os.path.join(PYTHONBREW_ROOT, 'etc', 'testfile.py')
 
 class PyOptions(object):
     pythons = []

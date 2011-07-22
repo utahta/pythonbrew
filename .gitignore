@@ -8,3 +8,4 @@
 pythonbrew.egg-info
 dist
 __pycache__
+*.swp

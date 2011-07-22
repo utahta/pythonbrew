@@ -1,7 +1,8 @@
 import os
 from pythonbrew.basecommand import Command
-from pythonbrew.define import PATH_PYTHONS, PATH_BIN
-from pythonbrew.util import off, rm_r, Package, get_current_python_path, unlink
+from pythonbrew.define import PATH_PYTHONS, PATH_BIN, PATH_VENVS
+from pythonbrew.util import off, rm_r, Package, get_using_python_pkgname, unlink,\
+    is_installed
 from pythonbrew.log import logger
 
 class UninstallCommand(Command):
@@ -16,10 +17,11 @@ class UninstallCommand(Command):
                 pkg = Package(arg)
                 pkgname = pkg.name
                 pkgpath = os.path.join(PATH_PYTHONS, pkgname)
-                if not os.path.isdir(pkgpath):
+                venvpath = os.path.join(PATH_VENVS, pkgname)
+                if not is_installed(pkgname):
                     logger.info("`%s` is not installed." % pkgname)
                     continue
-                if get_current_python_path() == os.path.join(pkgpath,'bin','python'):
+                if get_using_python_pkgname() == pkgname:
                     off()
                 for d in os.listdir(PATH_BIN):
                     # remove symlink
@@ -30,6 +32,7 @@ class UninstallCommand(Command):
                         if os.path.isfile(tgtpath) and os.path.samefile(path, tgtpath):
                             unlink(path)
                 rm_r(pkgpath)
+                rm_r(venvpath)
         else:
             self.parser.print_help()
 

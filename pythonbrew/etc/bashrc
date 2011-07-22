@@ -61,6 +61,17 @@ __pythonbrew_update()
     [[ $? == 0 ]] && __pythonbrew_reload
 }
 
+__pythonbrew_venv()
+{
+    command pythonbrew "$@"
+    if [[ $? == 0 ]] ; then
+        if [[ -s "$PATH_ETC/venv.run" ]] ; then
+            source "$PATH_ETC/venv.run"
+            cat /dev/null > "$PATH_ETC/venv.run"
+        fi
+    fi
+}
+
 __pythonbrew_find_command()
 {
     command_name=""
@@ -84,6 +95,7 @@ pythonbrew()
         switch) __pythonbrew_switch "$@" ;;
         off) __pythonbrew_off "$@" ;;
         update) __pythonbrew_update "$@" ;;
+        venv) __pythonbrew_venv "$@" ;;
         *) command pythonbrew "$@" ;;
     esac
     builtin hash -r

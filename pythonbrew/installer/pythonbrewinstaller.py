@@ -7,7 +7,7 @@ from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_ETC, PATH_SCRIPTS, PATH_SCRIPTS_PYTHONBREW,\
     PATH_SCRIPTS_PYTHONBREW_COMMANDS, PATH_BIN_PYTHONBREW,\
     ROOT, PATH_LOG, PATH_PATCHES, PATH_ETC_CONFIG,\
-    PATH_SCRIPTS_PYTHONBREW_INSTALLER
+    PATH_SCRIPTS_PYTHONBREW_INSTALLER, PATH_VENVS
 import stat
 
 class PythonbrewInstaller(object):
@@ -22,6 +22,7 @@ class PythonbrewInstaller(object):
         makedirs(PATH_ETC)
         makedirs(PATH_BIN)
         makedirs(PATH_LOG)
+        makedirs(PATH_VENVS)
         
         # create script directories
         rm_r(PATH_SCRIPTS)

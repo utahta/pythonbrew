@@ -6,7 +6,7 @@ except:
     import configparser as ConfigParser
 
 # pythonbrew version
-VERSION = "0.8"
+VERSION = "0.9"
 
 # pythonbrew root path
 ROOT = os.environ.get("PYTHONBREW_ROOT")
@@ -23,6 +23,7 @@ PATH_DISTS = os.path.join(ROOT,"dists")
 PATH_ETC = os.path.join(ROOT,"etc")
 PATH_BIN = os.path.join(ROOT,"bin")
 PATH_LOG = os.path.join(ROOT,"log")
+PATH_VENVS = os.path.join(ROOT, "venvs")
 PATH_SCRIPTS = os.path.join(ROOT,"scripts")
 PATH_SCRIPTS_PYTHONBREW = os.path.join(PATH_SCRIPTS,"pythonbrew")
 PATH_SCRIPTS_PYTHONBREW_COMMANDS = os.path.join(PATH_SCRIPTS_PYTHONBREW,"commands")
@@ -40,6 +41,7 @@ PATH_BIN_PYTHONBREW = os.path.join(PATH_BIN,'pythonbrew')
 PATH_ETC_CURRENT = os.path.join(PATH_ETC,'current')
 PATH_ETC_TEMP = os.path.join(PATH_ETC,'temp')
 PATH_ETC_CONFIG = os.path.join(PATH_ETC,'config.cfg')
+PATH_ETC_VENV = os.path.join(PATH_ETC, 'venv.run')
 
 # read config.cfg
 config = ConfigParser.SafeConfigParser()
@@ -52,6 +54,9 @@ def _get_or_default(section, option, default=''):
 
 # setuptools download
 DISTRIBUTE_SETUP_DLSITE = _get_or_default('distribute', 'url')
+
+# buildout bootstrap download
+BOOTSTRAP_DLSITE = _get_or_default('bootstrap', 'url')
 
 # pythonbrew download
 PYTHONBREW_UPDATE_URL_MASTER = _get_or_default('pythonbrew', 'master')
