@@ -14,7 +14,7 @@ The recommended way to download and install pythonbrew is to run these statement
 
 After that, pythonbrew installs itself to ~/.pythonbrew. 
 
-Please add the following line to the end of your ~/.bashrc
+Please add the following line to the end of your ~/.bashrc::
 
   [[ -s $HOME/.pythonbrew/etc/bashrc ]] && source $HOME/.pythonbrew/etc/bashrc
 
