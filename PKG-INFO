@@ -12,7 +12,11 @@ The recommended way to download and install pythonbrew is to run these statement
 
   curl -kL http://xrl.us/pythonbrewinstall | bash
 
-After that, pythonbrew installs itself to ~/.pythonbrew, and you should follow the instruction on screen to setup your .bashrc to put it in your PATH.
+After that, pythonbrew installs itself to ~/.pythonbrew. 
+
+Please add the following line to the end of your ~/.bashrc::
+
+  [[ -s $HOME/.pythonbrew/etc/bashrc ]] && source $HOME/.pythonbrew/etc/bashrc
 
 If you need to install pythonbrew into somewhere else, you can do that by setting a PYTHONBREW_ROOT environment variable::
 
@@ -93,7 +97,7 @@ Runs the buildout with specified or current using python::
   pythonbrew buildout
   pythonbrew buildout -p 2.6.6
 
-Create isolated python environments::
+Create isolated python environments (uses virtualenv and virtualenvwrapper)::
   
   pythonbrew venv create proj
   pythonbrew venv list
@@ -145,36 +149,38 @@ buildout
   Runs the buildout with specified or current using python.
   
 venv
-  Create isolated python environments.
+  Create isolated python environments (uses virtualenv and virtualenvwrapper)
   
 version
   Show version.
   
-See more details below:
+See more details below
+  `pythonbrew help <command>`
 
-  pythonbrew help <command>
+Changelog
+=========
 
-LICENCE
-=======
+0.9 (2011-07-21)
+----------------
 
-The MIT License
+- Add `venv` command (virtualenv and virtualenvwrapper supported)
+- Add `buildout` command.
 
-Copyright (c) <2010-2011> <utahta>
+0.8 (2011-07-10)
+----------------
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+- Fixed issue #21 Added Ubuntu 11.04(Natty) support
+- Fixed issue #24 non-framework python27 now defines environ properly. Thanks npinto.
+- Fixed issue #27 Cleanup of OS X python build flags
+- Fixed issue #28 Describe the 'symlink' command better. Thanks tgs.
+- Fixed issue #30 py command does not accept arguments with a space
+- Fixed bug: `pythonbrew off` need not have removed the symlink in bin directory
+- Added --no-test option to the install command
+- Added --verbose option to the install command
+- `pythonbrew clean` has been removed. Added `pythonbrew cleanup` instead.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+More
+----
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+see the `pythonbrew/Changelog <https://github.com/utahta/pythonbrew/blob/master/ChangeLog>`_
+
