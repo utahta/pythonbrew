@@ -96,7 +96,6 @@ class VenvCommand(Command):
         if options.no_site_packages:
             virtualenv_options += '--no-site-packages'
         
-        print 'in create'
         output = []
         for arg in args[1:]:
             target_dir = os.path.join(self._workon_home, arg)
