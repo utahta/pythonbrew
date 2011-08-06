@@ -11,8 +11,8 @@ if [ -z "${PATH_HOME}" ] ; then
 fi
 PATH_HOME_ETC="$PATH_HOME/etc"
 
-# exec
-pythonbrew="$PATH_ROOT/bin/pythonbrew"
+# py file
+PY_PYTHONBREW="$PATH_ROOT/bin/pythonbrew"
 
 # functions
 __pythonbrew_set_default()
@@ -103,7 +103,7 @@ __pythonbrew_find_command()
     done
 }
 
-pythonbrew()
+__pythonbrew_run()
 {
     __pythonbrew_find_command "$@"
     case $command_name in
@@ -117,9 +117,21 @@ pythonbrew()
     builtin hash -r
 }
 
+pythonbrew()
+{
+    pythonbrew=$PY_PYTHONBREW
+    __pythonbrew_run "$@"
+}
+
 pybrew()
 {
     pythonbrew "$@"
+}
+
+sudopybrew()
+{
+    pythonbrew="sudo PYTHONBREW_ROOT=$PATH_ROOT $PY_PYTHONBREW"
+    __pythonbrew_run "$@"
 }
 
 # main

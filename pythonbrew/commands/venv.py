@@ -5,7 +5,7 @@ from pythonbrew.define import PATH_PYTHONS, PATH_VENVS, PATH_HOME_ETC_VENV,\
     PATH_ETC, VIRTUALENV_DLSITE, PATH_DISTS
 from pythonbrew.util import Package, \
     is_installed, get_installed_pythons_pkgname, get_using_python_pkgname,\
-    untar_file
+    untar_file, Subprocess, rm_r
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader
 
@@ -92,32 +92,30 @@ class VenvCommand(Command):
         untar_file(download_file, self._venv_dir)
     
     def run_command_create(self, options, args):
-        virtualenv_options = ''
+        virtualenv_options = []
         if options.no_site_packages:
-            virtualenv_options += '--no-site-packages'
+            virtualenv_options.append('--no-site-packages')
         
-        output = []
         for arg in args[1:]:
             target_dir = os.path.join(self._workon_home, arg)
-            output.append("""\
-echo '# Create `%(arg)s` environment into %(workon_home)s'
-%(py)s %(venv)s -p '%(target_py)s' %(options)s '%(target_dir)s'
-""" % {'arg': arg, 'workon_home': self._workon_home, 'py': self._py, 'venv': self._venv, 'target_py': self._target_py, 'options': virtualenv_options, 'target_dir': target_dir})
-        self._write(''.join(output))
+            logger.log("# Create `%s` environment into %s" % (arg, self._workon_home))
+            # make command
+            cmd = [self._py, self._venv, '-p', self._target_py]
+            cmd.extend(virtualenv_options)
+            cmd.append(target_dir)
+            # create environment
+            s = Subprocess(verbose=True)
+            s.call(cmd)
         
     def run_command_delete(self, options, args):
-        output = []
         for arg in args[1:]:
             target_dir = os.path.join(self._workon_home, arg)
             if not os.path.isdir(target_dir):
                 logger.error('%s already does not exist.' % target_dir)
             else:
-                output.append("""\
-echo '# Delete `%(arg)s` environment in %(workon_home)s'
-rm -rf '%(target_dir)s'
-""" % {'arg': arg, 'workon_home': self._workon_home, 'target_dir': target_dir})
-        if output:
-            self._write(''.join(output))
+                logger.log('# Delete `%s` environment in %s' % (arg, self._workon_home))
+                # make command
+                rm_r(target_dir)
     
     def run_command_use(self, options, args):
         if len(args) < 2:

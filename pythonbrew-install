@@ -66,16 +66,23 @@ if [[ $PYTHON_FOUND != '1' ]] ; then
     exit
 fi
 
-ROOT="$HOME/.pythonbrew"
-if [[ -n $PYTHONBREW_ROOT ]] ; then
-    ROOT=$PYTHONBREW_ROOT
+systemwide_install=0
+if [[ -n "$PYTHONBREW_ROOT" ]] ; then
+    ROOT="$PYTHONBREW_ROOT"
+else
+    if (( UID == 0 )) ; then
+        systemwide_install=1
+        ROOT="/usr/local/pythonbrew"
+    else
+        ROOT="$HOME/.pythonbrew"
+    fi
 fi
 PATH_DISTS="$ROOT/dists"
 
 STABLE_VERSION=`curl -skL https://github.com/utahta/pythonbrew/raw/master/stable-version.txt`
 STABLE_VERSION=`trim $STABLE_VERSION`
-if [[ $STABLE_VERSION = "" ]] ; then
-    echo 'Could not get stable-version of pythonbrew.'
+if [[ -z "$STABLE_VERSION" ]] ; then
+    echo 'Can not get stable-version of pythonbrew.'
     exit 1
 fi
 TEMP_FILE="pythonbrew-$STABLE_VERSION"
@@ -93,7 +100,11 @@ echo "Extracting $PATH_DISTS/$TEMP_TARBALL"
 builtin cd $PATH_DISTS ; tar zxf $TEMP_TARBALL
 
 echo "Installing pythonbrew into $ROOT"
-$PYTHON $PATH_DISTS/$TEMP_FILE/pythonbrew_install.py
+if (( systemwide_install == 1 )) ; then
+    PYTHONBREW_ROOT="$ROOT" $PYTHON $PATH_DISTS/$TEMP_FILE/pythonbrew_install.py --systemwide
+else
+    $PYTHON $PATH_DISTS/$TEMP_FILE/pythonbrew_install.py
+fi
 if [[ $? == 1 ]] ; then
     echo "Failed to install pythonbrew."
     exit
