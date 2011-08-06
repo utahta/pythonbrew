@@ -97,7 +97,7 @@ Runs the buildout with specified or current using python::
   pythonbrew buildout
   pythonbrew buildout -p 2.6.6
 
-Create isolated python environments (uses virtualenv and virtualenvwrapper)::
+Create isolated python environments (uses virtualenv)::
   
   pythonbrew venv create proj
   pythonbrew venv list
@@ -149,7 +149,7 @@ buildout
   Runs the buildout with specified or current using python.
   
 venv
-  Create isolated python environments (uses virtualenv and virtualenvwrapper)
+  Create isolated python environments (uses virtualenv)
   
 version
   Show version.
