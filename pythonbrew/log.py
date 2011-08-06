@@ -1,43 +1,43 @@
 import sys
-import logging
 
-class LoggerInfo(object):
-    def log(self, level, msg, *arg, **keys):
-        sys.stdout.write("%s\n" % msg)
-
-class LoggerError(object):
-    def log(self, level, msg, *arg, **keys):
-        sys.stderr.write("ERROR: %s\n" % msg)
-
-class Logger(object):
+class Color(object):
+    DEBUG = '\033[35m'
+    INFO = '\033[32m'
+    ERROR = '\033[31m'
+    ENDC = '\033[0m'
     
-    DEBUG = logging.DEBUG
-    INFO = logging.INFO
-    ERROR = logging.ERROR
+    @classmethod
+    def _deco(cls, msg, color):
+        return '%s%s%s' % (color, msg, cls.ENDC)
     
-    def __init__(self):
-        self._consumers = []
-        consumer = LoggerInfo()
-        self.add_consumer(Logger.INFO, consumer)
+    @classmethod
+    def debug(cls, msg):
+        return cls._deco(msg, cls.DEBUG)
+    @classmethod
+    def info(cls, msg):
+        return cls._deco(msg, cls.INFO)
+    @classmethod
+    def error(cls, msg):
+        return cls._deco(msg, cls.ERROR)
+
+class Logger(object):    
+    def debug(self, msg):
+        self._stdout(Color.debug("DEBUG: %s\n" % msg))
+    
+    def log(self, msg):
+        self._stdout("%s\n" % (msg))
+    
+    def info(self, msg):
+        self._stdout(Color.info('%s\n' % msg))
         
-        consumer = LoggerError()
-        self.add_consumer(Logger.ERROR, consumer)
-    
-    def debug(self, msg, *args, **keys):
-        self._log(Logger.DEBUG, msg, *args, **keys)
-    
-    def info(self, msg, *args, **keys):
-        self._log(Logger.INFO, msg, *args, **keys)
+    def error(self, msg):
+        self._stderr(Color.error("ERROR: %s\n" % msg))
         
-    def error(self, msg, *args, **keys):
-        self._log(Logger.ERROR, msg, *args, **keys)
-    
-    def _log(self, level, msg, *args, **keys):
-        for (consumer_level, consumer) in self._consumers:
-            if level == consumer_level:
-                consumer.log(level, msg, *args, **keys)
-    
-    def add_consumer(self, level, consumer):
-        self._consumers.append((level, consumer))
+    def _stdout(self, msg):
+        sys.stdout.write(msg)
+        sys.stdout.flush()
+    def _stderr(self, msg):
+        sys.stderr.write(msg)
+        sys.stderr.flush()
 
 logger = Logger()

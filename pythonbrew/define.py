@@ -8,13 +8,14 @@ except:
 # pythonbrew version
 VERSION = "0.9"
 
+# pythonbrew installer root path
+INSTALLER_ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# Root
 # pythonbrew root path
 ROOT = os.environ.get("PYTHONBREW_ROOT")
 if not ROOT:
     ROOT = os.path.join(os.environ["HOME"],".pythonbrew")
-
-# pythonbrew installer root path
-INSTALLER_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 # directories
 PATH_PYTHONS = os.path.join(ROOT,"pythons")
@@ -38,10 +39,21 @@ PATH_PATCHES_MACOSX_PYTHON24 = os.path.join(PATH_PATCHES_MACOSX,"python24")
 
 # files
 PATH_BIN_PYTHONBREW = os.path.join(PATH_BIN,'pythonbrew')
-PATH_ETC_CURRENT = os.path.join(PATH_ETC,'current')
-PATH_ETC_TEMP = os.path.join(PATH_ETC,'temp')
 PATH_ETC_CONFIG = os.path.join(PATH_ETC,'config.cfg')
-PATH_ETC_VENV = os.path.join(PATH_ETC, 'venv.run')
+
+# Home
+# pythonbrew home path
+PATH_HOME = os.environ.get('PYTHONBREW_HOME')
+if not PATH_HOME:
+    PATH_HOME = os.path.join(os.environ["HOME"],".pythonbrew")
+
+# directories
+PATH_HOME_ETC = os.path.join(PATH_HOME, 'etc')
+
+# files
+PATH_HOME_ETC_VENV = os.path.join(PATH_HOME_ETC, 'venv.run')
+PATH_HOME_ETC_CURRENT = os.path.join(PATH_HOME_ETC,'current')
+PATH_HOME_ETC_TEMP = os.path.join(PATH_HOME_ETC,'temp')
 
 # read config.cfg
 config = ConfigParser.SafeConfigParser()
@@ -57,6 +69,9 @@ DISTRIBUTE_SETUP_DLSITE = _get_or_default('distribute', 'url')
 
 # buildout bootstrap download
 BOOTSTRAP_DLSITE = _get_or_default('bootstrap', 'url')
+
+# virtualenv download
+VIRTUALENV_DLSITE = _get_or_default('virtualenv', 'url')
 
 # pythonbrew download
 PYTHONBREW_UPDATE_URL_MASTER = _get_or_default('pythonbrew', 'master')

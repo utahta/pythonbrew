@@ -28,7 +28,7 @@ class BuildoutCommand(Command):
         else:
             pkgname = get_using_python_pkgname()
         if not is_installed(pkgname):
-            logger.info('%s is not installed.' % pkgname)
+            logger.error('`%s` is not installed.' % pkgname)
             sys.exit(1)
         logger.info('Using %s' % pkgname)
         
@@ -46,12 +46,12 @@ class BuildoutCommand(Command):
             logger.error("Failed to download. `%s`" % download_url)
             sys.exit(1)
 
-        # Using bootstrap.py
+        # call bootstrap.py
         if subprocess.call([python, bootstrap, '-d']):
             logger.error('Failed to bootstrap.')
             sys.exit(1)
 
-        # Using buildout
+        # call buildout
         subprocess.call(['./bin/buildout'])
 
 BuildoutCommand()

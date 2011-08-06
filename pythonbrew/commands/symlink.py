@@ -75,7 +75,7 @@ class SymlinkCommand(Command):
         if os.path.isfile(src):
             symlink(src, dst)
         else:
-            logger.info("%s: File not found" % src)
+            logger.error("%s: File not found" % src)
     
     def _get_pythons(self, _pythons):
         """Get the installed python versions list.

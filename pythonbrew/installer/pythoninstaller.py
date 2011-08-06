@@ -38,7 +38,7 @@ class PythonInstaller(object):
             pkg = Package(name, options.alias)
             self.download_url = get_python_version_url(pkg.version)
             if not self.download_url:
-                logger.info("Unknown python version: `%s`" % pkg.name)
+                logger.error("Unknown python version: `%s`" % pkg.name)
                 raise UnknownVersionException
             filename = Link(self.download_url).filename
         self.pkg = pkg
@@ -83,11 +83,11 @@ class PythonInstaller(object):
         except:
             rm_r(self.install_dir)
             logger.error("Failed to install %s. See %s to see why." % (self.pkg.name, self.logfile))
-            logger.info("  pythonbrew install --force %s" % self.pkg.version)
+            logger.log("  pythonbrew install --force %s" % self.pkg.version)
             sys.exit(1)
         self.symlink()
         self.install_setuptools()
-        logger.info("Installed %(pkgname)s successfully. Run the following command to switch to %(pkgname)s."
+        logger.info("\nInstalled %(pkgname)s successfully. Run the following command to switch to %(pkgname)s."
                     % {"pkgname":self.pkg.name})
         logger.info("  pythonbrew switch %s" % self.pkg.alias)
     
@@ -107,7 +107,7 @@ class PythonInstaller(object):
                 dl.download(base_url, self.download_url, self.download_file)
             except:
                 unlink(self.download_file)
-                logger.info("\nInterrupt to abort. `%s`" % (self.download_url))
+                logger.log("\nInterrupt to abort. `%s`" % (self.download_url))
                 sys.exit(1)
         # extracting
         if not extract_downloadfile(self.content_type, self.download_file, self.build_dir):
@@ -206,7 +206,7 @@ class PythonInstaller(object):
         options = self.options
         pkgname = self.pkg.name
         if options.no_setuptools:
-            logger.info("Skip installation of setuptools.")
+            logger.log("Skip installation of setuptools.")
             return
         download_url = DISTRIBUTE_SETUP_DLSITE
         filename = Link(download_url).filename
@@ -228,7 +228,7 @@ class PythonInstaller(object):
                 s.check_call([easy_install, 'pip'])
         except:
             logger.error("Failed to install setuptools. See %s/build.log to see why." % (ROOT))
-            logger.info("Skip installation of setuptools.")
+            logger.log("Skip installation of setuptools.")
 
 class PythonInstallerMacOSX(PythonInstaller):
     """Python installer for MacOSX
@@ -239,7 +239,7 @@ class PythonInstallerMacOSX(PythonInstaller):
         # check for version
         version = self.pkg.version
         if version < '2.6' and (version != '2.4.6' and version < '2.5.5'):
-            logger.info("`%s` is not supported on MacOSX Snow Leopard" % self.pkg.name)
+            logger.error("`%s` is not supported on MacOSX Snow Leopard" % self.pkg.name)
             raise NotSupportedVersionException
         # set configure options
         target = get_macosx_deployment_target()

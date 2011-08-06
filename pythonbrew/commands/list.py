@@ -3,8 +3,7 @@ import re
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PYTHON_VERSION_URL, LATEST_VERSIONS_OF_PYTHON,\
     PATH_PYTHONS
-from pythonbrew.util import Package, get_using_python_pkgname,\
-    get_using_python_path
+from pythonbrew.util import Package, get_using_python_pkgname
 from pythonbrew.log import logger
 
 class ListCommand(Command):
@@ -36,18 +35,16 @@ class ListCommand(Command):
             self.installed(options, args)
     
     def installed(self, options, args):
-        logger.info('# installed pythons')
+        logger.log("# pythonbrew pythons")
         cur = get_using_python_pkgname()
         for d in sorted(os.listdir(PATH_PYTHONS)):
             if cur and cur == d:
-                logger.info('%s (*)' % d)
+                logger.log('  %s (*)' % d)
             else:
-                logger.info('%s' % d)
-        if not cur:
-            logger.info('%s (*)' % get_using_python_path())
+                logger.log('  %s' % d)
     
     def available_install(self, options, args):
-        logger.info('# available install pythons')
+        logger.log('# Pythons')
         if args:
             pkg = Package(args[0])
             _re = re.compile(r"%s" % pkg.name)
@@ -57,12 +54,12 @@ class ListCommand(Command):
                     pkgs.append(pkgname)
             if pkgs:
                 for pkgname in pkgs:
-                    logger.info("%s" % pkgname)
+                    logger.log("%s" % pkgname)
             else:
-                logger.info("Python version not found. `%s`" % pkg.name)
+                logger.error("Python version not found. `%s`" % pkg.name)
         else:
             for pkgname in self._get_packages_name(options):
-                logger.info("%s" % pkgname)
+                logger.log("%s" % pkgname)
     
     def _get_packages_name(self, options):
         return ["Python-%s" % version for version in sorted(PYTHON_VERSION_URL.keys()) 

@@ -15,7 +15,7 @@ def main():
     if command not in command_dict:
         if command == 'clean':
             # note: for some time
-            logger.info('\nDEPRECATION WARNING: `pythonbrew clean` has been renamed. Please run `pythonbrew cleanup` instead.\n')
+            logger.log('\nDEPRECATION WARNING: `pythonbrew clean` has been renamed. Please run `pythonbrew cleanup` instead.\n')
             return
         parser.error("Unknown command: `%s`" % command)
         return

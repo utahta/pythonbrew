@@ -32,12 +32,12 @@ class PyCommand(Command):
     
     def run_command(self, options, args):
         if not args:
-            logger.info("Unrecognized command line argument: argument not found.")
+            self.parser.print_help()
             sys.exit(1)
         pythons = self._get_pythons(options.pythons)
         for d in pythons:
             if options.verbose:
-                logger.info('*** %s ***' % d)
+                logger.info('`%s` running...' % d)
             path = os.path.join(PATH_PYTHONS, d, 'bin', args[0])
             if os.path.isfile(path) and os.access(path, os.X_OK):
                 subprocess.call([path] + args[1:])
@@ -46,7 +46,7 @@ class PyCommand(Command):
                 if os.path.isfile(path) and os.access(path, os.X_OK):
                     subprocess.call([path] + args)
                 else:
-                    logger.info('%s: No such file or directory.' % path)
+                    logger.error('%s: No such file or directory.' % path)
     
     def _get_pythons(self, _pythons):
         pythons = [Package(p).name for p in _pythons]

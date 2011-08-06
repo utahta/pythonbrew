@@ -65,7 +65,7 @@ class UpdateCommand(Command):
         except:
             logger.error("Failed to download. `%s`" % download_url)
             sys.exit(1)
-        logger.info("The config.cfg has been updated.")
+        logger.log("The config.cfg has been updated.")
     
     def _update_pythonbrew(self, options, args):
         if options.master:

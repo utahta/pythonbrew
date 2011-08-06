@@ -1,6 +1,20 @@
-PATH_ROOT="@ROOT@"
+# settings
+PATH_ROOT="$PYTHONBREW_ROOT"
+if [ -z "${PATH_ROOT}" ] ; then
+    PATH_ROOT="$HOME/.pythonbrew"
+fi
 PATH_ETC="$PATH_ROOT/etc"
 
+PATH_HOME="$PYTHONBREW_HOME"
+if [ -z "${PATH_HOME}" ] ; then
+    PATH_HOME="$HOME/.pythonbrew"
+fi
+PATH_HOME_ETC="$PATH_HOME/etc"
+
+# exec
+pythonbrew="$PATH_ROOT/bin/pythonbrew"
+
+# functions
 __pythonbrew_set_default()
 {
     PATH_PYTHONBREW="$PATH_ROOT/bin"
@@ -14,8 +28,9 @@ __pythonbrew_set_path()
 
 __pythonbrew_set_temp_path()
 {
-    if [[ -s "$PATH_ETC/temp" ]] ; then
-        source "$PATH_ETC/temp"
+    if [[ -s "$PATH_HOME_ETC/temp" ]] ; then
+        source "$PATH_HOME_ETC/temp"
+        PATH_PYTHONBREW="$PATH_ROOT/bin:$PATH_PYTHONBREW_TEMP"
     else
         __pythonbrew_set_default
     fi
@@ -24,8 +39,9 @@ __pythonbrew_set_temp_path()
 
 __pythonbrew_set_current_path()
 {
-    if [[ -s "$PATH_ETC/current" ]] ; then
-        source "$PATH_ETC/current"
+    if [[ -s "$PATH_HOME_ETC/current" ]] ; then
+        source "$PATH_HOME_ETC/current"
+        PATH_PYTHONBREW="$PATH_ROOT/bin:$PATH_PYTHONBREW_CURRENT"
     else
         __pythonbrew_set_default
     fi
@@ -39,35 +55,35 @@ __pythonbrew_reload()
 
 __pythonbrew_use()
 {
-    command pythonbrew "$@"
+    $pythonbrew "$@"
     [[ $? == 0 ]] && __pythonbrew_set_temp_path
 }
 
 __pythonbrew_switch()
 {
-    command pythonbrew "$@"
+    $pythonbrew "$@"
     [[ $? == 0 ]] && __pythonbrew_set_current_path
 }
 
 __pythonbrew_off()
 {
-    command pythonbrew "$@"
+    $pythonbrew "$@"
     [[ $? == 0 ]] && __pythonbrew_set_current_path
 }
 
 __pythonbrew_update()
 {
-    command pythonbrew "$@"
+    $pythonbrew "$@"
     [[ $? == 0 ]] && __pythonbrew_reload
 }
 
 __pythonbrew_venv()
 {
-    command pythonbrew "$@"
+    $pythonbrew "$@"
     if [[ $? == 0 ]] ; then
-        if [[ -s "$PATH_ETC/venv.run" ]] ; then
-            source "$PATH_ETC/venv.run"
-            cat /dev/null > "$PATH_ETC/venv.run"
+        if [[ -s "$PATH_HOME_ETC/venv.run" ]] ; then
+            source "$PATH_HOME_ETC/venv.run"
+            cat /dev/null > "$PATH_HOME_ETC/venv.run"
         fi
     fi
 }
@@ -96,7 +112,7 @@ pythonbrew()
         off) __pythonbrew_off "$@" ;;
         update) __pythonbrew_update "$@" ;;
         venv) __pythonbrew_venv "$@" ;;
-        *) command pythonbrew "$@" ;;
+        *) $pythonbrew "$@" ;;
     esac
     builtin hash -r
 }

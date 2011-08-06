@@ -9,7 +9,7 @@ class Curl(object):
     def __init__(self):
         returncode = subprocess.call("command -v curl > /dev/null", shell=True)
         if returncode:
-            logger.info("pythonbrew required curl. curl was not found in your path.")
+            logger.log("pythonbrew required curl. curl was not found in your path.")
             sys.exit(1)
     
     def read(self, url):

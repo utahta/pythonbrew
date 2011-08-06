@@ -4,9 +4,9 @@ from pythonbrew.define import INSTALLER_ROOT, ROOT, PATH_ETC
 
 def install_pythonbrew():
     PythonbrewInstaller().install(INSTALLER_ROOT)
-    # pythonbrew is only for bash
+    # for bash
     shrc = yourshrc = "bashrc"
-    logger.info("""
+    logger.log("""
 Well-done! Congratulations!
 
 The pythonbrew is installed as:
