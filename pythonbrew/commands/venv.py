@@ -143,12 +143,14 @@ source '%(activate)s'
                 logger.log("# virtualenv for %(pkgname)s (found in %(workon_home)s)" % {'pkgname': pkgname, 'workon_home': workon_home})
                 if os.path.isdir(workon_home):
                     for d in sorted(os.listdir(workon_home)):
-                        logger.log(d)
+                        if os.path.isdir(d):
+                            logger.log(d)
         else:
             logger.log("# virtualenv for %(pkgname)s (found in %(workon_home)s)" % {'pkgname': self._pkgname, 'workon_home': self._workon_home})
             if os.path.isdir(self._workon_home):
                 for d in sorted(os.listdir(self._workon_home)):
-                    logger.log(d)
+                    if os.path.isdir(d):
+                        logger.log(d)
     
     def _write(self, src):
         fp = open(PATH_HOME_ETC_VENV, 'w')
