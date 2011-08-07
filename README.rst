@@ -30,7 +30,7 @@ For Systemwide(Multi-User) installation
 
 If the install script is run as root, pythonbrew will automatically install into /usr/local/pythonbrew.
 
-The pythonbrew function will be automatically configured for every user on the system if you install as root.
+The pythonbrew will be automatically configured for every user on the system if you install as root.
 
 After installation, where you would normally use `sudo`, non-root users will need to use `sudopybrew`::
 
