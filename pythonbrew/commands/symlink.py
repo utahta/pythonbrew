@@ -63,7 +63,7 @@ class SymlinkCommand(Command):
             venv_pkgdir = os.path.join(PATH_VENVS, pkgname)
             venv_dir = os.path.join(venv_pkgdir, options.venv)
             if not os.path.isdir(venv_dir):
-                logger.error("`%s` environment not found in %s." % (options.venv, venv_pkgdir))
+                logger.error("`%s` environment was not found in %s." % (options.venv, venv_pkgdir))
                 sys.exit(1)
             pkg = Package(pkgname)
             if args:
@@ -105,7 +105,7 @@ class SymlinkCommand(Command):
         if os.path.isfile(src):
             symlink(src, dst)
         else:
-            logger.error("%s: File not found" % src)
+            logger.error("%s was not found in your path." % src)
     
     def _get_pythons(self, _pythons):
         """Get the installed python versions list.

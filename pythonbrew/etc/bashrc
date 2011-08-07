@@ -130,7 +130,7 @@ pybrew()
 
 sudopybrew()
 {
-    pythonbrew="sudo PYTHONBREW_ROOT=$PATH_ROOT $PY_PYTHONBREW"
+    pythonbrew="sudo PYTHONBREW_ROOT=$PATH_ROOT PATH=$PATH_PYTHONBREW:$PATH_WITHOUT_PYTHONBREW $PY_PYTHONBREW"
     __pythonbrew_run "$@"
 }
 

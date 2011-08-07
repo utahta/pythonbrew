@@ -2,7 +2,7 @@ import os
 import sys
 import subprocess
 from pythonbrew.basecommand import Command
-from pythonbrew.define import PATH_PYTHONS, BOOTSTRAP_DLSITE, PATH_DISTS
+from pythonbrew.define import PATH_PYTHONS, BOOTSTRAP_DLSITE
 from pythonbrew.util import Package, get_using_python_pkgname, Link, is_installed
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader
@@ -38,12 +38,13 @@ class BuildoutCommand(Command):
         # Download bootstrap.py
         download_url = BOOTSTRAP_DLSITE
         filename = Link(download_url).filename
-        bootstrap = os.path.join(PATH_DISTS, filename)
+        bootstrap = os.path.join(os.getcwd(), filename) # fetching into current directory
         try:
             d = Downloader()
             d.download(filename, download_url, bootstrap)
         except:
-            logger.error("Failed to download. `%s`" % download_url)
+            e = sys.exc_info()[1]
+            logger.error("%s" % (e))
             sys.exit(1)
 
         # call bootstrap.py

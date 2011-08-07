@@ -107,7 +107,7 @@ class PythonInstaller(object):
                 dl.download(base_url, self.download_url, self.download_file)
             except:
                 unlink(self.download_file)
-                logger.log("\nInterrupt to abort. `%s`" % (self.download_url))
+                logger.error("\n%s" % (sys.exc_info()[1]))
                 sys.exit(1)
         # extracting
         if not extract_downloadfile(self.content_type, self.download_file, self.build_dir):
@@ -154,7 +154,7 @@ class PythonInstaller(object):
                     else:
                         s.shell("patch -p0 < %s" % patch)
         except:
-            logger.error("Failed to patch `%s`" % self.build_dir)
+            logger.error("Failed to patch `%s`.\n%s" % (self.build_dir, sys.exc_info()[1]))
             sys.exit(1)
     
     def _add_patches_to_list(self, patch_dir, patch_files):

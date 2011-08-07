@@ -56,7 +56,7 @@ class ListCommand(Command):
                 for pkgname in pkgs:
                     logger.log("%s" % pkgname)
             else:
-                logger.error("Python version not found. `%s`" % pkg.name)
+                logger.error("`%s` was not found." % pkg.name)
         else:
             for pkgname in self._get_packages_name(options):
                 logger.log("%s" % pkgname)

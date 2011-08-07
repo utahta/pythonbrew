@@ -12,3 +12,5 @@ class AlreadyInstalledException(Exception):
 class NotSupportedVersionException(Exception):
     """General exception during installing"""
     
+class CurlFetchException(Exception):
+    """Exception curl during fetching"""

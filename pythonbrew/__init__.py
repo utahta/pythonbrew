@@ -1,7 +1,14 @@
 import sys
+import os
 from pythonbrew.basecommand import command_dict, load_all_commands
 from pythonbrew.baseparser import parser
 from pythonbrew.log import logger
+from pythonbrew.define import PATH_HOME_ETC
+from pythonbrew.util import makedirs
+
+def init_home():
+    if not os.path.isdir(PATH_HOME_ETC):
+        makedirs(PATH_HOME_ETC)
 
 def main():
     options, args = parser.parse_args(sys.argv[1:])
@@ -10,13 +17,10 @@ def main():
     if not args:
         args = ['help'] # as default
     
+    init_home()
     load_all_commands()
     command = args[0].lower()
     if command not in command_dict:
-        if command == 'clean':
-            # note: for some time
-            logger.log('\nDEPRECATION WARNING: `pythonbrew clean` has been renamed. Please run `pythonbrew cleanup` instead.\n')
-            return
         parser.error("Unknown command: `%s`" % command)
         return
     command = command_dict[command]

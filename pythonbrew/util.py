@@ -271,6 +271,11 @@ def is_str(val):
         return isinstance(val, str)
     return False
 
+def is_sequence(val):
+    if is_str(val):
+        return False
+    return (hasattr(val, "__getitem__") or hasattr(val, "__iter__"))
+
 def bltin_any(iter):
     try:
         return any(iter)
@@ -294,6 +299,8 @@ class Subprocess(object):
     def shell(self, cmd):
         if self._debug:
             logger.log(cmd)
+        if is_sequence(cmd):
+            cmd = ''.join(cmd)
         if self._log:
             if self._verbose:
                 cmd = "(%s) 2>&1 | tee '%s'" % (cmd, self._log)

@@ -83,7 +83,7 @@ class VenvCommand(Command):
             logger.info('venv command is already initialized.')
             return
         if not os.access(PATH_DISTS, os.W_OK):
-            logger.error("Can not write to %s: Permission denied." % PATH_DISTS)
+            logger.error("Can not initialize venv command: Permission denied.")
             sys.exit(1)
         d = Downloader()
         download_file = os.path.join(PATH_DISTS, 'virtualenv.tar.gz')

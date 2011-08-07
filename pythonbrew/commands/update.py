@@ -81,7 +81,7 @@ class UpdateCommand(Command):
         
         download_url = get_pythonbrew_update_url(version)
         if not download_url:
-            logger.error("`%s` of pythonbrew not found." % version)
+            logger.error("`pythonbrew-%s` was not found in pypi." % version)
             sys.exit(1)
         headinfo = get_headerinfo_from_url(download_url)
         content_type = headinfo['content-type']
