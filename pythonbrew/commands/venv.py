@@ -102,7 +102,7 @@ class VenvCommand(Command):
         
         for arg in args[1:]:
             target_dir = os.path.join(self._workon_home, arg)
-            logger.info("Create `%s` environment into %s" % (arg, self._workon_home))
+            logger.info("Creating `%s` environment into %s" % (arg, self._workon_home))
             # make command
             cmd = [self._py, self._venv, '-p', self._target_py]
             cmd.extend(virtualenv_options)
@@ -120,7 +120,7 @@ class VenvCommand(Command):
                 if not os.access(target_dir, os.W_OK):
                     logger.error("Can not delete %s.\nPermission denied." % target_dir)
                     continue
-                logger.info('Delete `%s` environment in %s' % (arg, self._workon_home))
+                logger.info('Deleting `%s` environment in %s' % (arg, self._workon_home))
                 # make command
                 rm_r(target_dir)
     
