@@ -1,4 +1,4 @@
-* 0.10
+* 1.0
   - Added systemwide install support. (issue #31)
   - Fixed issue #41 Handle venv binary with the symlink command.
   - Improved `venv` command (without virtualenvwrapper)
