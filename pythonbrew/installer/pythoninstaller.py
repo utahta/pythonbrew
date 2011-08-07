@@ -107,7 +107,7 @@ class PythonInstaller(object):
                 dl.download(base_url, self.download_url, self.download_file)
             except:
                 unlink(self.download_file)
-                logger.error("\n%s" % (sys.exc_info()[1]))
+                logger.error("Failed to download.\n%s" % (sys.exc_info()[1]))
                 sys.exit(1)
         # extracting
         if not extract_downloadfile(self.content_type, self.download_file, self.build_dir):

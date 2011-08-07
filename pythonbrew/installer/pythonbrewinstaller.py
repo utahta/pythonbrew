@@ -9,6 +9,7 @@ from pythonbrew.define import PATH_BUILD, PATH_BIN, PATH_DISTS, PATH_PYTHONS,\
     PATH_LOG, PATH_PATCHES, PATH_ETC_CONFIG,\
     PATH_SCRIPTS_PYTHONBREW_INSTALLER, PATH_VENVS, PATH_HOME_ETC, ROOT
 import stat
+import time
 
 class PythonbrewInstaller(object):
     """pythonbrew installer:
@@ -84,6 +85,9 @@ fi
             fp.write(profile)
             fp.close()
         elif os.path.isfile('/etc/profile'):
+            # create backup
+            shutil.copy('/etc/profile', '/tmp/profile.pythonbrew.%s' % int(time.time()))
+            
             output = []
             is_copy = True
             fp = open('/etc/profile', 'r')
