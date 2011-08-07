@@ -1,5 +1,5 @@
+import sys
 from pythonbrew.basecommand import Command
-from pythonbrew.log import logger
 from pythonbrew.installer.pythoninstaller import PythonInstaller,\
     PythonInstallerMacOSX
 from pythonbrew.util import is_macosx
@@ -63,22 +63,22 @@ class InstallCommand(Command):
         )
     
     def run_command(self, options, args):
-        if args:
-            # installing python
-            for arg in args:
-                try:
-                    if is_macosx():
-                        p = PythonInstallerMacOSX(arg, options)
-                    else:
-                        p = PythonInstaller(arg, options)
-                    p.install()
-                except UnknownVersionException:
-                    continue
-                except AlreadyInstalledException:
-                    continue
-                except NotSupportedVersionException:
-                    continue
-        else:
-            logger.info("Unknown python version.")
+        if not args:
+            self.parser.print_help()
+            sys.exit(1)
+        # installing python
+        for arg in args:
+            try:
+                if is_macosx():
+                    p = PythonInstallerMacOSX(arg, options)
+                else:
+                    p = PythonInstaller(arg, options)
+                p.install()
+            except UnknownVersionException:
+                continue
+            except AlreadyInstalledException:
+                continue
+            except NotSupportedVersionException:
+                continue
     
 InstallCommand()

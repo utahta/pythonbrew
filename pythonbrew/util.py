@@ -10,7 +10,7 @@ import urllib
 import subprocess
 import shlex
 import select
-from pythonbrew.define import PATH_BIN, PATH_ETC_CURRENT, PATH_PYTHONS
+from pythonbrew.define import PATH_BIN, PATH_HOME_ETC_CURRENT, PATH_PYTHONS
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
 
@@ -209,9 +209,12 @@ def extract_downloadfile(content_type, download_file, target_dir):
         return False
     return True
 
-def get_using_python_path():
-    p = subprocess.Popen('command -v python', stdout=subprocess.PIPE, shell=True)
+def get_command_path(command):
+    p = subprocess.Popen('command -v %s' % command, stdout=subprocess.PIPE, shell=True)
     return to_str(p.communicate()[0].strip())
+
+def get_using_python_path():
+    return get_command_path('python')
 
 def get_using_python_pkgname():
     """return: Python-<VERSION> or None"""
@@ -233,8 +236,8 @@ def is_installed(name):
     return True
     
 def set_current_path(path):
-    fp = open(PATH_ETC_CURRENT, 'w')
-    fp.write('PATH_PYTHONBREW="%s"\n' % (path))
+    fp = open(PATH_HOME_ETC_CURRENT, 'w')
+    fp.write('PATH_PYTHONBREW_CURRENT="%s"\n' % (path))
     fp.close()
 
 def path_to_fileurl(path):
@@ -268,6 +271,11 @@ def is_str(val):
         return isinstance(val, str)
     return False
 
+def is_sequence(val):
+    if is_str(val):
+        return False
+    return (hasattr(val, "__getitem__") or hasattr(val, "__iter__"))
+
 def bltin_any(iter):
     try:
         return any(iter)
@@ -290,7 +298,9 @@ class Subprocess(object):
     
     def shell(self, cmd):
         if self._debug:
-            logger.info(cmd)
+            logger.log(cmd)
+        if is_sequence(cmd):
+            cmd = ''.join(cmd)
         if self._log:
             if self._verbose:
                 cmd = "(%s) 2>&1 | tee '%s'" % (cmd, self._log)
@@ -304,7 +314,7 @@ class Subprocess(object):
         if is_str(cmd):
             cmd = shlex.split(cmd)
         if self._debug:
-            logger.info(cmd)
+            logger.log(cmd)
         
         fp = ((self._log and open(self._log, 'a')) or None)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self._cwd)
@@ -314,7 +324,7 @@ class Subprocess(object):
                 if not line:
                     break
                 if self._verbose:
-                    logger.info(line.strip())
+                    logger.log(line.strip())
                 if fp:
                     fp.write(line)
                     fp.flush()

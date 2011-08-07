@@ -25,6 +25,17 @@ If you need to install pythonbrew into somewhere else, you can do that by settin
   chmod +x pythonbrewinstall
   ./pythonbrewinstall
 
+For Systemwide(Multi-User) installation
+---------------------------------------
+
+If the install script is run as root, pythonbrew will automatically install into /usr/local/pythonbrew.
+
+The pythonbrew will be automatically configured for every user on the system if you install as root.
+
+After installation, where you would normally use `sudo`, non-root users will need to use `sudopybrew`::
+
+  sudopybrew install -n -v -j2 2.7.2
+
 Usage
 =====
 
@@ -91,14 +102,16 @@ Create/Remove a symbolic link to python (in a directory on your $PATH)::
   pythonbrew symlink -p 2.7.2
   pythonbrew symlink pip # Create a symbolic link to the specified script in bin directory
   pythonbrew symlink -r # Remove a symbolic link
+  pythonbrew symlink -v foo # Create a symbolic link to the specified virtual environment python in bin directory
 
 Runs the buildout with specified or current using python::
   
   pythonbrew buildout
   pythonbrew buildout -p 2.6.6
 
-Create isolated python environments (uses virtualenv and virtualenvwrapper)::
+Create isolated python environments (uses virtualenv)::
   
+  pythonbrew venv init
   pythonbrew venv create proj
   pythonbrew venv list
   pythonbrew venv use proj
@@ -149,7 +162,7 @@ buildout
   Runs the buildout with specified or current using python.
   
 venv
-  Create isolated python environments (uses virtualenv and virtualenvwrapper)
+  Create isolated python environments (uses virtualenv)
   
 version
   Show version.

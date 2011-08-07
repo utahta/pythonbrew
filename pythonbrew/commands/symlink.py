@@ -1,7 +1,9 @@
 import os
+import sys
 from pythonbrew.basecommand import Command
-from pythonbrew.define import PATH_PYTHONS, PATH_BIN
-from pythonbrew.util import Package, symlink, unlink
+from pythonbrew.define import PATH_PYTHONS, PATH_BIN, PATH_VENVS
+from pythonbrew.util import Package, symlink, unlink, get_using_python_pkgname,\
+    is_installed
 from pythonbrew.log import logger
 
 class SymlinkCommand(Command):
@@ -32,6 +34,12 @@ class SymlinkCommand(Command):
             default=None,
             help="Use as default the specified python version."
         )
+        self.parser.add_option(
+            "-v", "--venv",
+            dest="venv",
+            default=None,
+            help="Use the virtual environment python."
+        )
     
     def run_command(self, options, args):
         if options.default:
@@ -43,6 +51,28 @@ class SymlinkCommand(Command):
                     self._symlink(bin, bin, pkgname)
                 else:
                     self._symlink('python', 'py', pkgname)
+        elif options.venv:
+            if options.pythons:
+                pkgname = Package(options.pythons[0]).name
+            else:
+                pkgname = get_using_python_pkgname()
+            if not is_installed(pkgname):
+                logger.error('`%s` is not installed.')
+                sys.exit(1)
+            
+            venv_pkgdir = os.path.join(PATH_VENVS, pkgname)
+            venv_dir = os.path.join(venv_pkgdir, options.venv)
+            if not os.path.isdir(venv_dir):
+                logger.error("`%s` environment was not found in %s." % (options.venv, venv_pkgdir))
+                sys.exit(1)
+            pkg = Package(pkgname)
+            if args:
+                bin = args[0]
+                dstbin = '%s%s-%s' % (bin, pkg.version, options.venv)
+                self._symlink(bin, dstbin, pkgname)
+            else:
+                dstbin = 'py%s-%s' % (pkg.version, options.venv)
+                self._symlink('python', dstbin, pkgname)
         else:
             pythons = self._get_pythons(options.pythons)
             for pkgname in pythons:
@@ -75,7 +105,7 @@ class SymlinkCommand(Command):
         if os.path.isfile(src):
             symlink(src, dst)
         else:
-            logger.info("%s: File not found" % src)
+            logger.error("%s was not found in your path." % src)
     
     def _get_pythons(self, _pythons):
         """Get the installed python versions list.

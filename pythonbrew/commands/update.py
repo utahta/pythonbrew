@@ -65,7 +65,7 @@ class UpdateCommand(Command):
         except:
             logger.error("Failed to download. `%s`" % download_url)
             sys.exit(1)
-        logger.info("The config.cfg has been updated.")
+        logger.log("The config.cfg has been updated.")
     
     def _update_pythonbrew(self, options, args):
         if options.master:
@@ -81,7 +81,7 @@ class UpdateCommand(Command):
         
         download_url = get_pythonbrew_update_url(version)
         if not download_url:
-            logger.error("`%s` of pythonbrew not found." % version)
+            logger.error("`pythonbrew-%s` was not found in pypi." % version)
             sys.exit(1)
         headinfo = get_headerinfo_from_url(download_url)
         content_type = headinfo['content-type']

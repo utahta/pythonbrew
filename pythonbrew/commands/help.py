@@ -17,11 +17,11 @@ class HelpCommand(Command):
             command.parser.print_help()
             return
         parser.print_help()
-        logger.info("\nCommands available:")
+        logger.log("\nCommands available:")
         commands = [command_dict[key] for key in sorted(command_dict.keys())]
         for command in commands:
-            logger.info("  %s: %s" % (command.name, command.summary))
-        logger.info("\nFurther Instructions:")
-        logger.info("  https://github.com/utahta/pythonbrew")
+            logger.log("  %s: %s" % (command.name, command.summary))
+        logger.log("\nFurther Instructions:")
+        logger.log("  https://github.com/utahta/pythonbrew")
 
 HelpCommand()

@@ -19,7 +19,7 @@ class UninstallCommand(Command):
                 pkgpath = os.path.join(PATH_PYTHONS, pkgname)
                 venvpath = os.path.join(PATH_VENVS, pkgname)
                 if not is_installed(pkgname):
-                    logger.info("`%s` is not installed." % pkgname)
+                    logger.error("`%s` is not installed." % pkgname)
                     continue
                 if get_using_python_pkgname() == pkgname:
                     off()

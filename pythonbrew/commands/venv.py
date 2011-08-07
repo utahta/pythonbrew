@@ -1,10 +1,13 @@
 import os
 import sys
 from pythonbrew.basecommand import Command
-from pythonbrew.define import PATH_PYTHONS, PATH_VENVS, PATH_ETC_VENV
-from pythonbrew.util import Subprocess, Package,\
-    is_installed, get_installed_pythons_pkgname, get_using_python_pkgname
+from pythonbrew.define import PATH_PYTHONS, PATH_VENVS, PATH_HOME_ETC_VENV,\
+    PATH_ETC, VIRTUALENV_DLSITE, PATH_DISTS
+from pythonbrew.util import Package, \
+    is_installed, get_installed_pythons_pkgname, get_using_python_pkgname,\
+    untar_file, Subprocess, rm_r
 from pythonbrew.log import logger
+from pythonbrew.downloader import Downloader
 
 class VenvCommand(Command):
     name = "venv"
@@ -26,38 +29,30 @@ class VenvCommand(Command):
             action='store_true',
             default=False,
             help="Show the all python environments.",
-            metavar='VERSION'
         )
-        self.template_env = """export VIRTUALENVWRAPPER_PYTHON=%(venv_py)s
-export VIRTUALENVWRAPPER_VIRTUALENV=%(venv_venv)s
-export WORKON_HOME=%(workon_home)s
-export VIRTUALENVWRAPPER_HOOK_DIR=%(workon_home)s
-export VIRTUALENVWRAPPER_LOG_DIR=%(workon_home)s
-source %(venv_sh)s
-"""
-    
+        self.parser.add_option(
+            "-n", "--no-site-packages",
+            dest="no_site_packages",
+            action='store_true',
+            default=False,
+            help="Don't give access to the global site-packages dir to the virtual environment.",
+        )
+        self._venv_dir = os.path.join(PATH_ETC, 'virtualenv')
+        self._venv = os.path.join(self._venv_dir, 'virtualenv.py')
+        
     def run_command(self, options, args):
         if not args:
-            logger.error('Unrecognized command line argument: ( see: \'pythonbrew help venv\' )')
+            self.parser.print_help()
             sys.exit(1)
         cmd = args[0]
-        if not cmd in ('create', 'delete', 'use', 'list'):
-            logger.error('Unrecognized command line argument: ( see: \'pythonbrew help venv\' )')
+        if not cmd in ('init', 'create', 'delete', 'use', 'list'):
+            self.parser.print_help()
             sys.exit(1)
         
-        # find python2
-        venv_pkgname = None
-        for pkgname in reversed(get_installed_pythons_pkgname()):
-            # virtualenvwrapper require Python2
-            venv_pkgver = Package(pkgname).version
-            if venv_pkgver >= '2.4' and venv_pkgver < '3':
-                venv_pkgname = pkgname
-                break
-        if not venv_pkgname:
-            logger.error('Can not create virtual environment before installing a python2.  Try \'pythonbrew install <python2.4 - 2.7>\'.')
-            sys.exit(1)
-        venv_dir = os.path.join(PATH_PYTHONS, venv_pkgname)
-        venv_bin = os.path.join(venv_dir, 'bin')
+        # initialize?
+        if cmd == 'init':
+            self.run_command_init()
+            return
         
         # target python interpreter
         if options.python:
@@ -66,92 +61,103 @@ source %(venv_sh)s
                 logger.error('%s is not installed.' % pkgname)
                 sys.exit(1)
         else:
+            # check using python under pythonbrew
             pkgname = get_using_python_pkgname()
             if not pkgname:
-                logger.error('Can not use venv command before using a python.  Try \'pythonbrew switch <some python>\'.')
+                logger.error('Can not use venv command before switching a python.  Try \'pythonbrew switch <version of python>\'.')
                 sys.exit(1)
         self._pkgname = pkgname
         self._target_py = os.path.join(PATH_PYTHONS, pkgname, 'bin', 'python')
         self._workon_home = os.path.join(PATH_VENVS, pkgname)
-        self._venv_py = os.path.join(venv_bin, 'python')
-        self._venv_venv = os.path.join(venv_bin, 'virtualenv')
-        self._venv_sh = os.path.join(venv_bin, 'virtualenvwrapper.sh')
+        self._py = os.path.join(PATH_PYTHONS, pkgname, 'bin', 'python')
         
-        # has virtualenv & virtualenvwrapper?
-        if not self._venv_venv or not self._venv_sh:
-            logger.info('Installing virtualenv into %s' % venv_dir)
-            s = Subprocess(verbose=True)
-            s.shell('%s %s %s' % (os.path.join(venv_bin,'pip'), 'install', 'virtualenvwrapper'))
+        # is already installed virtualenv?
+        if not os.path.exists(self._venv):
+            self.run_command_init()
         
         # Create a shell script
-        try:
-            self.__getattribute__('run_command_%s' % cmd)(options, args)
-        except:
-            logger.error('`%s` command not found.' % cmd)
+        self.__getattribute__('run_command_%s' % cmd)(options, args)
+    
+    def run_command_init(self):
+        if os.path.exists(self._venv):
+            logger.info('venv command is already initialized.')
+            return
+        if not os.access(PATH_DISTS, os.W_OK):
+            logger.error("Can not initialize venv command: Permission denied.")
             sys.exit(1)
+        d = Downloader()
+        download_file = os.path.join(PATH_DISTS, 'virtualenv.tar.gz')
+        d.download('virtualenv.tar.gz', VIRTUALENV_DLSITE, download_file)
+        logger.info('Extracting virtualenv into %s' % self._venv_dir)
+        untar_file(download_file, self._venv_dir)
     
     def run_command_create(self, options, args):
-        output = [self.template_env % {'venv_py': self._venv_py,
-                                       'venv_venv': self._venv_venv,
-                                       'workon_home': self._workon_home,
-                                       'venv_sh': self._venv_sh}]
+        if not os.access(PATH_VENVS, os.W_OK):
+            logger.error("Can not create a virtuale environment in %s.\nPermission denied." % PATH_VENVS)
+            sys.exit(1)
+
+        virtualenv_options = []
+        if options.no_site_packages:
+            virtualenv_options.append('--no-site-packages')
+        
         for arg in args[1:]:
-            output.append("""echo '# Create `%(arg)s` environment into %(workon_home)s'
-mkvirtualenv -p '%(target_py)s' '%(arg)s'
-""" % {'arg': arg,
-       'workon_home': self._workon_home,
-       'target_py': self._target_py})
-        self._write(''.join(output))
+            target_dir = os.path.join(self._workon_home, arg)
+            logger.info("Creating `%s` environment into %s" % (arg, self._workon_home))
+            # make command
+            cmd = [self._py, self._venv, '-p', self._target_py]
+            cmd.extend(virtualenv_options)
+            cmd.append(target_dir)
+            # create environment
+            s = Subprocess(verbose=True)
+            s.call(cmd)
         
     def run_command_delete(self, options, args):
-        output = [self.template_env % {'venv_py': self._venv_py, 
-                                       'venv_venv': self._venv_venv,
-                                       'workon_home': self._workon_home,
-                                       'venv_sh': self._venv_sh}]
         for arg in args[1:]:
-            output.append("""echo '# Delete `%(arg)s` environment in %(workon_home)s'
-rmvirtualenv '%(arg)s'
-""" % {'arg': arg,
-       'workon_home': self._workon_home})
-        self._write(''.join(output))
+            target_dir = os.path.join(self._workon_home, arg)
+            if not os.path.isdir(target_dir):
+                logger.error('%s already does not exist.' % target_dir)
+            else:
+                if not os.access(target_dir, os.W_OK):
+                    logger.error("Can not delete %s.\nPermission denied." % target_dir)
+                    continue
+                logger.info('Deleting `%s` environment in %s' % (arg, self._workon_home))
+                # make command
+                rm_r(target_dir)
     
     def run_command_use(self, options, args):
         if len(args) < 2:
             logger.error("Unrecognized command line argument: ( 'pythonbrew venv use <project>' )")
             sys.exit(1)
-        template = self.template_env + """echo '# Using `%(arg)s` environment (found in %(workon_home)s)'
+        
+        activate = os.path.join(self._workon_home, args[1], 'bin', 'activate')
+        if not os.path.exists(activate):
+            logger.error('`%s` environment already does not exist. Try `pythonbrew venv create %s`.' % (args[1], args[1]))
+            sys.exit(1)
+        
+        self._write("""\
+echo '# Using `%(arg)s` environment (found in %(workon_home)s)'
 echo '# To leave an environment, simply run `deactivate`'
-workon '%(arg)s'
-"""
-        self._write(template % {'venv_py': self._venv_py, 
-                                'venv_venv': self._venv_venv,
-                                'workon_home': self._workon_home,
-                                'venv_sh': self._venv_sh,
-                                'arg': args[1]})
-    
+source '%(activate)s'
+""" % {'arg': args[1], 'workon_home': self._workon_home, 'activate': activate})
+        
     def run_command_list(self, options, args):
-        template = self.template_env + """echo '# virtualenv for %(pkgname)s (found in %(workon_home)s)'
-workon
-"""
         if options.all:
-            output = []
             for pkgname in get_installed_pythons_pkgname():
                 workon_home = os.path.join(PATH_VENVS, pkgname)
-                output.append(template % {'venv_py': self._venv_py,
-                                          'venv_venv': self._venv_venv,
-                                          'workon_home': workon_home,
-                                          'venv_sh': self._venv_sh,
-                                          'pkgname': pkgname})
-            self._write(''.join(output))
+                logger.log("# virtualenv for %(pkgname)s (found in %(workon_home)s)" % {'pkgname': pkgname, 'workon_home': workon_home})
+                if os.path.isdir(workon_home):
+                    for d in sorted(os.listdir(workon_home)):
+                        if os.path.isdir(os.path.join(workon_home, d)):
+                            logger.log(d)
         else:
-            self._write(template % {'venv_py': self._venv_py, 
-                                    'venv_venv': self._venv_venv,
-                                    'workon_home': self._workon_home,
-                                    'venv_sh': self._venv_sh,
-                                    'pkgname': self._pkgname})
+            logger.log("# virtualenv for %(pkgname)s (found in %(workon_home)s)" % {'pkgname': self._pkgname, 'workon_home': self._workon_home})
+            if os.path.isdir(self._workon_home):
+                for d in sorted(os.listdir(self._workon_home)):
+                    if os.path.isdir(os.path.join(self._workon_home, d)):
+                        logger.log(d)
     
     def _write(self, src):
-        fp = open(PATH_ETC_VENV, 'w')
+        fp = open(PATH_HOME_ETC_VENV, 'w')
         fp.write(src)
         fp.close()
     

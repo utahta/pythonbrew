@@ -8,6 +8,6 @@ class VersionCommand(Command):
     summary = "Show version"
     
     def run_command(self, options, args):
-        logger.info(VERSION)
+        logger.log(VERSION)
 
 VersionCommand()
