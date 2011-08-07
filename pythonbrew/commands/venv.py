@@ -92,13 +92,17 @@ class VenvCommand(Command):
         untar_file(download_file, self._venv_dir)
     
     def run_command_create(self, options, args):
+        if not os.access(PATH_VENVS, os.W_OK):
+            logger.error("Can not create a virtuale environment in %s.\nPermission denied." % PATH_VENVS)
+            sys.exit(1)
+
         virtualenv_options = []
         if options.no_site_packages:
             virtualenv_options.append('--no-site-packages')
         
         for arg in args[1:]:
             target_dir = os.path.join(self._workon_home, arg)
-            logger.log("# Create `%s` environment into %s" % (arg, self._workon_home))
+            logger.info("Create `%s` environment into %s" % (arg, self._workon_home))
             # make command
             cmd = [self._py, self._venv, '-p', self._target_py]
             cmd.extend(virtualenv_options)
@@ -113,7 +117,10 @@ class VenvCommand(Command):
             if not os.path.isdir(target_dir):
                 logger.error('%s already does not exist.' % target_dir)
             else:
-                logger.log('# Delete `%s` environment in %s' % (arg, self._workon_home))
+                if not os.access(target_dir, os.W_OK):
+                    logger.error("Can not delete %s.\nPermission denied." % target_dir)
+                    continue
+                logger.info('Delete `%s` environment in %s' % (arg, self._workon_home))
                 # make command
                 rm_r(target_dir)
     
