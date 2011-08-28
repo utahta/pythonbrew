@@ -72,26 +72,31 @@ def get_macosx_deployment_target():
         return m.group(1)
     return None
 
+def _py_version_cmp(v, v1, v2):
+    if is_str(v):
+        v = Version(v)
+    return v >= v1 and v < v2
+
 def is_python24(version):
-    return version >= '2.4' and version < '2.5'
+    return _py_version_cmp(version, '2.4', '2.5')
 
 def is_python25(version):
-    return version >= '2.5' and version < '2.6'
+    return _py_version_cmp(version, '2.5', '2.6')
 
 def is_python26(version):
-    return version >= '2.6' and version < '2.7'
+    return _py_version_cmp(version, '2.6', '2.7')
 
 def is_python27(version):
-    return version >= '2.7' and version < '2.8'
+    return _py_version_cmp(version, '2.7', '2.8')
 
 def is_python30(version):
-    return version >= '3.0' and version < '3.1'
+    return _py_version_cmp(version, '3.0', '3.1')
 
 def is_python31(version):
-    return version >= '3.1' and version < '3.2'
+    return _py_version_cmp(version, '3.1', '3.2')
 
 def is_python32(version):
-    return version >= '3.2' and version < '3.3'
+    return _py_version_cmp(version, '3.2', '3.3')
 
 def makedirs(path):
     if not os.path.exists(path):
@@ -220,6 +225,8 @@ def get_using_python_pkgname():
     """return: Python-<VERSION> or None"""
     path = get_using_python_path()
     for d in sorted(os.listdir(PATH_PYTHONS)):
+        if not os.path.exists(os.path.join(PATH_PYTHONS, d, 'bin','python')):
+            continue
         if path and os.path.samefile(path, os.path.join(PATH_PYTHONS, d, 'bin','python')):
             return d
     return None
@@ -286,6 +293,9 @@ def bltin_any(iter):
                 return True
         return False
 
+#-----------------------------
+# class
+#-----------------------------
 class Subprocess(object):
     def __init__(self, log=None, cwd=None, verbose=False, debug=False):
         self._log = log
@@ -355,7 +365,7 @@ class Package(object):
         if alias:
             self.name = 'Python-%s' % alias
             self.alias = alias
-
+    
 class Link(object):
     def __init__(self, url):
         self._url = url
@@ -374,4 +384,71 @@ class Link(object):
     def base_url(self):
         return posixpath.basename(self._url.split('#', 1)[0].split('?', 1)[0])
 
-        
+class Version(object):
+    """version compare
+    """
+    def __init__(self, v):
+        self._version = v
+        self._p = self._parse_version(v)
+
+    def __lt__(self, o):
+        if is_str(o):
+            o = self._parse_version(o)
+        return self._p < o
+
+    def __le__(self, o):
+        if is_str(o):
+            o = self._parse_version(o)
+        return self._p <= o
+
+    def __eq__(self, o):
+        if is_str(o):
+            o = self._parse_version(o)
+        return self._p == o
+
+    def __ne__(self, o):
+        if is_str(o):
+            o = self._parse_version(o)
+        return self._p != o
+
+    def __gt__(self, o):
+        if is_str(o):
+            o = self._parse_version(o)
+        return self._p > o
+
+    def __ge__(self, o):
+        if is_str(o):
+            o = self._parse_version(o)
+        return self._p >= o
+
+    def _parse_version(self, s):
+        """see pkg_resouce.parse_version
+        """
+        component_re = re.compile(r'(\d+ | [a-z]+ | \.| -)', re.VERBOSE)
+        replace = {'pre':'c', 'preview':'c','-':'final-','rc':'c','dev':'@'}.get
+
+        def _parse_version_parts(s):
+            for part in component_re.split(s):
+                part = replace(part,part)
+                if not part or part=='.':
+                    continue
+                if part[:1] in '0123456789':
+                    yield part.zfill(8)    # pad for numeric comparison
+                else:
+                    yield '*'+part
+            yield '*final'  # ensure that alpha/beta/candidate are before final
+
+        parts = []
+        for part in _parse_version_parts(s.lower()):
+            if part.startswith('*'):
+                if part<'*final':   # remove '-' before a prerelease tag
+                    while parts and parts[-1]=='*final-': parts.pop()
+                # remove trailing zeros from each series of numeric parts
+                while parts and parts[-1]=='00000000':
+                    parts.pop()
+            parts.append(part)
+        return tuple(parts)
+
+    def __repr__(self):
+        return self._version
+

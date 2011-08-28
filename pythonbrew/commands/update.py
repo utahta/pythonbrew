@@ -6,7 +6,7 @@ from pythonbrew.define import PATH_DISTS, VERSION, ROOT,\
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader, get_pythonbrew_update_url,\
     get_stable_version, get_headerinfo_from_url
-from pythonbrew.util import rm_r, extract_downloadfile, Link, is_gzip, Subprocess
+from pythonbrew.util import rm_r, extract_downloadfile, Link, is_gzip, Subprocess, Version
 
 class UpdateCommand(Command):
     name = "update"
@@ -75,7 +75,7 @@ class UpdateCommand(Command):
         else:
             version = get_stable_version()
             # check for version
-            if not options.force and version <= VERSION:
+            if not options.force and Version(version) <= VERSION:
                 logger.info("You are already running the installed latest version of pythonbrew.")
                 return
         

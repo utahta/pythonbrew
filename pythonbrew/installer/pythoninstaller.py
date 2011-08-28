@@ -2,12 +2,13 @@ import os
 import sys
 import shutil
 import mimetypes
+import re
 from pythonbrew.util import makedirs, symlink, Package, is_url, Link,\
     unlink, is_html, Subprocess, rm_r,\
     is_python25, is_python24, is_python26, is_python27,\
     extract_downloadfile, is_archive_file, path_to_fileurl, is_file,\
     fileurl_to_path, is_python30, is_python31, is_python32,\
-    get_macosx_deployment_target
+    get_macosx_deployment_target, Version
 from pythonbrew.define import PATH_BUILD, PATH_DISTS, PATH_PYTHONS,\
     ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE,\
     PATH_PATCHES_MACOSX_PYTHON25, PATH_PATCHES_MACOSX_PYTHON24,\
@@ -16,7 +17,7 @@ from pythonbrew.downloader import get_python_version_url, Downloader,\
     get_headerinfo_from_url
 from pythonbrew.log import logger
 from pythonbrew.exceptions import UnknownVersionException,\
-    AlreadyInstalledException, NotSupportedVersionException
+    NotSupportedVersionException
 
 class PythonInstaller(object):
     """Python installer
@@ -45,11 +46,21 @@ class PythonInstaller(object):
         self.install_dir = os.path.join(PATH_PYTHONS, pkg.name)
         self.build_dir = os.path.join(PATH_BUILD, pkg.name)
         self.download_file = os.path.join(PATH_DISTS, filename)
-        
+
+        self.options = options
+        self.logfile = os.path.join(PATH_LOG, 'build.log')
+        self.patches = []
+
+        if Version(self.pkg.version) >= '3.1':
+            self.configure_options = ['--with-computed-gotos']
+        else:
+            self.configure_options = []
+
+    def install(self):
         # cleanup
         if os.path.isdir(self.build_dir):
             shutil.rmtree(self.build_dir)
-        
+
         # get content type.
         if is_file(self.download_url):
             path = fileurl_to_path(self.download_url)
@@ -61,16 +72,11 @@ class PythonInstaller(object):
             # note: maybe got 404 or 503 http status code.
             logger.error("Invalid content-type: `%s`" % self.content_type)
             return
-        
-        self.options = options
-        self.logfile = os.path.join(PATH_LOG, 'build.log')
-        self.configure_options = ''
-        self.patches = []
 
-    def install(self):
         if os.path.isdir(self.install_dir):
             logger.info("You are already installed `%s`" % self.pkg.name)
-            raise AlreadyInstalledException
+            return
+        
         self.download_and_extract()
         logger.info("\nThis could take a while. You can run the following command on another shell to track the status:")
         logger.info("  tail -f %s\n" % self.logfile)
@@ -114,7 +120,7 @@ class PythonInstaller(object):
             sys.exit(1)
 
     def patch(self):
-        version = self.pkg.version
+        version = Version(self.pkg.version)
         # for ubuntu 11.04(Natty)
         if is_python24(version):
             patch_dir = os.path.join(PATH_PATCHES_ALL, "python24")
@@ -170,7 +176,10 @@ class PythonInstaller(object):
     
     def configure(self):
         s = Subprocess(log=self.logfile, cwd=self.build_dir, verbose=self.options.verbose)
-        s.check_call("./configure --prefix=%s %s %s" % (self.install_dir, self.options.configure, self.configure_options))
+        cmd = "./configure --prefix=%s %s %s" % (self.install_dir, self.options.configure, ' '.join(self.configure_options))
+        if self.options.verbose:
+            logger.log(cmd)
+        s.check_call(cmd)
 
     def make(self):
         jobs = self.options.jobs
@@ -185,7 +194,7 @@ class PythonInstaller(object):
                 s.check_call("make test")
 
     def make_install(self):
-        version = self.pkg.version
+        version = Version(self.pkg.version)
         if version == "1.5.2" or version == "1.6.1":
             makedirs(self.install_dir)
         s = Subprocess(log=self.logfile, cwd=self.build_dir, verbose=self.options.verbose)
@@ -193,14 +202,27 @@ class PythonInstaller(object):
 
     def symlink(self):
         install_dir = os.path.realpath(self.install_dir)
+        if self.options.framework:
+            # create symlink bin -> /path/to/Frameworks/Python.framework/Versions/?.?/bin
+            bin_dir = os.path.join(install_dir, 'bin')
+            if os.path.exists(bin_dir):
+                rm_r(bin_dir)
+            m = re.match(r'\d\.\d', self.pkg.version)
+            if m:
+                version = m.group(0)
+            symlink(os.path.join(install_dir,'Frameworks','Python.framework','Versions',version,'bin'),
+                    os.path.join(bin_dir))
+
         path_python = os.path.join(install_dir,'bin','python')
         if not os.path.isfile(path_python):
-            path_python3 = os.path.join(install_dir,'bin','python3')
-            path_python3_0 = os.path.join(install_dir,'bin','python3.0')
-            if os.path.isfile(path_python3):
-                symlink(path_python3, path_python)
-            elif os.path.isfile(path_python3_0):
-                symlink(path_python3_0, path_python)
+            src = None
+            for d in os.listdir(os.path.join(install_dir,'bin')):
+                if re.match(r'python\d\.\d', d):
+                    src = d
+                    break
+            if src:
+                path_src = os.path.join(install_dir,'bin',src)
+                symlink(path_src, path_python)
 
     def install_setuptools(self):
         options = self.options
@@ -237,14 +259,26 @@ class PythonInstallerMacOSX(PythonInstaller):
         super(PythonInstallerMacOSX, self).__init__(arg, options)
 
         # check for version
-        version = self.pkg.version
+        version = Version(self.pkg.version)
         if version < '2.6' and (version != '2.4.6' and version < '2.5.5'):
             logger.error("`%s` is not supported on MacOSX Snow Leopard" % self.pkg.name)
             raise NotSupportedVersionException
         # set configure options
         target = get_macosx_deployment_target()
         if target:
-            self.configure_options = 'MACOSX_DEPLOYMENT_TARGET=%s' % target
+            self.configure_options.append('MACOSX_DEPLOYMENT_TARGET=%s' % target)
+
+        # set build options
+        if options.framework and options.static:
+            logger.error("Can't specify both framework and static.")
+            raise Exception
+        if options.framework:
+            self.configure_options.append('--enable-framework=%s' % os.path.join(self.install_dir, 'Frameworks'))
+        elif not options.static:
+            self.configure_options.append('--enable-shared')
+        if options.universal:
+            self.configure_options.append('--enable-universalsdk=/')
+            self.configure_options.append('--with-universal-archs=intel')
 
         # note: skip `make test` to avoid hanging test_threading.
         if is_python25(version) or is_python24(version):
@@ -252,7 +286,7 @@ class PythonInstallerMacOSX(PythonInstaller):
     
     def patch(self):
         # note: want an interface to the source patching functionality. like a patchperl.
-        version = self.pkg.version
+        version = Version(self.pkg.version)
         if is_python24(version):
             patch_dir = PATH_PATCHES_MACOSX_PYTHON24
             self._add_patches_to_list(patch_dir, ['patch-configure', 'patch-Makefile.pre.in',
