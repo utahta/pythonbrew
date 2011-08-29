@@ -173,6 +173,11 @@ See more details below
 Changelog
 =========
 
+1.1 (2011-08-29)
+----------------
+
+- Added --framework, --universal and --static options to install command.
+
 1.0 (2011-08-08)
 ----------------
 
