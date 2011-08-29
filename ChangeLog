@@ -1,3 +1,6 @@
+* 1.1
+  - Added --framework, --universal and --static options to install command.
+
 * 1.0
   - Added systemwide install support. (issue #31)
   - Fixed issue #41 Handle venv binary with the symlink command.

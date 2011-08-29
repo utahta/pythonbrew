@@ -3,8 +3,6 @@ from pythonbrew.basecommand import Command
 from pythonbrew.installer.pythoninstaller import PythonInstaller,\
     PythonInstallerMacOSX
 from pythonbrew.util import is_macosx
-from pythonbrew.exceptions import UnknownVersionException,\
-    AlreadyInstalledException, NotSupportedVersionException
 
 class InstallCommand(Command):
     name = "install"
@@ -61,7 +59,28 @@ class InstallCommand(Command):
             default=0,
             help="Enable parallel make."
         )
-    
+        self.parser.add_option(
+            "--framework",
+            dest="framework",
+            action="store_true",
+            default=False,
+            help="Build (MacOSX|Darwin) framework."
+        )
+        self.parser.add_option(
+            "--universal",
+            dest="universal",
+            action="store_true",
+            default=False,
+            help="Build for both 32 & 64 bit Intel."
+        )
+        self.parser.add_option(
+            "--static",
+            dest="static",
+            action="store_true",
+            default=False,
+            help="Build static libraries."
+        )
+
     def run_command(self, options, args):
         if not args:
             self.parser.print_help()
@@ -74,11 +93,7 @@ class InstallCommand(Command):
                 else:
                     p = PythonInstaller(arg, options)
                 p.install()
-            except UnknownVersionException:
+            except:
                 continue
-            except AlreadyInstalledException:
-                continue
-            except NotSupportedVersionException:
-                continue
-    
+
 InstallCommand()
