@@ -11,7 +11,7 @@ from pythonbrew.downloader import Downloader
 
 class VenvCommand(Command):
     name = "venv"
-    usage = "%prog [create|use|delete|list] [project]"
+    usage = "%prog [create|use|delete|list|print_activate] [project]"
     summary = "Create isolated python environments"
     
     def __init__(self):
@@ -45,7 +45,7 @@ class VenvCommand(Command):
             self.parser.print_help()
             sys.exit(1)
         cmd = args[0]
-        if not cmd in ('init', 'create', 'delete', 'use', 'list'):
+        if not cmd in ('init', 'create', 'delete', 'use', 'list', 'print_activate'):
             self.parser.print_help()
             sys.exit(1)
         
@@ -123,6 +123,19 @@ class VenvCommand(Command):
                 logger.info('Deleting `%s` environment in %s' % (arg, self._workon_home))
                 # make command
                 rm_r(target_dir)
+                
+    def run_command_print_activate(self, options, args):
+        if len(args) < 2:
+            logger.error("Unrecognized command line argument: ( 'pythonbrew venv print_activate <project>' )")
+            sys.exit(1)
+        
+        activate = os.path.join(self._workon_home, args[1], 'bin', 'activate')
+        if not os.path.exists(activate):
+            logger.error('`%s` environment already does not exist. Try `pythonbrew venv create %s`.' % (args[1], args[1]))
+            sys.exit(1)
+            
+        logger.log(activate)
+            
     
     def run_command_use(self, options, args):
         if len(args) < 2:
