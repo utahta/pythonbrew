@@ -11,7 +11,7 @@ from pythonbrew.downloader import Downloader
 
 class VenvCommand(Command):
     name = "venv"
-    usage = "%prog [create|use|delete|list|print_activate] [project]"
+    usage = "%prog [create|use|delete|list|rename|print_activate] [project]"
     summary = "Create isolated python environments"
     
     def __init__(self):
@@ -45,7 +45,7 @@ class VenvCommand(Command):
             self.parser.print_help()
             sys.exit(1)
         cmd = args[0]
-        if not cmd in ('init', 'create', 'delete', 'use', 'list', 'print_activate'):
+        if not cmd in ('init', 'create', 'delete', 'use', 'list', 'rename', 'print_activate'):
             self.parser.print_help()
             sys.exit(1)
         
@@ -91,9 +91,29 @@ class VenvCommand(Command):
         logger.info('Extracting virtualenv into %s' % self._venv_dir)
         untar_file(download_file, self._venv_dir)
     
+    def run_command_rename(self, options, args):
+        if len(args) < 3:
+            logger.error("Unrecognized command line argument: ( 'pythonbrew venv rename <source> <target>' )")
+            sys.exit(1)
+            
+        if not os.access(PATH_VENVS, os.W_OK):
+            logger.error("Can not rename a virtual environment in %s.\nPermission denied." % PATH_VENVS)
+            sys.exit(1)
+        
+        source_dir = os.path.join(self._workon_home, arg[1])
+        target_dir = os.path.join(self._workon_home, arg[2])
+        
+        if not os.path.isdir(source_dir):
+            logger.error('%s does not exist.' % source_dir)
+            
+        if os.path.isdir(target_dir):
+            logger.error('Can not overwrite %s.' % target_dir)
+            
+        os.rename(source_dir, target_dir)
+    
     def run_command_create(self, options, args):
         if not os.access(PATH_VENVS, os.W_OK):
-            logger.error("Can not create a virtuale environment in %s.\nPermission denied." % PATH_VENVS)
+            logger.error("Can not create a virtual environment in %s.\nPermission denied." % PATH_VENVS)
             sys.exit(1)
 
         virtualenv_options = []
