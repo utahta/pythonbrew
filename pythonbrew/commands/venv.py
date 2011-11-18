@@ -100,8 +100,8 @@ class VenvCommand(Command):
             logger.error("Can not rename a virtual environment in %s.\nPermission denied." % PATH_VENVS)
             sys.exit(1)
         
-        source_dir = os.path.join(self._workon_home, arg[1])
-        target_dir = os.path.join(self._workon_home, arg[2])
+        source_dir = os.path.join(self._workon_home, args[1])
+        target_dir = os.path.join(self._workon_home, args[2])
         
         if not os.path.isdir(source_dir):
             logger.error('%s does not exist.' % source_dir)
