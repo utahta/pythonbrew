@@ -244,7 +244,7 @@ def is_installed(name):
     
 def set_current_path(path):
     fp = open(PATH_HOME_ETC_CURRENT, 'w')
-    fp.write('PATH_PYTHONBREW_CURRENT="%s"\n' % (path))
+    fp.write('deactivate &> /dev/null\nPATH_PYTHONBREW_CURRENT="%s"\n' % (path))
     fp.close()
 
 def path_to_fileurl(path):
