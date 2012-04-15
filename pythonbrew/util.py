@@ -10,7 +10,7 @@ import urllib
 import subprocess
 import shlex
 import select
-from pythonbrew.define import PATH_BIN, PATH_HOME_ETC_CURRENT, PATH_PYTHONS
+from pythonbrew.define import PATH_BIN, PATH_HOME_ETC_CURRENT, PATH_PYTHONS, PATH_VENVS
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
 
@@ -224,16 +224,29 @@ def get_using_python_path():
 def get_using_python_pkgname():
     """return: Python-<VERSION> or None"""
     path = get_using_python_path()
-    for d in sorted(os.listdir(PATH_PYTHONS)):
-        if not os.path.exists(os.path.join(PATH_PYTHONS, d, 'bin','python')):
-            continue
-        if path and os.path.samefile(path, os.path.join(PATH_PYTHONS, d, 'bin','python')):
-            return d
+
+    # extract PYTHON NAME FROM PATH
+    if path.startswith(PATH_PYTHONS):
+        path = path.replace(PATH_PYTHONS,'').strip(os.sep)
+        pkgname, rest = path.split(os.sep,1)
+        return pkgname
+
+    if path.startswith(PATH_VENVS):
+        path = path.replace(PATH_VENVS,'').strip(os.sep)
+        pkgname, rest = path.split(os.sep,1)
+        return pkgname
+
     return None
 
 def get_installed_pythons_pkgname():
     """Get the installed python versions list."""
     return [d for d in sorted(os.listdir(PATH_PYTHONS))]
+
+def is_using_python_venv():
+    path = get_using_python_path()
+    if path.startswith(PATH_VENVS):
+        return True
+    return False
 
 def is_installed(name):
     pkgname = Package(name).name
@@ -241,10 +254,10 @@ def is_installed(name):
     if not os.path.isdir(pkgdir):
         return False
     return True
-    
+
 def set_current_path(path):
     fp = open(PATH_HOME_ETC_CURRENT, 'w')
-    fp.write('PATH_PYTHONBREW_CURRENT="%s"\n' % (path))
+    fp.write('deactivate &> /dev/null\nPATH_PYTHONBREW_CURRENT="%s"\n' % (path))
     fp.close()
 
 def path_to_fileurl(path):
