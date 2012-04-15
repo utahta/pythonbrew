@@ -1,3 +1,12 @@
+* 1.2
+  - Fixed issue #54 pythonbrew off` doesn't deactivate the virtualenv (unset the VIRTUAL_ENV env. variable)
+  - Added 2.7.3, 3.2.2, 3.2.3
+  - Added rename and print_activate command for venv (issue #50)
+  - Fixed issue #52 Apply patch for 2.6.5 and earlier
+  - Skip tests by default
+  - Added --test option for install
+  - Removed --no-test option for install
+
 * 1.1
   - Added --framework, --universal and --static options to install command.
 

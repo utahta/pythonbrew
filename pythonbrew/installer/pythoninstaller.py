@@ -89,7 +89,6 @@ class PythonInstaller(object):
         except:
             rm_r(self.install_dir)
             logger.error("Failed to install %s. See %s to see why." % (self.pkg.name, self.logfile))
-            logger.log("  pythonbrew install --force %s" % self.pkg.version)
             sys.exit(1)
         self.symlink()
         self.install_setuptools()
@@ -190,7 +189,7 @@ class PythonInstaller(object):
         make = ((jobs > 0 and 'make -j%s' % jobs) or 'make')
         s = Subprocess(log=self.logfile, cwd=self.build_dir, verbose=self.options.verbose)
         s.check_call(make)
-        if not self.options.no_test:
+        if self.options.test:
             if self.options.force:
                 # note: ignore tests failure error.
                 s.call("make test")
@@ -286,7 +285,7 @@ class PythonInstallerMacOSX(PythonInstaller):
 
         # note: skip `make test` to avoid hanging test_threading.
         if is_python25(version) or is_python24(version):
-            self.options.no_test = True
+            self.options.test = False
     
     def patch(self):
         # note: want an interface to the source patching functionality. like a patchperl.

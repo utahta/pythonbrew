@@ -54,7 +54,7 @@ def test_02_version():
 def test_03_install():
     from pythonbrew.commands.install import InstallCommand
     py_version = TESTPY_VERSION.pop(0)
-    o = Options({'force':True, 'no_test':True, 'verbose':False, 'configure':"",
+    o = Options({'force':True, 'test':True, 'verbose':False, 'configure':"",
                  'no_setuptools': False, 'alias':None, 'jobs':2, 
                  'framework':False, 'universal':False, 'static':False})
     c = InstallCommand()

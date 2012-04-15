@@ -45,8 +45,8 @@ Install some pythons::
 
   pythonbrew install 2.7.2
   pythonbrew install --verbose 2.7.2
-  pythonbrew install --force 2.7.2
-  pythonbrew install --no-test 2.7.2
+  pythonbrew install --test 2.7.2
+  pythonbrew install --test --force 2.7.2
   pythonbrew install --configure="CC=gcc_4.1" 2.7.2
   pythonbrew install --no-setuptools 2.7.2
   pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.7.2.tgz
@@ -116,6 +116,7 @@ Create isolated python environments (uses virtualenv)::
   pythonbrew venv list
   pythonbrew venv use proj
   pythonbrew venv delete proj
+  pythonbrew venv rename proj proj2
 
 Show version::
 
@@ -173,36 +174,21 @@ See more details below
 Changelog
 =========
 
+1.2 (2012-04-15)
+----------------
+
+- Fixed issue #54 pythonbrew off` doesn't deactivate the virtualenv (unset the VIRTUAL_ENV env. variable)
+- Added 2.7.3, 3.2.2, 3.2.3
+- Added rename and print_activate command for venv (issue #50)
+- Fixed issue #52 Apply patch for 2.6.5 and earlier
+- Skip tests by default
+- Added --test option for install
+- Removed --no-test option for install
+
 1.1 (2011-08-29)
 ----------------
 
 - Added --framework, --universal and --static options to install command.
-
-1.0 (2011-08-08)
-----------------
-
-- Added systemwide install support. (issue #31)
-- Fixed issue #41 Handle venv binary with the symlink command.
-- Improved `venv` command (without virtualenvwrapper)
-
-0.9 (2011-07-21)
-----------------
-
-- Added `venv` command (uses virtualenv and virtualenvwrapper)
-- Added `buildout` command.
-
-0.8 (2011-07-10)
-----------------
-
-- Fixed issue #21 Added Ubuntu 11.04(Natty) support
-- Fixed issue #24 non-framework python27 now defines environ properly. Thanks npinto.
-- Fixed issue #27 Cleanup of OS X python build flags
-- Fixed issue #28 Describe the 'symlink' command better. Thanks tgs.
-- Fixed issue #30 py command does not accept arguments with a space
-- Fixed bug: `pythonbrew off` need not have removed the symlink in bin directory
-- Added --no-test option to the install command
-- Added --verbose option to the install command
-- `pythonbrew clean` has been removed. Added `pythonbrew cleanup` instead.
 
 More
 ----

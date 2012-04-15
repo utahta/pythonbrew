@@ -242,12 +242,6 @@ def get_installed_pythons_pkgname():
     """Get the installed python versions list."""
     return [d for d in sorted(os.listdir(PATH_PYTHONS))]
 
-def is_using_python_venv():
-    path = get_using_python_path()
-    if path.startswith(PATH_VENVS):
-        return True
-    return False
-
 def is_installed(name):
     pkgname = Package(name).name
     pkgdir = os.path.join(PATH_PYTHONS, pkgname)

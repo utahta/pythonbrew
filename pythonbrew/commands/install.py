@@ -19,11 +19,11 @@ class InstallCommand(Command):
             help="Force installation of python."
         )
         self.parser.add_option(
-            "-n", "--no-test",
-            dest="no_test",
+            "-t", "--test",
+            dest="test",
             action="store_true",
             default=False,
-            help="Skip `make test`."
+            help="Running `make test`."
         )
         self.parser.add_option(
             "-v", "--verbose",

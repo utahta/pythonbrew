@@ -45,8 +45,8 @@ Install some pythons::
 
   pythonbrew install 2.7.2
   pythonbrew install --verbose 2.7.2
-  pythonbrew install --force 2.7.2
-  pythonbrew install --no-test 2.7.2
+  pythonbrew install --test 2.7.2
+  pythonbrew install --test --force 2.7.2
   pythonbrew install --configure="CC=gcc_4.1" 2.7.2
   pythonbrew install --no-setuptools 2.7.2
   pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.7.2.tgz
@@ -116,6 +116,7 @@ Create isolated python environments (uses virtualenv)::
   pythonbrew venv list
   pythonbrew venv use proj
   pythonbrew venv delete proj
+  pythonbrew venv rename proj proj2
 
 Show version::
 
@@ -175,7 +176,7 @@ LICENCE
 
 The MIT License
 
-Copyright (c) <2010-2011> <utahta>
+Copyright (c) <2010-2012> <utahta>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
