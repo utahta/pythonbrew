@@ -5,6 +5,8 @@ pythonbrew is a program to automate the building and installation of Python in t
 
 pythonbrew is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_ and `rvm <https://github.com/wayneeseguin/rvm>`_.
 
+:Forked: `pythonz <https://github.com/saghul/pythonz>`_
+
 Installation
 ============
 
