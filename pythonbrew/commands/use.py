@@ -14,6 +14,7 @@ class UseCommand(Command):
         if not args:
             self.parser.print_help()
             sys.exit(1)
+
         pkg = Package(args[0])
         pkgname = pkg.name
         pkgdir = os.path.join(PATH_PYTHONS, pkgname)
@@ -28,7 +29,7 @@ class UseCommand(Command):
 
     def _set_temp(self, path):
         fp = open(PATH_HOME_ETC_TEMP, 'w')
-        fp.write('PATH_PYTHONBREW_TEMP="%s"\n' % (path))
+        fp.write('deactivate &> /dev/null\nPATH_PYTHONBREW_TEMP="%s"\n' % (path))
         fp.close()
 
 UseCommand()
