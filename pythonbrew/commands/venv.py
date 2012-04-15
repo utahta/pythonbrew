@@ -11,7 +11,7 @@ from pythonbrew.downloader import Downloader
 
 class VenvCommand(Command):
     name = "venv"
-    usage = "%prog [create|use|delete|list] [project]"
+    usage = "%prog [create|use|delete|list|rename|print_activate] [project]"
     summary = "Create isolated python environments"
     
     def __init__(self):
@@ -45,7 +45,7 @@ class VenvCommand(Command):
             self.parser.print_help()
             sys.exit(1)
         cmd = args[0]
-        if not cmd in ('init', 'create', 'delete', 'use', 'list'):
+        if not cmd in ('init', 'create', 'delete', 'use', 'list', 'rename', 'print_activate'):
             self.parser.print_help()
             sys.exit(1)
         
@@ -91,9 +91,29 @@ class VenvCommand(Command):
         logger.info('Extracting virtualenv into %s' % self._venv_dir)
         untar_file(download_file, self._venv_dir)
     
+    def run_command_rename(self, options, args):
+        if len(args) < 3:
+            logger.error("Unrecognized command line argument: ( 'pythonbrew venv rename <source> <target>' )")
+            sys.exit(1)
+            
+        if not os.access(PATH_VENVS, os.W_OK):
+            logger.error("Can not rename a virtual environment in %s.\nPermission denied." % PATH_VENVS)
+            sys.exit(1)
+        
+        source_dir = os.path.join(self._workon_home, args[1])
+        target_dir = os.path.join(self._workon_home, args[2])
+        
+        if not os.path.isdir(source_dir):
+            logger.error('%s does not exist.' % source_dir)
+            
+        if os.path.isdir(target_dir):
+            logger.error('Can not overwrite %s.' % target_dir)
+            
+        os.rename(source_dir, target_dir)
+    
     def run_command_create(self, options, args):
         if not os.access(PATH_VENVS, os.W_OK):
-            logger.error("Can not create a virtuale environment in %s.\nPermission denied." % PATH_VENVS)
+            logger.error("Can not create a virtual environment in %s.\nPermission denied." % PATH_VENVS)
             sys.exit(1)
 
         virtualenv_options = []
@@ -123,6 +143,19 @@ class VenvCommand(Command):
                 logger.info('Deleting `%s` environment in %s' % (arg, self._workon_home))
                 # make command
                 rm_r(target_dir)
+                
+    def run_command_print_activate(self, options, args):
+        if len(args) < 2:
+            logger.error("Unrecognized command line argument: ( 'pythonbrew venv print_activate <project>' )")
+            sys.exit(1)
+        
+        activate = os.path.join(self._workon_home, args[1], 'bin', 'activate')
+        if not os.path.exists(activate):
+            logger.error('`%s` environment already does not exist. Try `pythonbrew venv create %s`.' % (args[1], args[1]))
+            sys.exit(1)
+            
+        logger.log(activate)
+            
     
     def run_command_use(self, options, args):
         if len(args) < 2:
