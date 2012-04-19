@@ -18,12 +18,14 @@ PY_PYTHONBREW="$PATH_ROOT/bin/pythonbrew"
 __pythonbrew_set_default()
 {
     PATH_PYTHONBREW="$PATH_ROOT/bin"
+    PATH_PYTHONBREW_LIB="$PATH_ROOT/lib"
 }
 
 __pythonbrew_set_path()
 {
     PATH_WITHOUT_PYTHONBREW=$(printf $PATH | awk -v RS=: -v ORS=: "/${PATH_ROOT//\//\/}/ {next} {print}" | sed -e 's#:$##')
     export PATH=$PATH_PYTHONBREW:$PATH_WITHOUT_PYTHONBREW
+    export PYTHONPATH=$PATH_PYTHONBREW_LIB
 }
 
 __pythonbrew_set_temp_path()
@@ -31,6 +33,7 @@ __pythonbrew_set_temp_path()
     if [[ -s "$PATH_HOME_ETC/temp" ]] ; then
         source "$PATH_HOME_ETC/temp"
         PATH_PYTHONBREW="$PATH_ROOT/bin:$PATH_PYTHONBREW_TEMP"
+        PATH_PYTHONBREW_LIB="$PATH_PYTHONBREW_TEMP_LIB"
     else
         __pythonbrew_set_default
     fi
@@ -42,6 +45,7 @@ __pythonbrew_set_current_path()
     if [[ -s "$PATH_HOME_ETC/current" ]] ; then
         source "$PATH_HOME_ETC/current"
         PATH_PYTHONBREW="$PATH_ROOT/bin:$PATH_PYTHONBREW_CURRENT"
+        PATH_PYTHONBREW_LIB="$PATH_PYTHONBREW_CURRENT_LIB"
     else
         __pythonbrew_set_default
     fi
@@ -96,7 +100,7 @@ __pythonbrew_find_command()
             --*) continue;;
             -*) continue;;
             *)
-            command_name=$arg 
+            command_name=$arg
             break
             ;;
         esac
