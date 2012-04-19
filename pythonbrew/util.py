@@ -10,7 +10,7 @@ import urllib
 import subprocess
 import shlex
 import select
-from pythonbrew.define import PATH_BIN, PATH_HOME_ETC_CURRENT, PATH_PYTHONS, PATH_VENVS
+from pythonbrew.define import PATH_BIN, PATH_LIB, PATH_HOME_ETC_CURRENT, PATH_PYTHONS, PATH_VENVS
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
 
@@ -124,7 +124,7 @@ def rm_r(path):
         unlink(path)
 
 def off():
-    set_current_path(PATH_BIN)
+    set_current_path(PATH_BIN,PATH_LIB)
 
 def split_leading_dir(path):
     path = str(path)
