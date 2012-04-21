@@ -1,3 +1,5 @@
+import os
+
 from pythonbrew.installer.pythonbrewinstaller import PythonbrewInstaller
 from pythonbrew.log import logger
 from pythonbrew.define import INSTALLER_ROOT, ROOT, PATH_ETC
@@ -15,7 +17,7 @@ The pythonbrew is installed as:
 
 Please add the following line to the end of your ~/.%(yourshrc)s
 
-  source %(PATH_ETC)s/%(shrc)s
+  [[ -s %(PATH_ETC)s/%(shrc)s ]] && source %(PATH_ETC)s/%(shrc)s
 
 After that, exit this shell, start a new one, and install some fresh
 pythons:
@@ -30,7 +32,7 @@ For further instructions, run:
 The default help messages will popup and tell you what to do!
 
 Enjoy pythonbrew at %(ROOT)s!!
-""" % {'ROOT':ROOT, 'yourshrc':yourshrc, 'shrc':shrc, 'PATH_ETC':PATH_ETC})
+""" % {'ROOT':ROOT, 'yourshrc':yourshrc, 'shrc':shrc, 'PATH_ETC':PATH_ETC.replace(os.getenv('HOME'), '$HOME')})
 
 def upgrade_pythonbrew():
     PythonbrewInstaller.install(INSTALLER_ROOT)
