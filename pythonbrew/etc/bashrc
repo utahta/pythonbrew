@@ -55,31 +55,26 @@ __pythonbrew_reload()
 
 __pythonbrew_use()
 {
-    $pythonbrew "$@"
     [[ $? == 0 ]] && __pythonbrew_set_temp_path
 }
 
 __pythonbrew_switch()
 {
-    $pythonbrew "$@"
     [[ $? == 0 ]] && __pythonbrew_set_current_path
 }
 
 __pythonbrew_off()
 {
-    $pythonbrew "$@"
     [[ $? == 0 ]] && __pythonbrew_set_current_path
 }
 
 __pythonbrew_update()
 {
-    $pythonbrew "$@"
     [[ $? == 0 ]] && __pythonbrew_reload
 }
 
 __pythonbrew_venv()
 {
-    $pythonbrew "$@"
     if [[ $? == 0 ]] ; then
         if [[ -s "$PATH_HOME_ETC/venv.run" ]] ; then
             source "$PATH_HOME_ETC/venv.run"
@@ -106,13 +101,13 @@ __pythonbrew_find_command()
 __pythonbrew_run()
 {
     __pythonbrew_find_command "$@"
+    "$pythonbrew" "$@"
     case $command_name in
         use) __pythonbrew_use "$@";;
         switch) __pythonbrew_switch "$@" ;;
         off) __pythonbrew_off "$@" ;;
         update) __pythonbrew_update "$@" ;;
         venv) __pythonbrew_venv "$@" ;;
-        *) $pythonbrew "$@" ;;
     esac
     builtin hash -r
 }

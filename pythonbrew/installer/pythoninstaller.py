@@ -50,7 +50,7 @@ class PythonInstaller(object):
         self.options = options
         self.logfile = os.path.join(PATH_LOG, 'build.log')
         self.patches = []
-
+        
         if Version(self.pkg.version) >= '3.1':
             self.configure_options = ['--with-computed-gotos']
         else:
@@ -79,7 +79,7 @@ class PythonInstaller(object):
         
         self.download_and_extract()
         logger.info("\nThis could take a while. You can run the following command on another shell to track the status:")
-        logger.info("  tail -f %s\n" % self.logfile)
+        logger.info("  tail -f \"%s\"\n" % self.logfile)
         self.patch()
         logger.info("Installing %s into %s" % (self.pkg.name, self.install_dir))
         try:
@@ -159,9 +159,9 @@ class PythonInstaller(object):
                 for patch in self.patches:
                     if type(patch) is dict:
                         for (ed, source) in patch.items():
-                            s.shell('ed - %s < %s' % (source, ed))
+                            s.shell('ed - "%s" < "%s"' % (source, ed))
                     else:
-                        s.shell("patch -p0 < %s" % patch)
+                        s.shell('patch -p0 < "%s"' % patch)
         except:
             logger.error("Failed to patch `%s`.\n%s" % (self.build_dir, sys.exc_info()[1]))
             sys.exit(1)
@@ -179,7 +179,7 @@ class PythonInstaller(object):
     
     def configure(self):
         s = Subprocess(log=self.logfile, cwd=self.build_dir, verbose=self.options.verbose)
-        cmd = "./configure --prefix=%s %s %s" % (self.install_dir, self.options.configure, ' '.join(self.configure_options))
+        cmd = './configure --prefix="%s" %s %s' % (self.install_dir, self.options.configure, ' '.join(self.configure_options))
         if self.options.verbose:
             logger.log(cmd)
         s.check_call(cmd)

@@ -14,14 +14,14 @@ class Curl(object):
             sys.exit(1)
     
     def read(self, url):
-        p = Popen("curl -skL %s" % url, stdout=PIPE, shell=True)
+        p = Popen('curl -skL "%s"' % url, stdout=PIPE, shell=True)
         p.wait()
         if p.returncode:
             raise Exception('Failed to read.')
         return p.stdout.read()
     
     def readheader(self, url):
-        p = Popen("curl --head -skL %s" % url, stdout=PIPE, shell=True)
+        p = Popen('curl --head -skL "%s"' % url, stdout=PIPE, shell=True)
         p.wait()
         if p.returncode:
             raise Exception('Failed to readheader.')
@@ -37,7 +37,7 @@ class Curl(object):
         return respinfo
     
     def fetch(self, url, filename):
-        p = Popen("curl -# -kL %s -o %s" % (url, filename), shell=True)
+        p = Popen('curl -# -kL "%s" -o "%s"' % (url, filename), shell=True)
         p.wait()
         if p.returncode:
             raise CurlFetchException('Failed to fetch.')

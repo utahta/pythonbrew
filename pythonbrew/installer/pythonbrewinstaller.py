@@ -57,7 +57,7 @@ if __name__ == "__main__":
         # create entry point file
         fp = open(PATH_BIN_PYTHONBREW, "w")
         fp.write("""#!/usr/bin/env bash
-%s %s/pythonbrew_main.py "$@"
+%s "%s/pythonbrew_main.py" "$@"
 """ % (sys.executable, PATH_SCRIPTS))
         fp.close()
         # mode 0755
