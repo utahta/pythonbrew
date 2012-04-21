@@ -10,7 +10,7 @@ import urllib
 import subprocess
 import shlex
 import select
-from pythonbrew.define import PATH_BIN, PATH_HOME_ETC_CURRENT, PATH_PYTHONS, PATH_VENVS
+from pythonbrew.define import PATH_BIN, PATH_LIB, PATH_HOME_ETC_CURRENT, PATH_PYTHONS, PATH_VENVS
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
 
@@ -107,7 +107,7 @@ def symlink(src, dst):
         os.symlink(src, dst)
     except:
         pass
-    
+
 def unlink(path):
     try:
         os.unlink(path)
@@ -115,7 +115,7 @@ def unlink(path):
         e = sys.exc_info()[1]
         if errno.ENOENT != e.errno:
             raise
-        
+
 def rm_r(path):
     """like rm -r command."""
     if os.path.isdir(path):
@@ -124,7 +124,7 @@ def rm_r(path):
         unlink(path)
 
 def off():
-    set_current_path(PATH_BIN)
+    set_current_path(PATH_BIN,PATH_LIB)
 
 def split_leading_dir(path):
     path = str(path)
@@ -249,10 +249,10 @@ def is_installed(name):
         return False
     return True
 
-def set_current_path(path):
-    fp = open(PATH_HOME_ETC_CURRENT, 'w')
-    fp.write('deactivate &> /dev/null\nPATH_PYTHONBREW_CURRENT="%s"\n' % (path))
-    fp.close()
+def set_current_path(path_bin,path_lib):
+	fp = open(PATH_HOME_ETC_CURRENT, 'w')
+	fp.write('deactivate &> /dev/null\nPATH_PYTHONBREW_CURRENT="%s"\nPATH_PYTHONBREW_CURRENT_LIB="%s"\n' % (path_bin, path_lib))
+	fp.close()
 
 def path_to_fileurl(path):
     path = os.path.normcase(os.path.abspath(path))
@@ -309,10 +309,10 @@ class Subprocess(object):
         self._cwd = cwd
         self._verbose = verbose
         self._debug = debug
-    
+
     def chdir(self, cwd):
         self._cwd = cwd
-    
+
     def shell(self, cmd):
         if self._debug:
             logger.log(cmd)
@@ -326,13 +326,13 @@ class Subprocess(object):
         returncode = subprocess.call(cmd, shell=True, cwd=self._cwd)
         if returncode:
             raise ShellCommandException('%s: failed to `%s`' % (returncode, cmd))
-    
+
     def call(self, cmd):
         if is_str(cmd):
             cmd = shlex.split(cmd)
         if self._debug:
             logger.log(cmd)
-        
+
         fp = ((self._log and open(self._log, 'a')) or None)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self._cwd)
         while p.returncode is None:
@@ -349,7 +349,7 @@ class Subprocess(object):
         if fp:
             fp.close()
         return p.returncode
-    
+
     def check_call(self, cmd):
         returncode = self.call(cmd)
         if returncode:
@@ -372,11 +372,11 @@ class Package(object):
         if alias:
             self.name = 'Python-%s' % alias
             self.alias = alias
-    
+
 class Link(object):
     def __init__(self, url):
         self._url = url
-    
+
     @property
     def filename(self):
         url = self._url
@@ -386,7 +386,7 @@ class Link(object):
         name = posixpath.basename(url)
         assert name, ('URL %r produced no filename' % url)
         return name
-    
+
     @property
     def base_url(self):
         return posixpath.basename(self._url.split('#', 1)[0].split('?', 1)[0])
