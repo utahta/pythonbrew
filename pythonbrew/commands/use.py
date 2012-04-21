@@ -24,7 +24,7 @@ class UseCommand(Command):
         pkgbin = os.path.join(pkgdir,'bin')
         pkglib = os.path.join(pkgdir,'lib')
 
-        self._set_temp(pkgbin,pkglib)
+        self._set_temp(pkgbin, pkglib)
 
         logger.info("Using `%s`" % pkgname)
 

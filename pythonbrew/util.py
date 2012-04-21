@@ -10,7 +10,7 @@ import urllib
 import subprocess
 import shlex
 import select
-from pythonbrew.define import PATH_BIN, PATH_LIB, PATH_HOME_ETC_CURRENT, PATH_PYTHONS, PATH_VENVS
+from pythonbrew.define import PATH_BIN, PATH_HOME_ETC_CURRENT, PATH_PYTHONS, PATH_VENVS
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
 
@@ -124,7 +124,7 @@ def rm_r(path):
         unlink(path)
 
 def off():
-    set_current_path(PATH_BIN,PATH_LIB)
+    set_current_path(PATH_BIN, '')
 
 def split_leading_dir(path):
     path = str(path)
@@ -249,10 +249,10 @@ def is_installed(name):
         return False
     return True
 
-def set_current_path(path_bin,path_lib):
-	fp = open(PATH_HOME_ETC_CURRENT, 'w')
-	fp.write('deactivate &> /dev/null\nPATH_PYTHONBREW_CURRENT="%s"\nPATH_PYTHONBREW_CURRENT_LIB="%s"\n' % (path_bin, path_lib))
-	fp.close()
+def set_current_path(path_bin, path_lib):
+    fp = open(PATH_HOME_ETC_CURRENT, 'w')
+    fp.write('deactivate &> /dev/null\nPATH_PYTHONBREW_CURRENT="%s"\nPATH_PYTHONBREW_CURRENT_LIB="%s"\n' % (path_bin, path_lib))
+    fp.close()
 
 def path_to_fileurl(path):
     path = os.path.normcase(os.path.abspath(path))

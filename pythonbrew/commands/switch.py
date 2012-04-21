@@ -23,7 +23,7 @@ class SwitchCommand(Command):
         pkgbin = os.path.join(PATH_PYTHONS,pkgname,'bin')
         pkglib = os.path.join(PATH_PYTHONS,pkgname,'lib')
 
-        set_current_path(pkgbin,pkglib)
+        set_current_path(pkgbin, pkglib)
 
         logger.info("Switched to %s" % pkgname)
 
