@@ -57,8 +57,9 @@ def is_html(content_type):
 
 def is_gzip(content_type, filename):
     if(content_type == 'application/x-gzip'
-       or splitext(filename)[1].lower() in ('.tar', '.tar.gz', '.tgz')
-       or tarfile.is_tarfile(filename)):
+       or splitext(filename)[1].lower() in ('.tar', '.tar.gz', '.tgz')):
+        return True
+    if os.path.exists(filename) and tarfile.is_tarfile(filename):
         return True
     return False
 
