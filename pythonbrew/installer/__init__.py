@@ -17,7 +17,7 @@ The pythonbrew is installed as:
 
 Please add the following line to the end of your ~/.%(yourshrc)s
 
-  [[ -s %(PATH_ETC)s/%(shrc)s ]] && source %(PATH_ETC)s/%(shrc)s
+  [[ -s "%(PATH_ETC)s/%(shrc)s" ]] && source "%(PATH_ETC)s/%(shrc)s"
 
 After that, exit this shell, start a new one, and install some fresh
 pythons:
