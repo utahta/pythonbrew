@@ -1,36 +1,36 @@
 Overview
 ========
 
-pythonbrew is a program to automate the building and installation of Python in the users $HOME.
+pvm is a program to automate the building and installation of Python in the users $HOME.
 
-pythonbrew is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_ and `rvm <https://github.com/wayneeseguin/rvm>`_.
+pvm is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_ and `rvm <https://github.com/wayneeseguin/rvm>`_.
 
 Installation
 ============
 
-The recommended way to download and install pythonbrew is to run these statements in your shell::
+The recommended way to download and install pvm is to run these statements in your shell::
 
-  curl -kL http://xrl.us/pythonbrewinstall | bash
+  curl -kL http://xrl.us/pvminstall | bash
 
-After that, pythonbrew installs itself to ~/.pythonbrew. 
+After that, pvm installs itself to ~/.pvm. 
 
 Please add the following line to the end of your ~/.bashrc::
 
-  [[ -s $HOME/.pythonbrew/etc/bashrc ]] && source $HOME/.pythonbrew/etc/bashrc
+  [[ -s $HOME/.pvm/etc/bashrc ]] && source $HOME/.pvm/etc/bashrc
 
-If you need to install pythonbrew into somewhere else, you can do that by setting a PYTHONBREW_ROOT environment variable::
+If you need to install pvm into somewhere else, you can do that by setting a PYTHONBREW_ROOT environment variable::
 
-  export PYTHONBREW_ROOT=/path/to/pythonbrew
-  curl -kLO http://xrl.us/pythonbrewinstall
-  chmod +x pythonbrewinstall
-  ./pythonbrewinstall
+  export PYTHONBREW_ROOT=/path/to/pvm
+  curl -kLO http://xrl.us/pvminstall
+  chmod +x pvminstall
+  ./pvminstall
 
 For Systemwide(Multi-User) installation
 ---------------------------------------
 
-If the install script is run as root, pythonbrew will automatically install into /usr/local/pythonbrew.
+If the install script is run as root, pvm will automatically install into /usr/local/pvm.
 
-The pythonbrew will be automatically configured for every user on the system if you install as root.
+The pvm will be automatically configured for every user on the system if you install as root.
 
 After installation, where you would normally use `sudo`, non-root users will need to use `sudopybrew`::
 
@@ -39,88 +39,88 @@ After installation, where you would normally use `sudo`, non-root users will nee
 Usage
 =====
 
-pythonbrew command [options]
+pvm command [options]
     
 Install some pythons::
 
-  pythonbrew install 2.7.2
-  pythonbrew install --verbose 2.7.2
-  pythonbrew install --test 2.7.2
-  pythonbrew install --test --force 2.7.2
-  pythonbrew install --configure="CC=gcc_4.1" 2.7.2
-  pythonbrew install --no-setuptools 2.7.2
-  pythonbrew install http://www.python.org/ftp/python/2.7/Python-2.7.2.tgz
-  pythonbrew install /path/to/Python-2.7.2.tgz
-  pythonbrew install /path/to/Python-2.7.2
-  pythonbrew install 2.7.2 3.2
+  pvm install 2.7.2
+  pvm install --verbose 2.7.2
+  pvm install --test 2.7.2
+  pvm install --test --force 2.7.2
+  pvm install --configure="CC=gcc_4.1" 2.7.2
+  pvm install --no-setuptools 2.7.2
+  pvm install http://www.python.org/ftp/python/2.7/Python-2.7.2.tgz
+  pvm install /path/to/Python-2.7.2.tgz
+  pvm install /path/to/Python-2.7.2
+  pvm install 2.7.2 3.2
   
 Permanently use the specified python::
 
-  pythonbrew switch 2.7.2
-  pythonbrew switch 3.2
+  pvm switch 2.7.2
+  pvm switch 3.2
 
 Use the specified python in current shell::
 
-  pythonbrew use 2.7.2
+  pvm use 2.7.2
 
 Runs a named python file against specified and/or all pythons::
 
-  pythonbrew py test.py
-  pythonbrew py -v test.py # Show verbose output
-  pythonbrew py -p 2.7.2 -p 3.2 test.py # Use the specified pythons
+  pvm py test.py
+  pvm py -v test.py # Show verbose output
+  pvm py -p 2.7.2 -p 3.2 test.py # Use the specified pythons
 
 List the installed pythons::
 
-  pythonbrew list
+  pvm list
 
 List the available installation pythons::
 
-  pythonbrew list -k
+  pvm list -k
 
 Uninstall the specified python::
 
-  pythonbrew uninstall 2.7.2
-  pythonbrew uninstall 2.7.2 3.2
+  pvm uninstall 2.7.2
+  pvm uninstall 2.7.2 3.2
 
 Remove stale source folders and archives::
 
-  pythonbrew cleanup
+  pvm cleanup
 
-Upgrades pythonbrew to the latest version::
+Upgrades pvm to the latest version::
 
-  pythonbrew update
-  pythonbrew update --master
-  pythonbrew update --develop
+  pvm update
+  pvm update --master
+  pvm update --develop
 
-Disable pythonbrew::
+Disable pvm::
 
-  pythonbrew off
+  pvm off
   
 Create/Remove a symbolic link to python (in a directory on your $PATH)::
 
-  pythonbrew symlink # Create a symbolic link, like "py2.7.2", for each installed version
-  pythonbrew symlink -p 2.7.2
-  pythonbrew symlink pip # Create a symbolic link to the specified script in bin directory
-  pythonbrew symlink -r # Remove a symbolic link
-  pythonbrew symlink -v foo # Create a symbolic link to the specified virtual environment python in bin directory
+  pvm symlink # Create a symbolic link, like "py2.7.2", for each installed version
+  pvm symlink -p 2.7.2
+  pvm symlink pip # Create a symbolic link to the specified script in bin directory
+  pvm symlink -r # Remove a symbolic link
+  pvm symlink -v foo # Create a symbolic link to the specified virtual environment python in bin directory
 
 Runs the buildout with specified or current using python::
   
-  pythonbrew buildout
-  pythonbrew buildout -p 2.6.6
+  pvm buildout
+  pvm buildout -p 2.6.6
 
 Create isolated python environments (uses virtualenv)::
   
-  pythonbrew venv init
-  pythonbrew venv create proj
-  pythonbrew venv list
-  pythonbrew venv use proj
-  pythonbrew venv delete proj
-  pythonbrew venv rename proj proj2
+  pvm venv init
+  pvm venv create proj
+  pvm venv list
+  pvm venv use proj
+  pvm venv delete proj
+  pvm venv rename proj proj2
 
 Show version::
 
-  pythonbrew version
+  pvm version
 
 COMMANDS
 ========
@@ -151,10 +151,10 @@ cleanup
   Remove stale source folders and archives.
 
 update
-  Upgrades pythonbrew to the latest version.
+  Upgrades pvm to the latest version.
 
 off
-  Disable pythonbrew.
+  Disable pvm.
   
 symlink
   Create/Remove a symbolic link to python (in a directory on your $PATH)
@@ -169,7 +169,7 @@ version
   Show version.
   
 See more details below
-  `pythonbrew help <command>`
+  `pvm help <command>`
 
 Changelog
 =========
@@ -177,15 +177,15 @@ Changelog
 1.3 (2012-04-21)
 ----------------
 
-- Fixed issue #62,#70 Pythonbrew's bashrc $PATH error
-- Fixed issue #74,#76 pythonbrew does not update $PYTHONPATH when changing environments
+- Fixed issue #62,#70 Pvm's bashrc $PATH error
+- Fixed issue #74,#76 pvm does not update $PYTHONPATH when changing environments
 - Fixed issue #75 Replace the absolute path of the user's home with $HOME
 - Fixed issue #68 update to 1.2 fails on OS X 10.7.3
 
 1.2 (2012-04-15)
 ----------------
 
-- Fixed issue #54 pythonbrew off` doesn't deactivate the virtualenv (unset the VIRTUAL_ENV env. variable)
+- Fixed issue #54 pvm off` doesn't deactivate the virtualenv (unset the VIRTUAL_ENV env. variable)
 - Added 2.7.3, 3.2.2, 3.2.3
 - Added rename and print_activate command for venv (issue #50)
 - Fixed issue #52 Apply patch for 2.6.5 and earlier
@@ -201,5 +201,5 @@ Changelog
 More
 ----
 
-see the `pythonbrew/Changelog <https://github.com/utahta/pythonbrew/blob/master/ChangeLog>`_
+see the `pvm/Changelog <https://github.com/utahta/pvm/blob/master/ChangeLog>`_
 

@@ -1,11 +1,11 @@
 import os
 from setuptools import setup, find_packages
-from pythonbrew.define import VERSION
+from pvm.define import VERSION
 
 README = os.path.join(os.path.dirname(__file__),'PKG-INFO')
 long_description = open(README).read() + "\n"
 
-setup(name='pythonbrew',
+setup(name='pvm',
       version=VERSION,
       description="Manage python installations in your $HOME",
       long_description=long_description,
@@ -22,14 +22,14 @@ setup(name='pythonbrew',
         'Programming Language :: Python :: 3.1',
         'Programming Language :: Python :: 3.2',
       ],
-      keywords='pythonbrew pip easy_install distutils setuptools virtualenv',
+      keywords='pvm pip easy_install distutils setuptools virtualenv',
       author='utahta',
       author_email='labs.ninxit@gmail.com',
-      url='https://github.com/utahta/pythonbrew',
+      url='https://github.com/utahta/pvm',
       license='MIT',
       packages=find_packages(),
       include_package_data=True,
-      entry_points=dict(console_scripts=['pythonbrew_install=pythonbrew.installer:install_pythonbrew']),
+      entry_points=dict(console_scripts=['pvm_install=pvm.installer:install_pvm']),
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)

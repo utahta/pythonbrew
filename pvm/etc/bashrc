@@ -1,0 +1,137 @@
+# settings
+PATH_ROOT="$PYTHONBREW_ROOT"
+if [ -z "${PATH_ROOT}" ] ; then
+    PATH_ROOT="$HOME/.pvm"
+fi
+PATH_ETC="$PATH_ROOT/etc"
+
+PATH_HOME="$PYTHONBREW_HOME"
+if [ -z "${PATH_HOME}" ] ; then
+    PATH_HOME="$HOME/.pvm"
+fi
+PATH_HOME_ETC="$PATH_HOME/etc"
+
+# py file
+PY_PYTHONBREW="$PATH_ROOT/bin/pvm"
+
+# functions
+__pvm_set_default()
+{
+    PATH_PYTHONBREW="$PATH_ROOT/bin"
+    PATH_PYTHONBREW_LIB="$PATH_ROOT/lib"
+}
+
+__pvm_set_path()
+{
+    PATH_WITHOUT_PYTHONBREW=$(printf "$PATH" | awk -v RS=: -v ORS=: "/${PATH_ROOT//\//\/}/ {next} {print}" | sed -e 's#:$##')
+    export PATH=$PATH_PYTHONBREW:$PATH_WITHOUT_PYTHONBREW
+    export PYTHONPATH=$PATH_PYTHONBREW_LIB
+}
+
+__pvm_set_temp_path()
+{
+    if [[ -s "$PATH_HOME_ETC/temp" ]] ; then
+        source "$PATH_HOME_ETC/temp"
+        PATH_PYTHONBREW="$PATH_ROOT/bin:$PATH_PYTHONBREW_TEMP"
+        PATH_PYTHONBREW_LIB="$PATH_PYTHONBREW_TEMP_LIB"
+    else
+        __pvm_set_default
+    fi
+    __pvm_set_path
+}
+
+__pvm_set_current_path()
+{
+    if [[ -s "$PATH_HOME_ETC/current" ]] ; then
+        source "$PATH_HOME_ETC/current"
+        PATH_PYTHONBREW="$PATH_ROOT/bin:$PATH_PYTHONBREW_CURRENT"
+        PATH_PYTHONBREW_LIB="$PATH_PYTHONBREW_CURRENT_LIB"
+    else
+        __pvm_set_default
+    fi
+    __pvm_set_path
+}
+
+__pvm_reload()
+{
+    [[ -s "$PATH_ETC/bashrc" ]] && source "$PATH_ETC/bashrc"
+}
+
+__pvm_use()
+{
+    [[ $? == 0 ]] && __pvm_set_temp_path
+}
+
+__pvm_switch()
+{
+    [[ $? == 0 ]] && __pvm_set_current_path
+}
+
+__pvm_off()
+{
+    [[ $? == 0 ]] && __pvm_set_current_path
+}
+
+__pvm_update()
+{
+    [[ $? == 0 ]] && __pvm_reload
+}
+
+__pvm_venv()
+{
+    if [[ $? == 0 ]] ; then
+        if [[ -s "$PATH_HOME_ETC/venv.run" ]] ; then
+            source "$PATH_HOME_ETC/venv.run"
+            cat /dev/null > "$PATH_HOME_ETC/venv.run"
+        fi
+    fi
+}
+
+__pvm_find_command()
+{
+    command_name=""
+    for arg in "$@" ; do
+        case $arg in
+            --*) continue;;
+            -*) continue;;
+            *)
+            command_name=$arg
+            break
+            ;;
+        esac
+    done
+}
+
+__pvm_run()
+{
+    __pvm_find_command "$@"
+    "$pvm" "$@"
+    case $command_name in
+        use) __pvm_use "$@";;
+        switch) __pvm_switch "$@" ;;
+        off) __pvm_off "$@" ;;
+        update) __pvm_update "$@" ;;
+        venv) __pvm_venv "$@" ;;
+    esac
+    builtin hash -r
+}
+
+pvm()
+{
+    pvm=$PY_PYTHONBREW
+    __pvm_run "$@"
+}
+
+pybrew()
+{
+    pvm "$@"
+}
+
+sudopybrew()
+{
+    pvm="sudo PYTHONBREW_ROOT=$PATH_ROOT PATH=$PATH_PYTHONBREW:$PATH_WITHOUT_PYTHONBREW $PY_PYTHONBREW"
+    __pvm_run "$@"
+}
+
+# main
+__pvm_set_current_path

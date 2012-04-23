@@ -1,0 +1,19 @@
+*** Mac/Modules/gestaltmodule.c	2010-11-21 14:34:58.000000000 +0900
+--- Mac/Modules/gestaltmodule.c.new	2010-11-21 14:38:30.000000000 +0900
+***************
+*** 34,40 ****
+  {
+  	OSErr iErr;
+  	OSType selector;
+! 	long response;
+  	if (!PyArg_ParseTuple(args, "O&", PyMac_GetOSType, &selector))
+  		return NULL;
+  	iErr = Gestalt ( selector, &response );
+--- 34,40 ----
+  {
+  	OSErr iErr;
+  	OSType selector;
+! 	SInt32 response;
+  	if (!PyArg_ParseTuple(args, "O&", PyMac_GetOSType, &selector))
+  		return NULL;
+  	iErr = Gestalt ( selector, &response );

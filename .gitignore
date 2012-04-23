@@ -5,7 +5,7 @@
 .settings
 .tmp_*
 *.pyc
-pythonbrew.egg-info
+pvm.egg-info
 dist
 __pycache__
 *.swp
