@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+shopt -s extglob
+
+PYTHONS="/usr/bin/python /usr/bin/python2 `command -v python`"
+CURL=`command -v curl`
+
+trim()
+{
+    trimmed=$1
+    trimmed="${trimmed#"${trimmed%%[![:space:]]*}"}"   # remove leading whitespace characters
+    trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"   # remove trailing whitespace characters
+    echo $trimmed
+}
+
+usage()
+{
+    printf "
+  Usage:
+
+    ${0} [options]
+
+    options:
+
+      --python    : Python interpreter.
+
+"
+}
+
+parse_arguments()
+{
+    for arg do
+        val=`echo "$arg" | sed -e "s;--[^=]*=;;"`
+        case "$arg" in
+            --python=*) PYTHONS="$val $PYTHONS" ;;
+            --help) usage ;;
+            *) echo "Can't find the option. :$arg";;
+        esac
+    done
+}
+
+parse_arguments $@
+
+if [[ ! -x $CURL ]] ; then
+    echo "pvm required curl. curl was not found in your path."
+    exit
+fi
+
+for PYTHON in $PYTHONS ; do
+    if [[ ! -x $PYTHON ]] ; then
+        continue
+    fi
+
+    PYTHON_VERSION=`$PYTHON -V 2>&1`
+    PYTHON_VERSION=${PYTHON_VERSION/"Python "/""}
+    PYTHON_VERSION_S=`echo $PYTHON_VERSION | sed -e "s/\(^[[:digit:]]\{1,\}.[[:digit:]]\{1,\}\).*/\1/"`
+
+    if [[ $PYTHON_VERSION_S = "2.4" ]] || [[ $PYTHON_VERSION_S = "2.5" ]] || [[ $PYTHON_VERSION_S = "2.6" ]] || [[ $PYTHON_VERSION_S = "2.7" ]] || [[ ${PYTHON_VERSION_S:0:1} = "3" ]] ; then
+        PYTHON_FOUND='1'
+        break
+    fi
+done
+if [[ $PYTHON_FOUND != '1' ]] ; then
+    echo "pvm required Python (2.4, 2.5, 2.6 or 2.7)."
+    #TODO Installing python.
+    exit
+fi
+
+systemwide_install=0
+if [[ -n "$PYTHONBREW_ROOT" ]] ; then
+    ROOT="$PYTHONBREW_ROOT"
+else
+    if (( UID == 0 )) ; then
+        systemwide_install=1
+        ROOT="/usr/local/pvm"
+    else
+        ROOT="$HOME/.pvm"
+    fi
+fi
+PATH_DISTS="$ROOT/dists"
+
+STABLE_VERSION=`curl -skL https://github.com/utahta/pvm/raw/master/stable-version.txt`
+STABLE_VERSION=`trim $STABLE_VERSION`
+if [[ -z "$STABLE_VERSION" ]] ; then
+    echo 'Can not get stable-version of pvm.'
+    exit 1
+fi
+TEMP_FILE="pvm-$STABLE_VERSION"
+TEMP_TARBALL="$TEMP_FILE.tar.gz"
+DOWNLOAD_URL="http://pypi.python.org/packages/source/p/pvm/$TEMP_TARBALL"
+
+mkdir -p "$PATH_DISTS"
+rm -rf "$PATH_DISTS/$TEMP_TARBALL"
+rm -rf "$PATH_DISTS/$TEMP_FILE"
+
+echo "Downloading $DOWNLOAD_URL"
+builtin cd $PATH_DISTS ; curl --progress-bar -kL $DOWNLOAD_URL -o "$TEMP_TARBALL"
+
+echo "Extracting $PATH_DISTS/$TEMP_TARBALL"
+builtin cd $PATH_DISTS ; tar zxf $TEMP_TARBALL
+
+echo "Installing pvm into $ROOT"
+if (( systemwide_install == 1 )) ; then
+    PYTHONBREW_ROOT="$ROOT" $PYTHON $PATH_DISTS/$TEMP_FILE/pvm_install.py --systemwide
+else
+    $PYTHON $PATH_DISTS/$TEMP_FILE/pvm_install.py
+fi
+if [[ $? == 1 ]] ; then
+    echo "Failed to install pvm."
+    exit
+fi
