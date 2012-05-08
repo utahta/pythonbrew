@@ -308,6 +308,7 @@ class PythonInstallerMacOSX(PythonInstaller):
                                                   'patch-setup.py.diff',
                                                   'patch-configure-badcflags.diff',
                                                   'patch-configure-arch_only.diff',
+                                                  'patch-configure-no-posix-c-source.diff',
                                                   'patch-64bit.diff',
                                                   'patch-pyconfig.h.in.diff',
                                                   'patch-gestaltmodule.c.diff',
