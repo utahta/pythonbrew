@@ -138,6 +138,9 @@ class PythonInstaller(object):
             if version < '2.7.2':
                 patch_dir = os.path.join(PATH_PATCHES_ALL, "common")
                 self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
+            if version == '2.7.3':
+                patch_dir = os.path.join(PATH_PATCHES_ALL, "python27")
+                self._add_patches_to_list(patch_dir, ['patch-Modules-_sqlite-connection.c.diff'])
         elif is_python30(version):
             patch_dir = os.path.join(PATH_PATCHES_ALL, "python30")
             self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
