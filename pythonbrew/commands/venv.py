@@ -105,9 +105,11 @@ class VenvCommand(Command):
         
         if not os.path.isdir(source_dir):
             logger.error('%s does not exist.' % source_dir)
+            sys.exit(1)
             
         if os.path.isdir(target_dir):
             logger.error('Can not overwrite %s.' % target_dir)
+            sys_exit(1)
             
         os.rename(source_dir, target_dir)
     
