@@ -143,7 +143,6 @@ class VenvCommand(Command):
             sys.exit(1)
         
         virtualenv_options = []
-        print options
         if options.no_site_packages:
             virtualenv_options.append('--no-site-packages')
         
