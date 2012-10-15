@@ -307,6 +307,9 @@ def copy_libs(source, target):
     target's site-packages without replacing already existing libs.
     source and target are the names of the venvs""" 
     
+    # File to copy never-the-less (to add libs to the PATH)
+    easy_inst = "easy-install.pth"
+    
     pkgname = get_using_python_pkgname()
     if not pkgname:
         logger.error('Can not use venv command before switching a python.  Try \'pythonbrew switch <version of python>\'.')
@@ -317,13 +320,15 @@ def copy_libs(source, target):
         
     path, dirs, files = os.walk(source_path).next()
     for curr_dir in dirs:
-        if not os.path.isdir(target_path + curr_dir):
+        if not os.path.exists(target_path + curr_dir):
             shutil.copytree(source_path+curr_dir, target_path+curr_dir)
         
     for curr_file in files:
-        if not os.path.isfile(target_path + curr_file):
+        if not os.path.exists(target_path + curr_file):
             shutil.copyfile(source_path+curr_file, target_path+curr_file)
-    
+        elif curr_file == easy_inst:
+            os.remove(target_path+curr_file)
+            shutil.copyfile(source_path+curr_file, target_path+curr_file)
 
 
 #-----------------------------
