@@ -119,6 +119,7 @@ Create isolated python environments (uses virtualenv)::
   pythonbrew venv use proj
   pythonbrew venv delete proj
   pythonbrew venv rename proj proj2
+  pythonbrew venv clone proj proj2
 
 Show version::
 

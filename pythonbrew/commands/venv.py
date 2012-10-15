@@ -5,13 +5,13 @@ from pythonbrew.define import PATH_PYTHONS, PATH_VENVS, PATH_HOME_ETC_VENV,\
     PATH_ETC, VIRTUALENV_DLSITE, PATH_DISTS
 from pythonbrew.util import Package, \
     is_installed, get_installed_pythons_pkgname, get_using_python_pkgname,\
-    untar_file, Subprocess, rm_r
+    untar_file, Subprocess, rm_r, copy_libs
 from pythonbrew.log import logger
 from pythonbrew.downloader import Downloader
 
 class VenvCommand(Command):
     name = "venv"
-    usage = "%prog [create|use|delete|list|rename|print_activate] [project]"
+    usage = "%prog [create|use|delete|list|clone|rename|print_activate] [project]"
     summary = "Create isolated python environments"
     
     def __init__(self):
@@ -45,7 +45,7 @@ class VenvCommand(Command):
             self.parser.print_help()
             sys.exit(1)
         cmd = args[0]
-        if not cmd in ('init', 'create', 'delete', 'use', 'list', 'rename', 'print_activate'):
+        if not cmd in ('init', 'create', 'delete', 'use', 'list', 'clone', 'rename', 'print_activate'):
             self.parser.print_help()
             sys.exit(1)
         
@@ -105,9 +105,11 @@ class VenvCommand(Command):
         
         if not os.path.isdir(source_dir):
             logger.error('%s does not exist.' % source_dir)
+            sys.exit(1)
             
         if os.path.isdir(target_dir):
             logger.error('Can not overwrite %s.' % target_dir)
+            sys_exit(1)
             
         os.rename(source_dir, target_dir)
     
@@ -131,6 +133,40 @@ class VenvCommand(Command):
             s = Subprocess(verbose=True)
             s.call(cmd)
         
+    def run_command_clone(self, options, args):
+        if len(args) < 3:
+            logger.error("Unrecognized command line argument: ( 'pythonbrew venv clone <source> <target>' )")
+            sys.exit(1)
+        
+        if not os.access(PATH_VENVS, os.W_OK):
+            logger.error("Can not clone a virtual environment in %s.\nPermission denied." % PATH_VENVS)
+            sys.exit(1)
+        
+        virtualenv_options = []
+        if options.no_site_packages:
+            virtualenv_options.append('--no-site-packages')
+        
+        source, target = args[1], args[2]
+        source_dir     = os.path.join(self._workon_home, source)
+        target_dir     = os.path.join(self._workon_home, target)
+        
+        if not os.path.isdir(source_dir):
+            logger.error('%s does not exist.' % source_dir)
+            sys.exit(1)
+        
+        logger.info("Cloning `%s` environment into `%s` on %s" % (source, target, self._workon_home))
+        
+        # Create the new venv first
+        self.run_command_create(options, ['create', target])
+        
+        print "Copying " + source + "'s libraries to " + target + "'s virtual environment...",
+        # Copy all files and folders into the new venv dir, without replacing anything
+        copy_libs(source, target)
+        print "done."
+        
+        # Activate the new venv
+        self.run_command_use(options, ['use', target])
+    
     def run_command_delete(self, options, args):
         for arg in args[1:]:
             target_dir = os.path.join(self._workon_home, arg)
