@@ -87,6 +87,7 @@ if [[ -z "$STABLE_VERSION" ]] ; then
 fi
 TEMP_FILE="pythonbrew-$STABLE_VERSION"
 TEMP_TARBALL="$TEMP_FILE.tar.gz"
+# Temporary removing ref to Pypi
 #DOWNLOAD_URL="http://pypi.python.org/packages/source/p/pythonbrew/$TEMP_TARBALL"
 DOWNLOAD_URL="https://github.com/motiteux/pythonbrew/tarball/master"
 
@@ -98,7 +99,7 @@ echo "Downloading $DOWNLOAD_URL"
 builtin cd $PATH_DISTS ; curl --progress-bar -kL $DOWNLOAD_URL -o "$TEMP_TARBALL"
 
 echo "Extracting $PATH_DISTS/$TEMP_TARBALL"
-builtin cd $PATH_DISTS ; tar zxf $TEMP_TARBALL
+builtin cd $PATH_DISTS ; tar xfvz $TEMP_TARBALL
 
 echo "Installing pythonbrew into $ROOT"
 if (( systemwide_install == 1 )) ; then
