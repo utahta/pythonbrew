@@ -87,7 +87,8 @@ if [[ -z "$STABLE_VERSION" ]] ; then
 fi
 TEMP_FILE="pythonbrew-$STABLE_VERSION"
 TEMP_TARBALL="$TEMP_FILE.tar.gz"
-DOWNLOAD_URL="http://pypi.python.org/packages/source/p/pythonbrew/$TEMP_TARBALL"
+#DOWNLOAD_URL="http://pypi.python.org/packages/source/p/pythonbrew/$TEMP_TARBALL"
+DOWNLOAD_URL="https://github.com/motiteux/pythonbrew/tarball/master"
 
 mkdir -p "$PATH_DISTS"
 rm -rf "$PATH_DISTS/$TEMP_TARBALL"
