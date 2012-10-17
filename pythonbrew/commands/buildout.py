@@ -62,7 +62,7 @@ class BuildoutCommand(Command):
 
         # call buildout
         if options.config:
-            subprocess.call(['./bin/buildout', '-c', option.config])
+            subprocess.call(['./bin/buildout', '-c', options.config])
         else:
             subprocess.call(['./bin/buildout'])
 
