@@ -56,10 +56,14 @@ class BuildoutCommand(Command):
             sys.exit(1)
 
         # call bootstrap.py
-        if subprocess.call([python, bootstrap, '-d']):
-            logger.error('Failed to bootstrap.')
-            sys.exit(1)
-
+        option_boostrap = ['-d']
+        if options.config:
+            option_boostrap.extend(['-c', options.config])
+        
+        if subprocess.call([python, bootstrap, option_boostrap]):
+                logger.error('Failed to bootstrap.')
+                sys.exit(1)
+        
         # call buildout
         if options.config:
             subprocess.call(['./bin/buildout', '-c', options.config])
