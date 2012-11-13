@@ -5,6 +5,9 @@ pythonbrew is a program to automate the building and installation of Python in t
 
 pythonbrew is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_ and `rvm <https://github.com/wayneeseguin/rvm>`_.
 
+This is a fork from https://github.com/utahta/pythonbrew which does not appear to be active for some time. I needed to have
+the --configure option for buildout.
+
 :Forked: `pythonz <https://github.com/saghul/pythonz>`_
 
 Installation
@@ -12,7 +15,7 @@ Installation
 
 The recommended way to download and install pythonbrew is to run these statements in your shell::
 
-  curl -kL http://xrl.us/pythonbrewinstall | bash
+  curl -kL http://git.io/Od-M3A | bash
 
 After that, pythonbrew installs itself to ~/.pythonbrew. 
 

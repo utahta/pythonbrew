@@ -82,7 +82,7 @@ __pythonbrew_venv()
     if [[ $? == 0 ]] ; then
         if [[ -s "$PATH_HOME_ETC/venv.run" ]] ; then
             source "$PATH_HOME_ETC/venv.run"
-            cat /dev/null > "$PATH_HOME_ETC/venv.run"
+            cat /dev/null >| "$PATH_HOME_ETC/venv.run"
         fi
     fi
 }

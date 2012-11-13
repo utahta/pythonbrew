@@ -1,6 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import subprocess
+import shlex
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PATH_PYTHONS, BOOTSTRAP_DLSITE
 from pythonbrew.util import Package, get_using_python_pkgname, Link, is_installed
@@ -56,13 +60,21 @@ class BuildoutCommand(Command):
             sys.exit(1)
 
         # call bootstrap.py
-        if subprocess.call([python, bootstrap, '-d']):
-            logger.error('Failed to bootstrap.')
-            sys.exit(1)
-
+        option_boostrap = [python.encode('utf8'), bootstrap, '-d']
+        if options.config:
+            option_boostrap.extend(['-c', options.config])
+        
+        
+        cmd_bootstrap =' '.join("{0}".format(iter_el) for
+                                iter_el in  option_boostrap)
+        
+        if subprocess.call(shlex.split(cmd_bootstrap.encode('utf8'))):
+                logger.error('Failed to bootstrap.')
+                sys.exit(1)
+        
         # call buildout
         if options.config:
-            subprocess.call(['./bin/buildout', '-c', option.config])
+            subprocess.call(['./bin/buildout', '-c', options.config])
         else:
             subprocess.call(['./bin/buildout'])
 
