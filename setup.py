@@ -29,7 +29,10 @@ setup(name='pythonbrew',
       license='MIT',
       packages=find_packages(),
       include_package_data=True,
-      entry_points=dict(console_scripts=['pythonbrew_install=pythonbrew.installer:install_pythonbrew']),
+      entry_points=dict(console_scripts=[
+          'pythonbrew_install=pythonbrew.installer:install_pythonbrew',
+          'pythonbrew_systemwide=pythonbrew.installer:systemwide_pythonbrew',
+      ]),
       test_suite='nose.collector',
       tests_require=['nose'],
       zip_safe=False)
