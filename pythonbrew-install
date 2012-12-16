@@ -99,7 +99,7 @@ echo "Downloading $DOWNLOAD_URL"
 builtin cd $PATH_DISTS ; curl --progress-bar -kL $DOWNLOAD_URL -o "$TEMP_TARBALL"
 
 echo "Extracting $PATH_DISTS/$TEMP_TARBALL"
-builtin cd $PATH_DISTS ; tar xfvz $TEMP_TARBALL --touch ; CREATED_DIR=`ls -t . | head -1` ; mv $CREATED_DIR $TEMP_FILE
+builtin cd $PATH_DISTS ; tar xfvz $TEMP_TARBALL -m ; CREATED_DIR=`ls -t . | head -1` ; mv $CREATED_DIR $TEMP_FILE
 
 echo "Installing pythonbrew into $ROOT"
 if (( systemwide_install == 1 )) ; then
