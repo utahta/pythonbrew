@@ -224,7 +224,7 @@ class PythonInstaller(object):
         if not os.path.isfile(path_python):
             src = None
             for d in os.listdir(os.path.join(install_dir,'bin')):
-                if re.match(r'python\d\.\d', d):
+                if re.match(r'^python\d\.\d$', d):
                     src = d
                     break
             if src:
