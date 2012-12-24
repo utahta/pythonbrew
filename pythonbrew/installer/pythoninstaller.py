@@ -128,11 +128,10 @@ class PythonInstaller(object):
             patch_dir = os.path.join(PATH_PATCHES_ALL, "python25")
             self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
         elif is_python26(version):
-            patch_dir = os.path.join(PATH_PATCHES_ALL, "python26")
-            self._add_patches_to_list(patch_dir, ['patch-_ssl.c-for-ubuntu-oneiric-and-later.diff'])
             if version < '2.6.6':
                 patch_dir = os.path.join(PATH_PATCHES_ALL, "python26")
                 self._add_patches_to_list(patch_dir, ['patch-setup.py-for-2.6.5-and-earlier.diff'])
+                self._add_patches_to_list(patch_dir, ['patch-_ssl.c-for-ubuntu-oneiric-and-later.diff'])
             else:
                 patch_dir = os.path.join(PATH_PATCHES_ALL, "common")
                 self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
