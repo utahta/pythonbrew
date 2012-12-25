@@ -25,6 +25,15 @@ If you need to install pythonbrew into somewhere else, you can do that by settin
   chmod +x pythonbrewinstall
   ./pythonbrewinstall
 
+Readline Support
+----------------
+
+Python uses a library called `readline` to allow line editing and command history.  If you use Python interactively, it is recommended to install both the `readline` library and its headers.  Otherwise, the arrow keys won't work in the Python interactive shell.
+
+On Debian and Ubuntu systems, the required package is called `libreadline-dev`.  On Fedora, Red Hat, and CentOS, the package is called `readline-devel`.  No extra packages are required on Arch or Gentoo.
+
+The `readline` support package must be installed before Python in order to work properly.
+
 For Systemwide(Multi-User) installation
 ---------------------------------------
 
@@ -173,6 +182,17 @@ See more details below
 
 Changelog
 =========
+
+1.3.1 (2012-12-25)
+----------------
+  - Fixed issue #80 Python 2.5: Undefine _POSIX_C_SOURCE on Lion to fix 8-byte strings from socket.inet_aton()
+  - Fixed issue #86	Fix for #85: Python 2.6.5's SSL Module fails to build on Ubuntu 11.10+
+  - Fixed issue #87 Documentation for getting libreadline to work
+  - Fixed issue #88 Add Python 2.6.8 to config.cfg
+  - Fixed issue #90 Create pythonbrew_systemwide script entrypoint
+  - Fixed issue #94 Fix `No module named _sqlite3` on CentOS 5
+  - Fixed issue #96 Added Python-3.3.0 to config.cfg.
+  - Fixed issue #98 Enhancement: cloning a virtual environment
 
 1.3 (2012-04-21)
 ----------------
