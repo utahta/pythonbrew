@@ -10,7 +10,6 @@ import urllib
 import subprocess
 import shlex
 import select
-import glob 
 from pythonbrew.define import PATH_BIN, PATH_HOME_ETC_CURRENT, PATH_PYTHONS, PATH_VENVS
 from pythonbrew.exceptions import ShellCommandException
 from pythonbrew.log import logger
@@ -301,35 +300,6 @@ def bltin_any(iter):
             if it:
                 return True
         return False
-
-def copy_libs(source, target):
-    """Copies every lib inside source's site-packages folder into 
-    target's site-packages without replacing already existing libs.
-    source and target are the names of the venvs""" 
-    
-    # File to copy never-the-less (to add libs to the PATH)
-    easy_inst = "easy-install.pth"
-    
-    pkgname = get_using_python_pkgname()
-    if not pkgname:
-        logger.error('Can not use venv command before switching a python.  Try \'pythonbrew switch <version of python>\'.')
-        sys.exit(1)
-        
-    source_path = glob.glob(os.path.join(PATH_VENVS, pkgname) + "/" + source + "/lib/python*/site-packages/")[0]
-    target_path = glob.glob(os.path.join(PATH_VENVS, pkgname) + "/" + target + "/lib/python*/site-packages/")[0]
-        
-    path, dirs, files = os.walk(source_path).next()
-    for curr_dir in dirs:
-        if not os.path.exists(target_path + curr_dir):
-            shutil.copytree(source_path+curr_dir, target_path+curr_dir)
-        
-    for curr_file in files:
-        if not os.path.exists(target_path + curr_file):
-            shutil.copyfile(source_path+curr_file, target_path+curr_file)
-        elif curr_file == easy_inst:
-            os.remove(target_path+curr_file)
-            shutil.copyfile(source_path+curr_file, target_path+curr_file)
-
 
 #-----------------------------
 # class
