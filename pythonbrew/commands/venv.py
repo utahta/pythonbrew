@@ -196,10 +196,6 @@ source '%(activate)s'
             logger.error("Unknown python version: ( 'pythonbrew venv clone <source> <target> -p VERSION' )")
             sys.exit(1)
         
-        virtualenv_options = []
-        if options.no_site_packages:
-            virtualenv_options.append('--no-site-packages')
-        
         source, target = args[1], args[2]
         source_dir = os.path.join(self._workon_home, source)
         target_dir = os.path.join(self._workon_home, target)
@@ -218,9 +214,6 @@ source '%(activate)s'
         cmd = [self._py, self._venv_clone, source_dir, target_dir]
         s = Subprocess()
         s.call(cmd)
-        
-        # Activate the new venv
-        self.run_command_use(options, ['use', target])
 
     def run_command_rename(self, options, args):
         if len(args) < 3:
