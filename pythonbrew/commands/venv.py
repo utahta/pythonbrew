@@ -1,10 +1,8 @@
 import os
 import sys
-import glob
-import shutil
 from pythonbrew.basecommand import Command
 from pythonbrew.define import PATH_PYTHONS, PATH_VENVS, PATH_HOME_ETC_VENV,\
-    PATH_ETC, VIRTUALENV_DLSITE, PATH_DISTS
+    PATH_ETC, VIRTUALENV_DLSITE, PATH_DISTS, VIRTUALENV_CLONE_DLSITE
 from pythonbrew.util import Package, \
     is_installed, get_installed_pythons_pkgname, get_using_python_pkgname,\
     untar_file, Subprocess, rm_r
@@ -34,6 +32,8 @@ class VenvCommand(Command):
         )
         self._venv_dir = os.path.join(PATH_ETC, 'virtualenv')
         self._venv = os.path.join(self._venv_dir, 'virtualenv.py')
+        self._venv_clone_dir = os.path.join(PATH_ETC, 'virtualenv-clone')
+        self._venv_clone = os.path.join(self._venv_clone_dir, 'clonevirtualenv.py')
         self._clear()
         
     def run_command(self, options, args):
@@ -66,7 +66,7 @@ class VenvCommand(Command):
             self._py = os.path.join(PATH_PYTHONS, pkgname, 'bin', 'python')
         
         # is already installed virtualenv?
-        if not os.path.exists(self._venv):
+        if not os.path.exists(self._venv) or not os.path.exists(self._venv_clone):
             self.run_command_init()
         
         # Create a shell script
@@ -76,6 +76,9 @@ class VenvCommand(Command):
         if os.path.exists(self._venv):
             logger.info('Remove virtualenv. (%s)' % self._venv_dir)
             rm_r(self._venv_dir)
+        if os.path.exists(self._venv_clone):
+            logger.info('Remove virtualenv-clone. (%s)' % self._venv_clone_dir)
+            rm_r(self._venv_clone_dir)
         if not os.access(PATH_DISTS, os.W_OK):
             logger.error("Can not initialize venv command: Permission denied.")
             sys.exit(1)
@@ -84,6 +87,10 @@ class VenvCommand(Command):
         d.download('virtualenv.tar.gz', VIRTUALENV_DLSITE, download_file)
         logger.info('Extracting virtualenv into %s' % self._venv_dir)
         untar_file(download_file, self._venv_dir)
+        download_file = os.path.join(PATH_DISTS, 'virtualenv-clone.tar.gz')
+        d.download('virtualenv-clone.tar.gz', VIRTUALENV_CLONE_DLSITE, download_file)
+        logger.info('Extracting virtualenv-clone into %s' % self._venv_clone_dir)
+        untar_file(download_file, self._venv_clone_dir)
         
     def run_command_create(self, options, args):
         if not os.access(PATH_VENVS, os.W_OK):
@@ -157,9 +164,9 @@ source '%(activate)s'
             pkgname = Package(options.python).name
             workon_home = os.path.join(PATH_VENVS, pkgname)
             if pkgname == self._pkgname:
-                logger.log("(*) virtualenv for %(pkgname)s (found in %(workon_home)s)" % {'pkgname': pkgname, 'workon_home': workon_home})
+                logger.log("%s (*)" % pkgname)
             else:
-                logger.log("(-) virtualenv for %(pkgname)s (found in %(workon_home)s)" % {'pkgname': pkgname, 'workon_home': workon_home})
+                logger.log("%s" % pkgname)
             if os.path.isdir(workon_home):
                 for d in sorted(os.listdir(workon_home)):
                     if os.path.isdir(os.path.join(workon_home, d)):
@@ -171,9 +178,9 @@ source '%(activate)s'
                     dirs = os.listdir(workon_home)
                     if len(dirs) > 0:
                         if pkgname == self._pkgname:
-                            logger.log("(*) virtualenv for %(pkgname)s (found in %(workon_home)s)" % {'pkgname': pkgname, 'workon_home': workon_home})
+                            logger.log("%s (*)" % pkgname)
                         else:
-                            logger.log("(-) virtualenv for %(pkgname)s (found in %(workon_home)s)" % {'pkgname': pkgname, 'workon_home': workon_home})
+                            logger.log("%s" % pkgname)
                         for d in sorted(dirs):
                             if os.path.isdir(os.path.join(workon_home, d)):
                                 logger.log("  %s" % d)
@@ -194,19 +201,23 @@ source '%(activate)s'
             virtualenv_options.append('--no-site-packages')
         
         source, target = args[1], args[2]
-        source_dir     = os.path.join(self._workon_home, source)
+        source_dir = os.path.join(self._workon_home, source)
+        target_dir = os.path.join(self._workon_home, target)
         
         if not os.path.isdir(source_dir):
             logger.error('%s does not exist.' % source_dir)
             sys.exit(1)
+
+        if os.path.isdir(target_dir):
+            logger.error('Can not overwrite %s.' % target_dir)
+            sys.exit(1)
         
         logger.info("Cloning `%s` environment into `%s` on %s" % (source, target, self._workon_home))
         
-        # Create the new venv first
-        self.run_command_create(options, ['create', target])
-        
-        # Copy all files and folders into the new venv dir, without replacing anything
-        self._copy_libs(source, target)
+        # Copies source to target
+        cmd = [self._py, self._venv_clone, source_dir, target_dir]
+        s = Subprocess()
+        s.call(cmd)
         
         # Activate the new venv
         self.run_command_use(options, ['use', target])
@@ -222,19 +233,11 @@ source '%(activate)s'
             logger.error("Unknown python version: ( 'pythonbrew venv rename <source> <target> -p VERSION' )")
             sys.exit(1)
         
-        source_dir = os.path.join(self._workon_home, args[1])
-        target_dir = os.path.join(self._workon_home, args[2])
-        
-        if not os.path.isdir(source_dir):
-            logger.error('%s does not exist.' % source_dir)
-            sys.exit(1)
-            
-        if os.path.isdir(target_dir):
-            logger.error('Can not overwrite %s.' % target_dir)
-            sys.exit(1)
-        
         logger.info("Rename `%s` environment to `%s` on %s" % (args[1], args[2], self._workon_home))
-        os.rename(source_dir, target_dir)
+
+        source, target = args[1], args[2]
+        self.run_command_clone(options, ['clone', source, target])
+        self.run_command_delete(options, ['delete', source])
     
     def run_command_print_activate(self, options, args):
         if len(args) < 2:
@@ -258,33 +261,5 @@ source '%(activate)s'
         fp = open(PATH_HOME_ETC_VENV, 'w')
         fp.write(src)
         fp.close()
-
-    def _copy_libs(self, source, target):
-        """Copies every lib inside source's site-packages folder into 
-        target's site-packages without replacing already existing libs.
-        source and target are the names of the venvs""" 
-        logger.log("Copying " + source + "'s libraries to " + target + "'s virtual environment...")
-        
-        # File to copy never-the-less (to add libs to the PATH)
-        easy_inst = "easy-install.pth"
-        
-        source_path = glob.glob(os.path.join(PATH_VENVS, self._pkgname, source, "lib", "python*", "site-packages"))[0]
-        target_path = glob.glob(os.path.join(PATH_VENVS, self._pkgname, target, "lib", "python*", "site-packages"))[0]
-        
-        path, dirs, files = os.walk(source_path).next()
-        for curr_dir in dirs:
-            src = os.path.join(source_path, curr_dir)
-            tgt = os.path.join(target_path, curr_dir)
-            if not os.path.exists(tgt):
-                shutil.copytree(src, tgt)
-            
-        for curr_file in files:
-            src = os.path.join(source_path, curr_file)
-            tgt = os.path.join(target_path, curr_file)
-            if not os.path.exists(tgt):
-                shutil.copyfile(src, tgt)
-            elif curr_file == easy_inst:
-                os.remove(tgt)
-                shutil.copyfile(src, tgt)
     
 VenvCommand()

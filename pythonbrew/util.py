@@ -318,7 +318,7 @@ class Subprocess(object):
         if self._debug:
             logger.log(cmd)
         if is_sequence(cmd):
-            cmd = ''.join(cmd)
+            cmd = ' '.join(cmd)
         if self._log:
             if self._verbose:
                 cmd = "(%s) 2>&1 | tee '%s'" % (cmd, self._log)
