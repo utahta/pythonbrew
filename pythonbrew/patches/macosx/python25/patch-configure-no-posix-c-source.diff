@@ -1,0 +1,23 @@
+--- configure.in~       2008-12-14 01:13:52.000000000 +1100
++++ configure.in        2012-05-08 14:32:09.000000000 +1000
+@@ -233,7 +233,7 @@
+   # disables platform specific features beyond repair.
+   # On Mac OS X 10.3, defining _POSIX_C_SOURCE or _XOPEN_SOURCE 
+   # has no effect, don't bother defining them
+-  FreeBSD/4.* | Darwin/@<:@6789@:>@.*)
++  FreeBSD/4.* | Darwin/@<:@6789@:>@.* | Darwin/1@<:@01@:>@.*)
+     define_xopen_source=no;;
+   # On AIX 4 and 5.1, mbstate_t is defined only when _XOPEN_SOURCE == 500 but
+   # used in wcsnrtombs() and mbsnrtowcs() even if _XOPEN_SOURCE is not defined
+
+--- configure~  2008-12-14 01:13:52.000000000 +1000
++++ configure   2012-05-08 14:34:29.000000000 +1000
+@@ -2039,7 +2039,7 @@
+   # disables platform specific features beyond repair.
+   # On Mac OS X 10.3, defining _POSIX_C_SOURCE or _XOPEN_SOURCE
+   # has no effect, don't bother defining them
+-  FreeBSD/4.* | Darwin/[6789].*)
++  FreeBSD/4.* | Darwin/[6789].* | Darwin/1[01].*)
+     define_xopen_source=no;;
+   # On AIX 4 and 5.1, mbstate_t is defined only when _XOPEN_SOURCE == 500 but
+   # used in wcsnrtombs() and mbsnrtowcs() even if _XOPEN_SOURCE is not defined

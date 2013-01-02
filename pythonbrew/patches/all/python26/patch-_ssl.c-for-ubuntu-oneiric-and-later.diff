@@ -1,0 +1,13 @@
+--- Modules/_ssl.c	2012-06-11 19:18:11.363987131 -0700
++++ Modules/_ssl.c	2012-06-11 19:18:51.639984884 -0700
+@@ -300,8 +300,10 @@
+ 		self->ctx = SSL_CTX_new(TLSv1_method()); /* Set up context */
+ 	else if (proto_version == PY_SSL_VERSION_SSL3)
+ 		self->ctx = SSL_CTX_new(SSLv3_method()); /* Set up context */
++#ifndef OPENSSL_NO_SSL2
+ 	else if (proto_version == PY_SSL_VERSION_SSL2)
+ 		self->ctx = SSL_CTX_new(SSLv2_method()); /* Set up context */
++#endif
+ 	else if (proto_version == PY_SSL_VERSION_SSL23)
+ 		self->ctx = SSL_CTX_new(SSLv23_method()); /* Set up context */
+ 	PySSL_END_ALLOW_THREADS

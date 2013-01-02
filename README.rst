@@ -36,6 +36,15 @@ On Debian and Ubuntu systems, the required package is called libreadline-dev. On
 
 The readline support package must be installed before Python in order to work properly.
 
+Readline Support
+----------------
+
+Python uses a library called `readline` to allow line editing and command history.  If you use Python interactively, it is recommended to install both the `readline` library and its headers.  Otherwise, the arrow keys won't work in the Python interactive shell.
+
+On Debian and Ubuntu systems, the required package is called `libreadline-dev`.  On Fedora, Red Hat, and CentOS, the package is called `readline-devel`.  No extra packages are required on Arch or Gentoo.
+
+The `readline` support package must be installed before Python in order to work properly.
+
 For Systemwide(Multi-User) installation
 ---------------------------------------
 

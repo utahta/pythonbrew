@@ -6,7 +6,7 @@ except:
     import configparser as ConfigParser
 
 # pythonbrew version
-VERSION = "1.3"
+VERSION = "1.3.3"
 
 # pythonbrew installer root path
 INSTALLER_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -72,6 +72,7 @@ BOOTSTRAP_DLSITE = _get_or_default('bootstrap', 'url')
 
 # virtualenv download
 VIRTUALENV_DLSITE = _get_or_default('virtualenv', 'url')
+VIRTUALENV_CLONE_DLSITE = _get_or_default('virtualenv-clone', 'url')
 
 # pythonbrew download
 PYTHONBREW_UPDATE_URL_MASTER = _get_or_default('pythonbrew', 'master')

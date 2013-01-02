@@ -30,7 +30,7 @@ class PythonInstaller(object):
             name = path_to_fileurl(arg)
         else:
             name = arg
-        
+
         if is_url(name):
             self.download_url = name
             filename = Link(self.download_url).filename
@@ -50,7 +50,7 @@ class PythonInstaller(object):
         self.options = options
         self.logfile = os.path.join(PATH_LOG, 'build.log')
         self.patches = []
-        
+
         if Version(self.pkg.version) >= '3.1':
             self.configure_options = ['--with-computed-gotos']
         else:
@@ -76,7 +76,7 @@ class PythonInstaller(object):
         if os.path.isdir(self.install_dir):
             logger.info("You are already installed `%s`" % self.pkg.name)
             return
-        
+
         self.download_and_extract()
         logger.info("\nThis could take a while. You can run the following command on another shell to track the status:")
         logger.info("  tail -f \"%s\"\n" % self.logfile)
@@ -95,7 +95,7 @@ class PythonInstaller(object):
         logger.info("\nInstalled %(pkgname)s successfully. Run the following command to switch to %(pkgname)s."
                     % {"pkgname":self.pkg.name})
         logger.info("  pythonbrew switch %s" % self.pkg.alias)
-    
+
     def download_and_extract(self):
         if is_file(self.download_url):
             path = fileurl_to_path(self.download_url)
@@ -131,6 +131,7 @@ class PythonInstaller(object):
             if version < '2.6.6':
                 patch_dir = os.path.join(PATH_PATCHES_ALL, "python26")
                 self._add_patches_to_list(patch_dir, ['patch-setup.py-for-2.6.5-and-earlier.diff'])
+                self._add_patches_to_list(patch_dir, ['patch-_ssl.c-for-ubuntu-oneiric-and-later.diff'])
             else:
                 patch_dir = os.path.join(PATH_PATCHES_ALL, "common")
                 self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
@@ -153,7 +154,7 @@ class PythonInstaller(object):
                 patch_dir = os.path.join(PATH_PATCHES_ALL, "python32")
                 self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
         self._do_patch()
-    
+
     def _do_patch(self):
         try:
             s = Subprocess(log=self.logfile, cwd=self.build_dir, verbose=self.options.verbose)
@@ -168,7 +169,7 @@ class PythonInstaller(object):
         except:
             logger.error("Failed to patch `%s`.\n%s" % (self.build_dir, sys.exc_info()[1]))
             sys.exit(1)
-    
+
     def _add_patches_to_list(self, patch_dir, patch_files):
         for patch in patch_files:
             if type(patch) is dict:
@@ -179,7 +180,7 @@ class PythonInstaller(object):
                 self.patches.append(patch)
             else:
                 self.patches.append(os.path.join(patch_dir, patch))
-    
+
     def configure(self):
         s = Subprocess(log=self.logfile, cwd=self.build_dir, verbose=self.options.verbose)
         cmd = './configure --prefix="%s" %s %s' % (self.install_dir, self.options.configure, ' '.join(self.configure_options))
@@ -223,7 +224,7 @@ class PythonInstaller(object):
         if not os.path.isfile(path_python):
             src = None
             for d in os.listdir(os.path.join(install_dir,'bin')):
-                if re.match(r'python\d\.\d', d):
+                if re.match(r'^python\d\.\d$', d):
                     src = d
                     break
             if src:
@@ -255,7 +256,7 @@ class PythonInstaller(object):
                 logger.info("Installing pip into %s" % install_dir)
                 s.check_call([easy_install, 'pip'])
         except:
-            logger.error("Failed to install setuptools. See %s/build.log to see why." % (ROOT))
+            logger.error("Failed to install setuptools. See %s/log/build.log to see why." % (ROOT))
             logger.log("Skip installation of setuptools.")
 
 class PythonInstallerMacOSX(PythonInstaller):
@@ -289,7 +290,7 @@ class PythonInstallerMacOSX(PythonInstaller):
         # note: skip `make test` to avoid hanging test_threading.
         if is_python25(version) or is_python24(version):
             self.options.test = False
-    
+
     def patch(self):
         # note: want an interface to the source patching functionality. like a patchperl.
         version = Version(self.pkg.version)
@@ -311,6 +312,7 @@ class PythonInstallerMacOSX(PythonInstaller):
                                                   'patch-setup.py.diff',
                                                   'patch-configure-badcflags.diff',
                                                   'patch-configure-arch_only.diff',
+                                                  'patch-configure-no-posix-c-source.diff',
                                                   'patch-64bit.diff',
                                                   'patch-pyconfig.h.in.diff',
                                                   'patch-gestaltmodule.c.diff',
@@ -332,5 +334,5 @@ class PythonInstallerMacOSX(PythonInstaller):
         elif is_python27(version):
             patch_dir = PATH_PATCHES_MACOSX_PYTHON27
             self._add_patches_to_list(patch_dir, ['patch-Modules-posixmodule.diff'])
-            
+
         self._do_patch()

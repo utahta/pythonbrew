@@ -23,13 +23,6 @@ class UpdateCommand(Command):
             help='Update the pythonbrew to the `master` branch on github.'
         )
         self.parser.add_option(
-            '--develop',
-            dest='develop',
-            action='store_true',
-            default=False,
-            help='Update the pythonbrew to the `develop` branch on github.'
-        )
-        self.parser.add_option(
             '--config',
             dest='config',
             action='store_true',
@@ -70,8 +63,6 @@ class UpdateCommand(Command):
     def _update_pythonbrew(self, options, args):
         if options.master:
             version = 'master'
-        elif options.develop:
-            version = 'develop'
         else:
             version = get_stable_version()
             # check for version
@@ -85,7 +76,7 @@ class UpdateCommand(Command):
             sys.exit(1)
         headinfo = get_headerinfo_from_url(download_url)
         content_type = headinfo['content-type']
-        if not options.master and not options.develop:
+        if not options.master:
             if not is_gzip(content_type, Link(download_url).filename):
                 logger.error("content type should be gzip. content-type:`%s`" % content_type)
                 sys.exit(1)

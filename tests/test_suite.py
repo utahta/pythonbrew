@@ -9,7 +9,7 @@ import shutil
 # Settings
 #---------------------------------------------------------------------------
 PYTHONBREW_ROOT = '/tmp/pythonbrew.test'
-TESTPY_VERSION = ['2.4.6', '2.5.5', '2.6.6', '3.2']
+TESTPY_VERSION = ['2.5.6', '2.6.6', '3.2']
 
 def _cleanall():
     if os.path.isdir(PYTHONBREW_ROOT):
@@ -54,12 +54,12 @@ def test_02_version():
 def test_03_install():
     from pythonbrew.commands.install import InstallCommand
     py_version = TESTPY_VERSION.pop(0)
-    o = Options({'force':True, 'test':True, 'verbose':False, 'configure':"",
+    o = Options({'force':True, 'test':False, 'verbose':False, 'configure':"",
                  'no_setuptools': False, 'alias':None, 'jobs':2, 
                  'framework':False, 'universal':False, 'static':False})
     c = InstallCommand()
-    c.run_command(o, [py_version]) # pybrew install -f -j2 2.4.6
-    c.run_command(o, TESTPY_VERSION) # pybrew install -f -j2 2.5.6 2.6.6 3.2
+    c.run_command(o, [py_version]) # pybrew install -f -j2 2.5.6
+    c.run_command(o, TESTPY_VERSION) # pybrew install -f -j2 2.6.6 3.2
 
 def test_04_switch():
     from pythonbrew.commands.switch import SwitchCommand
@@ -118,7 +118,7 @@ eggs =""")
 def test_10_venv():
     from pythonbrew.commands.venv import VenvCommand
     c = VenvCommand()
-    o = Options({'python':'2.6.6', 'all':False, 'no_site_packages':False})
+    o = Options({'python':'2.6.6', 'no_site_packages':False})
     c.run_command(o, ['init'])
     c.run_command(o, ['create', 'aaa'])
     c.run_command(o, ['list'])
