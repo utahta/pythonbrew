@@ -45,7 +45,7 @@ The pythonbrew will be automatically configured for every user on the system if 
 
 After installation, where you would normally use `sudo`, non-root users will need to use `sudopybrew`::
 
-  sudopybrew install -n -v -j2 2.7.2
+  sudopybrew install -v -j2 2.7.2
 
 Usage
 =====
