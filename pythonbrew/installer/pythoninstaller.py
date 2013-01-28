@@ -17,7 +17,7 @@ from pythonbrew.downloader import get_python_version_url, Downloader,\
     get_headerinfo_from_url
 from pythonbrew.log import logger
 from pythonbrew.exceptions import UnknownVersionException,\
-    NotSupportedVersionException
+    NotSupportedVersionException, ShellCommandException
 
 class PythonInstaller(object):
     """Python installer
@@ -86,6 +86,10 @@ class PythonInstaller(object):
             self.configure()
             self.make()
             self.make_install()
+        except ShellCommandException as e:
+            rm_r(self.install_dir)
+            logger.error(e)
+            sys.exit(1)
         except:
             rm_r(self.install_dir)
             logger.error("Failed to install %s. See %s to see why." % (self.pkg.name, self.logfile))
