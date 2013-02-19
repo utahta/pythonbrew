@@ -22,8 +22,8 @@ Please add the following line to the end of your ~/.%(yourshrc)s
 After that, exit this shell, start a new one, and install some fresh
 pythons:
 
-  pythonbrew install 2.7.2
-  pythonbrew install 3.2
+  pythonbrew install 2.7.3
+  pythonbrew install 3.3.0
 
 For further instructions, run:
 
