@@ -1,0 +1,11 @@
+--- Makefile.pre.in.orig	2013-03-19 23:11:41.577326000 +0100
++++ Makefile.pre.in	2013-03-19 23:12:06.297327012 +0100
+@@ -497,7 +497,7 @@
+ 		$(SIGNAL_OBJS) \
+ 		$(MODOBJS) \
+ 		$(srcdir)/Modules/getbuildinfo.c
+-	$(CC) -c $(PY_CFLAGS) -DSVNVERSION=\"`LC_ALL=C $(SVNVERSION)`\" -o $@ $(srcdir)/Modules/getbuildinfo.c
++	$(CC) -c $(PY_CFLAGS) -DSVNVERSION="\"`LC_ALL=C $(SVNVERSION)`\"" -o $@ $(srcdir)/Modules/getbuildinfo.c
+ 
+ Modules/getpath.o: $(srcdir)/Modules/getpath.c Makefile
+ 	$(CC) -c $(PY_CFLAGS) -DPYTHONPATH='"$(PYTHONPATH)"' \
