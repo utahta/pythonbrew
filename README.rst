@@ -115,10 +115,14 @@ Create/Remove a symbolic link to python (in a directory on your $PATH)::
   pythonbrew symlink -r # Remove a symbolic link
   pythonbrew symlink -v foo # Create a symbolic link to the specified virtual environment python in bin directory
 
-Runs the buildout with specified or current using python::
+Runs the buildout with specified or current python::
   
   pythonbrew buildout
   pythonbrew buildout -p 2.6.6
+
+Runs the buildout with a specified buildout config file::
+
+  pythonbrew buildout --configure config_prod.cfg
 
 Create isolated python environments (uses virtualenv)::
   

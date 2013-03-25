@@ -79,7 +79,7 @@ else
 fi
 PATH_DISTS="$ROOT/dists"
 
-STABLE_VERSION=`curl -skL https://github.com/utahta/pythonbrew/raw/master/stable-version.txt`
+STABLE_VERSION=`curl -skL https://github.com/motiteux/pythonbrew/raw/master/stable-version.txt`
 STABLE_VERSION=`trim $STABLE_VERSION`
 if [[ -z "$STABLE_VERSION" ]] ; then
     echo 'Can not get stable-version of pythonbrew.'
@@ -87,7 +87,9 @@ if [[ -z "$STABLE_VERSION" ]] ; then
 fi
 TEMP_FILE="pythonbrew-$STABLE_VERSION"
 TEMP_TARBALL="$TEMP_FILE.tar.gz"
-DOWNLOAD_URL="http://pypi.python.org/packages/source/p/pythonbrew/$TEMP_TARBALL"
+# Temporary removing ref to Pypi
+#DOWNLOAD_URL="http://pypi.python.org/packages/source/p/pythonbrew/$TEMP_TARBALL"
+DOWNLOAD_URL="https://github.com/motiteux/pythonbrew/tarball/master"
 
 mkdir -p "$PATH_DISTS"
 rm -rf "$PATH_DISTS/$TEMP_TARBALL"
@@ -97,7 +99,7 @@ echo "Downloading $DOWNLOAD_URL"
 builtin cd $PATH_DISTS ; curl --progress-bar -kL $DOWNLOAD_URL -o "$TEMP_TARBALL"
 
 echo "Extracting $PATH_DISTS/$TEMP_TARBALL"
-builtin cd $PATH_DISTS ; tar zxf $TEMP_TARBALL
+builtin cd $PATH_DISTS ; tar xfvz $TEMP_TARBALL -m ; CREATED_DIR=`ls -t . | head -1` ; mv $CREATED_DIR $TEMP_FILE
 
 echo "Installing pythonbrew into $ROOT"
 if (( systemwide_install == 1 )) ; then

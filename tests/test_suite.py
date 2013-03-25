@@ -136,3 +136,22 @@ def test_12_clean():
     c = CleanupCommand()
     c.run_command(None, None)
 
+def test_13_buildout_configure():
+    from pythonbrew.commands.buildout import BuildoutCommand
+    BUILDOUT_DIR = os.path.join(PYTHONBREW_ROOT, 'etc', 'buildout')
+    BUILDOUT_CONF = os.path.join(BUILDOUT_DIR, 'buildout_conf_test.cfg')
+    if not os.path.isdir(BUILDOUT_DIR):
+        os.makedirs(BUILDOUT_DIR)
+    fp = open(BUILDOUT_CONF, 'w')
+    fp.write("""[buildout]
+parts = test
+develop =
+
+[test]
+recipe = 
+eggs =""")
+    fp.close()
+    # Runs the buildout with a config file
+    os.chdir(BUILDOUT_DIR)
+    c = BuildoutCommand()
+    c.run_command(Options({'python':'2.6.6', 'configure':BUILDOUT_CONF}), [])
