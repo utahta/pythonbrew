@@ -5,12 +5,14 @@ pythonbrew is a program to automate the building and installation of Python in t
 
 pythonbrew is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_ and `rvm <https://github.com/wayneeseguin/rvm>`_.
 
+:Forked: `pythonz <https://github.com/saghul/pythonz>`_
+
 Installation
 ============
 
 The recommended way to download and install pythonbrew is to run these statements in your shell::
 
-  curl -kL http://git.io/Od-M3A | bash
+  curl -kL http://xrl.us/pythonbrewinstall | bash
 
 After that, pythonbrew installs itself to ~/.pythonbrew. 
 
@@ -24,15 +26,6 @@ If you need to install pythonbrew into somewhere else, you can do that by settin
   curl -kLO http://xrl.us/pythonbrewinstall
   chmod +x pythonbrewinstall
   ./pythonbrewinstall
-  
-Readline Support
-----------------
-
-Python uses a library called readline to allow line editing and command history. If you use Python interactively, it is recommended to install both the readline library and its headers. Otherwise, the arrow keys won't work in the Python interactive shell.
-
-On Debian and Ubuntu systems, the required package is called libreadline-dev. On Fedora, Red Hat, and CentOS, the package is called readline-devel. No extra packages are required on Arch or Gentoo.
-
-The readline support package must be installed before Python in order to work properly.
 
 Readline Support
 ----------------
@@ -122,11 +115,14 @@ Create/Remove a symbolic link to python (in a directory on your $PATH)::
   pythonbrew symlink -r # Remove a symbolic link
   pythonbrew symlink -v foo # Create a symbolic link to the specified virtual environment python in bin directory
 
-Runs the buildout with specified or current using python::
+Runs the buildout with specified or current python::
   
   pythonbrew buildout
   pythonbrew buildout -p 2.6.6
-  pythonbrew buildout --configure config.cfg
+
+Runs the buildout with a specified buildout config file::
+
+  pythonbrew buildout --configure config_prod.cfg
 
 Create isolated python environments (uses virtualenv)::
   
