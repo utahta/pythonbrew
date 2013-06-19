@@ -133,5 +133,15 @@ sudopybrew()
     __pythonbrew_run "$@"
 }
 
+__pytonbrew_bash_completion()
+{
+	PYBREW_COMPLETION=$PATH_ETC/bash_completion.d/pybrew-completion.sh
+	if [ -s "$PYBREW_COMPLETION" ];then
+		 . $PYBREW_COMPLETION
+	fi
+}
+
 # main
 __pythonbrew_set_current_path
+
+__pytonbrew_bash_completion

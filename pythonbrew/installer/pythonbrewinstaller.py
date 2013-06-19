@@ -65,6 +65,8 @@ if __name__ == "__main__":
         
         # create a bashrc for pythonbrew
         shutil.copy(os.path.join(installer_root,'etc','bashrc'), os.path.join(PATH_ETC,'bashrc'))
+        #copy bash_completion.d directory
+	shutil.copytree(os.path.join(installer_root,'etc','bash_completion.d'), os.path.join(PATH_ETC,'bash_completion.d'))
         
         # copy config.cfg
         shutil.copy(os.path.join(installer_root,'etc','config.cfg'), PATH_ETC_CONFIG)
