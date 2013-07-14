@@ -130,6 +130,8 @@ class PythonInstaller(object):
         elif is_python26(version):
             if version < '2.6.6':
                 patch_dir = os.path.join(PATH_PATCHES_ALL, "python26")
+                if version < '2.6.3':
+                    self._add_patches_to_list(patch_dir, ['patch-Makefile.pre.in-for-2.6.2-and-earlier.diff'])
                 self._add_patches_to_list(patch_dir, ['patch-setup.py-for-2.6.5-and-earlier.diff'])
                 self._add_patches_to_list(patch_dir, ['patch-_ssl.c-for-ubuntu-oneiric-and-later.diff'])
             else:
