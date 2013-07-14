@@ -6,7 +6,7 @@ except:
     import configparser as ConfigParser
 
 # pythonbrew version
-VERSION = "1.3.3"
+VERSION = "1.3.4"
 
 # pythonbrew installer root path
 INSTALLER_ROOT = os.path.dirname(os.path.abspath(__file__))

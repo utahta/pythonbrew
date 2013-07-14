@@ -1,11 +1,16 @@
+Deprecated
+==========
+
+This project is no longer under active development.
+
+You are encouraged to try out `pyenv <https://github.com/yyuu/pyenv>`_ instead.
+
 Overview
 ========
 
 pythonbrew is a program to automate the building and installation of Python in the users $HOME.
 
 pythonbrew is inspired by `perlbrew <http://github.com/gugod/App-perlbrew>`_ and `rvm <https://github.com/wayneeseguin/rvm>`_.
-
-:Forked: `pythonz <https://github.com/saghul/pythonz>`_
 
 Installation
 ============
