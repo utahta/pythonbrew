@@ -1,0 +1,57 @@
+diff -r 09811ecd5df1 Modules/_sqlite/cursor.c
+--- Modules/_sqlite/cursor.c	Wed Apr 24 23:31:38 2013 +0200
++++ Modules/_sqlite/cursor.c	Sat Apr 27 23:22:59 2013 +0300
+@@ -732,7 +732,7 @@
+ 
+         Py_DECREF(self->lastrowid);
+         if (!multiple && statement_type == STATEMENT_INSERT) {
+-            sqlite3_int64 lastrowid;
++            sqlite_int64 lastrowid;
+             Py_BEGIN_ALLOW_THREADS
+             lastrowid = sqlite3_last_insert_rowid(self->connection->db);
+             Py_END_ALLOW_THREADS
+diff -r 09811ecd5df1 Modules/_sqlite/util.c
+--- Modules/_sqlite/util.c	Wed Apr 24 23:31:38 2013 +0200
++++ Modules/_sqlite/util.c	Sat Apr 27 23:22:59 2013 +0300
+@@ -111,7 +111,7 @@
+ #endif
+ 
+ PyObject *
+-_pysqlite_long_from_int64(sqlite3_int64 value)
++_pysqlite_long_from_int64(sqlite_int64 value)
+ {
+ #ifdef HAVE_LONG_LONG
+ # if SIZEOF_LONG_LONG < 8
+@@ -135,7 +135,7 @@
+     return PyInt_FromLong(value);
+ }
+ 
+-sqlite3_int64
++sqlite_int64
+ _pysqlite_long_as_int64(PyObject * py_val)
+ {
+     int overflow;
+@@ -158,8 +158,8 @@
+ #endif
+             return value;
+     }
+-    else if (sizeof(value) < sizeof(sqlite3_int64)) {
+-        sqlite3_int64 int64val;
++    else if (sizeof(value) < sizeof(sqlite_int64)) {
++        sqlite_int64 int64val;
+         if (_PyLong_AsByteArray((PyLongObject *)py_val,
+                                 (unsigned char *)&int64val, sizeof(int64val),
+                                 IS_LITTLE_ENDIAN, 1 /* signed */) >= 0) {
+diff -r 09811ecd5df1 Modules/_sqlite/util.h
+--- Modules/_sqlite/util.h	Wed Apr 24 23:31:38 2013 +0200
++++ Modules/_sqlite/util.h	Sat Apr 27 23:22:59 2013 +0300
+@@ -36,7 +36,7 @@
+  */
+ int _pysqlite_seterror(sqlite3* db, sqlite3_stmt* st);
+ 
+-PyObject * _pysqlite_long_from_int64(sqlite3_int64 value);
+-sqlite3_int64 _pysqlite_long_as_int64(PyObject * value);
++PyObject * _pysqlite_long_from_int64(sqlite_int64 value);
++sqlite_int64 _pysqlite_long_as_int64(PyObject * value);
+ 
+ #endif
