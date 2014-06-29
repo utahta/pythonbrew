@@ -23,7 +23,9 @@ __pythonbrew_set_default()
 
 __pythonbrew_set_path()
 {
-    PATH_WITHOUT_PYTHONBREW=$(printf "$PATH" | awk -v RS=: -v ORS=: "/${PATH_ROOT//\//\/}/ {next} {print}" | sed -e 's#:$##')
+    PATH_WITHOUT_PYTHONBREW=$(printf "%s" "$PATH" |
+    awk -v path_root="${PATH_ROOT//\//\/}" 'BEGIN{RS=ORS=":"} $0 !~ path_root' |
+    sed -e 's#:$##')
     export PATH=$PATH_PYTHONBREW:$PATH_WITHOUT_PYTHONBREW
     export PYTHONPATH=$PATH_PYTHONBREW_LIB
 }
