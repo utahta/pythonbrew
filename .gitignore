@@ -10,3 +10,4 @@ dist
 __pycache__
 *.swp
 .idea
+*.iml
