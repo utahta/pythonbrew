@@ -337,7 +337,8 @@ class PythonInstallerMacOSX(PythonInstaller):
                                                   {'_localemodule.c.ed': 'Modules/_localemodule.c'},
                                                   {'locale.py.ed': 'Lib/locale.py'}])
         elif is_python27(version):
-            patch_dir = PATH_PATCHES_MACOSX_PYTHON27
-            self._add_patches_to_list(patch_dir, ['patch-Modules-posixmodule.diff'])
+            if version < '2.7.4':
+                patch_dir = PATH_PATCHES_MACOSX_PYTHON27
+                self._add_patches_to_list(patch_dir, ['patch-Modules-posixmodule.diff'])
 
         self._do_patch()
