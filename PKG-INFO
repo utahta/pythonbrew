@@ -190,6 +190,12 @@ See more details below
 Changelog
 =========
 
+1.3.5 (2014-07-05)
+----------------
+
+- Fixed issue #140 Add Python 2.7.6 as latest 2.x release
+- Fixed issue #142 fix syntax error in pythonbrew/etc/bashrc
+
 1.3.4 (2013-07-14)
 ----------------
 
