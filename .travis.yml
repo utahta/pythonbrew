@@ -1,0 +1,20 @@
+language: python
+
+python:
+  - 2.7
+  - 3.4
+
+env:
+  global:
+    - PYTHONBREW_ROOT=$HOME/tmp/.pythonbrew
+    - PYTHONBREW_HOME=$HOME/tmp/.pythonbrew
+
+install:
+  - python setup.py install
+  - pip install coveralls
+
+script:
+  - coverage run --source=pythonbrew setup.py test
+
+after_success:
+  - coveralls

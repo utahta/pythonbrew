@@ -11,3 +11,6 @@ __pycache__
 *.swp
 .idea
 *.iml
+build
+*.egg
+.coverage
