@@ -108,6 +108,8 @@ __pythonbrew_run()
 {
     __pythonbrew_find_command "$@"
     "$pythonbrew" "$@"
+    result=$?
+
     case $command_name in
         use) __pythonbrew_use "$@";;
         switch) __pythonbrew_switch "$@" ;;
@@ -115,7 +117,9 @@ __pythonbrew_run()
         update) __pythonbrew_update "$@" ;;
         venv) __pythonbrew_venv "$@" ;;
     esac
+
     builtin hash -r
+    return $result
 }
 
 pythonbrew()
