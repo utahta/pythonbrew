@@ -335,21 +335,26 @@ class Subprocess(object):
             logger.log(cmd)
 
         fp = ((self._log and open(self._log, 'a')) or None)
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self._cwd)
-        while p.returncode is None:
-            while bltin_any(select.select([p.stdout], [], [])):
-                line = to_str(p.stdout.readline())
-                if not line:
-                    break
-                if self._verbose:
-                    logger.log(line.strip())
-                if fp:
-                    fp.write(line)
-                    fp.flush()
-            p.poll()
-        if fp:
-            fp.close()
-        return p.returncode
+
+        try:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self._cwd)
+            
+            while p.returncode is None:
+                while bltin_any(select.select([p.stdout], [], [])):
+                    line = to_str(p.stdout.readline())
+                    if not line:
+                        break
+                    if self._verbose:
+                        logger.log(line.strip())
+                    if fp:
+                        fp.write(line)
+                        fp.flush()
+                p.poll()
+            if fp:
+                fp.close()
+            return p.returncode
+        except OSError as e:
+            raise ShellCommandException('%s: %s' % (' '.join(cmd), e.strerror)) 
 
     def check_call(self, cmd):
         returncode = self.call(cmd)
