@@ -107,7 +107,7 @@ __pythonbrew_find_command()
 __pythonbrew_run()
 {
     __pythonbrew_find_command "$@"
-    "$pythonbrew" "$@"
+    $pythonbrew "$@"
     case $command_name in
         use) __pythonbrew_use "$@";;
         switch) __pythonbrew_switch "$@" ;;
