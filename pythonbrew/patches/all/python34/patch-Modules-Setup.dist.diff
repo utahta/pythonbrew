@@ -1,0 +1,11 @@
+--- Modules/Setup.dist.orig	2016-05-21 23:34:52.000000000 +0800
++++ Modules/Setup.dist	2016-05-21 23:35:52.000000000 +0800
+@@ -358,7 +358,7 @@
+ # Andrew Kuchling's zlib module.
+ # This require zlib 1.1.3 (or later).
+ # See http://www.gzip.org/zlib/
+-#zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz
++zlib zlibmodule.c -I$(prefix)/include -L$(exec_prefix)/lib -lz
+ 
+ # Interface to the Expat XML parser
+ #

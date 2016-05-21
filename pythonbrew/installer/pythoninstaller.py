@@ -7,7 +7,7 @@ from pythonbrew.util import makedirs, symlink, Package, is_url, Link,\
     unlink, is_html, Subprocess, rm_r,\
     is_python25, is_python24, is_python26, is_python27,\
     extract_downloadfile, is_archive_file, path_to_fileurl, is_file,\
-    fileurl_to_path, is_python30, is_python31, is_python32,\
+    fileurl_to_path, is_python30, is_python31, is_python32, is_python34,\
     get_macosx_deployment_target, Version
 from pythonbrew.define import PATH_BUILD, PATH_DISTS, PATH_PYTHONS,\
     ROOT, PATH_LOG, DISTRIBUTE_SETUP_DLSITE,\
@@ -158,6 +158,10 @@ class PythonInstaller(object):
             if version == '3.2':
                 patch_dir = os.path.join(PATH_PATCHES_ALL, "python32")
                 self._add_patches_to_list(patch_dir, ['patch-setup.py.diff'])
+        elif is_python34(version):
+            if version == '3.4.4':
+                patch_dir = os.path.join(PATH_PATCHES_ALL, "python34")
+                self._add_patches_to_list(patch_dir, ['patch-Modules-Setup.dist.diff'])
         self._do_patch()
 
     def _do_patch(self):
