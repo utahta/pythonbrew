@@ -92,7 +92,7 @@ if (( $CURL_MAJOR >= 7 )) && (( $CURL_MINOR >= 10 )) ; then
    CURL_PARAMETERS=k
 fi
 
-STABLE_VERSION=`$CURL -sL${CURL_ADDITIONAL_PARAMETERS} https://github.com/utahta/pythonbrew/raw/master/stable-version.txt`
+STABLE_VERSION=`$CURL -sL${CURL_ADDITIONAL_PARAMETERS} https://github.com/soukingang/pythonbrew/raw/master/stable-version.txt`
 STABLE_VERSION=`trim $STABLE_VERSION`
 if [[ -z "$STABLE_VERSION" ]] ; then
     echo 'Can not get stable-version of pythonbrew.'
