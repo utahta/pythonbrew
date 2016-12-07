@@ -21,6 +21,14 @@ class BuildoutCommand(Command):
             help="Use the specified version of python.",
             metavar='VERSION'
         )
+        
+        self.parser.add_option(
+            "-c", "--configure",
+            dest="config",
+            default=None,
+            help="Use the specified config file.",
+            metavar='CONFIG'
+        )
     
     def run_command(self, options, args):
         if options.python:
@@ -28,7 +36,7 @@ class BuildoutCommand(Command):
         else:
             pkgname = get_using_python_pkgname()
         if not is_installed(pkgname):
-            logger.error('`%s` is not installed.' % pkgname)
+            logger.error('`%s` is not installed.' % pkgnam)
             sys.exit(1)
         logger.info('Using %s' % pkgname)
         
@@ -53,6 +61,9 @@ class BuildoutCommand(Command):
             sys.exit(1)
 
         # call buildout
-        subprocess.call(['./bin/buildout'])
+        if options.config:
+            subprocess.call(['./bin/buildout', '-c', option.config])
+        else:
+            subprocess.call(['./bin/buildout'])
 
 BuildoutCommand()
