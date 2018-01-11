@@ -73,7 +73,7 @@ pythonbrew() {
         esac
     done
 
-    "${PYTHONBREW_BIN}" "$@"
+    ${PYTHONBREW_BIN} "$@"
     if [ $? = 0 ]; then
         case ${subcommand} in
             use)    __pythonbrew_export_path "env/tmp" ;;
