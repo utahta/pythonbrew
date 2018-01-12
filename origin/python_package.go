@@ -11,12 +11,11 @@ import (
 
 type (
 	pythonPackage struct {
-		url        *url.URL
-		name       string
-		filename   string
-		buildDir   string
-		installDir string
-		version    *Version
+		url       *url.URL
+		name      string
+		basename  string
+		buildname string
+		version   *Version
 	}
 )
 
@@ -92,17 +91,17 @@ func (p *pythonPackage) Name() string {
 
 // Filename returns filename like /path/to/Python-x.x.x.tgz
 func (p *pythonPackage) Filename() string {
-	return p.filename
+	return filepath.Join(path.CacheDir(), p.basename)
 }
 
 // BuildDir returns build dir like /path/to/Python-x.x.x
 func (p *pythonPackage) BuildDir() string {
-	return p.buildDir
+	return filepath.Join(path.BuildDir(), p.buildname)
 }
 
 // InstallDir returns install dir like /path/to/x.x.x
 func (p *pythonPackage) InstallDir() string {
-	return p.installDir
+	return filepath.Join(path.InstallDir(), p.name)
 }
 
 func (p *pythonPackage) Version() *Version {
@@ -116,18 +115,15 @@ func NewPythonPackage(rawurl string) *pythonPackage {
 	}
 	p := &pythonPackage{}
 	p.url = u
-	basenameExt := filepath.Base(u.Path)                                  // expect Python-x.x.x.tgz
-	basename := strings.TrimRight(basenameExt, filepath.Ext(basenameExt)) // expect Python-x.x.x
-	p.name = strings.TrimLeft(basename, "Python-")                        // expect x.x.x
+	p.basename = filepath.Base(u.Path)                                    // expect Python-x.x.x.tgz
+	p.buildname = strings.TrimRight(p.basename, filepath.Ext(p.basename)) // expect Python-x.x.x
+	p.name = strings.TrimLeft(p.buildname, "Python-")                     // expect x.x.x
 
 	v, err := ParseVersion(p.name)
 	if err != nil {
 		panic(err)
 	}
 	p.version = v
-	p.filename = filepath.Join(path.CacheDir(), basenameExt)
-	p.buildDir = filepath.Join(path.BuildDir(), basename)
-	p.installDir = filepath.Join(path.InstallDir(), p.name)
 
 	return p
 }
