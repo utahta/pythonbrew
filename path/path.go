@@ -42,6 +42,10 @@ func TempDir() string {
 	mux.Lock()
 	defer mux.Unlock()
 
+	if tempDir != "" {
+		return tempDir
+	}
+
 	d, err := ioutil.TempDir("", "pythonbrew")
 	if err != nil {
 		panic(err)
