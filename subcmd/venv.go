@@ -27,9 +27,9 @@ type (
 	VenvOptions struct {
 		ShowHelp           bool
 		Python             string
+		SystemSitePackages bool
 		List               bool
 		Remove             bool
-		SystemSitePackages bool
 	}
 )
 
@@ -39,6 +39,7 @@ func NewVenv() *Venv {
 	c.flagSet = flagset.New(c.Name(), "[OPTIONS] [DEST_DIR]")
 	c.flagSet.BoolVar(&c.opts.ShowHelp, "h", false, "Show command usage")
 	c.flagSet.StringVar(&c.opts.Python, "p", "", "Use a specific Python version")
+	c.flagSet.BoolVar(&c.opts.SystemSitePackages, "g", false, "Give the virtual environment access to the global site-packages")
 	c.flagSet.BoolVar(&c.opts.List, "l", false, "List all of the environments")
 	c.flagSet.BoolVar(&c.opts.Remove, "rm", false, "Remove an environment")
 	return c
@@ -69,35 +70,10 @@ func (c *Venv) Run(args []string) error {
 	}
 
 	if c.opts.List {
-		fs, err := ioutil.ReadDir(path.VenvsDir())
-		if err != nil {
-			return errors.Wrap(err, tag)
-		}
-
-		for _, f := range fs {
-			c.log.Printf(f.Name())
-		}
-		return nil
+		return errors.Wrap(c.runList(), tag)
 	}
-
 	if c.opts.Remove {
-		if c.flagSet.NArg() == 0 {
-			c.log.Noticef("DEST_DIR argument required")
-			c.Usage()
-			return nil
-		}
-
-		name := c.flagSet.Arg(0)
-		dir := filepath.Join(path.VenvsDir(), name)
-		if _, err := os.Stat(dir); err != nil {
-			c.log.Warnf("%s is not found", name)
-			return nil
-		}
-
-		if err := os.RemoveAll(dir); err != nil {
-			return errors.Wrap(err, tag)
-		}
-		return nil
+		return errors.Wrap(c.runRemove(), tag)
 	}
 
 	if c.flagSet.NArg() == 0 {
@@ -133,6 +109,9 @@ func (c *Venv) Run(args []string) error {
 			}
 			args = append(args, "-p", pythonPath)
 		}
+		if c.opts.SystemSitePackages {
+			args = append(args, "--system-site-packages")
+		}
 		args = append(args, dir)
 
 		cmd := exec.Command(venv, args...)
@@ -143,17 +122,49 @@ func (c *Venv) Run(args []string) error {
 		}
 	}
 
+	// activate code
 	fp, err := os.Create(path.EnvVenv())
 	if err != nil {
-		return err
+		return errors.Wrap(err, tag)
 	}
 	defer fp.Close()
-
 	fp.WriteString(fmt.Sprintf(`source %s`, filepath.Join(dir, "bin", "activate")))
 
 	c.log.Infof("Using %s environment (found in %s)", name, path.VenvsDir())
 	c.log.Infof("To leave an environment, simply run deactivate")
 
+	return nil
+}
+
+func (c *Venv) runList() error {
+	fs, err := ioutil.ReadDir(path.VenvsDir())
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	for _, f := range fs {
+		c.log.Printf(f.Name())
+	}
+	return nil
+}
+
+func (c *Venv) runRemove() error {
+	if c.flagSet.NArg() == 0 {
+		c.log.Noticef("DEST_DIR argument required")
+		c.Usage()
+		return nil
+	}
+
+	name := c.flagSet.Arg(0)
+	dir := filepath.Join(path.VenvsDir(), name)
+	if _, err := os.Stat(dir); err != nil {
+		c.log.Warnf("%s is not found", name)
+		return nil
+	}
+
+	if err := os.RemoveAll(dir); err != nil {
+		return errors.WithStack(err)
+	}
 	return nil
 }
 
