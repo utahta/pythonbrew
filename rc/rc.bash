@@ -74,7 +74,9 @@ pythonbrew() {
     done
 
     ${PYTHONBREW_BIN} "$@"
-    if [ $? = 0 ]; then
+
+    local exitcode=$?
+    if [ ${exitcode} = 0 ]; then
         case ${subcommand} in
             use)    __pythonbrew_export_path "env/tmp" ;;
             switch) __pythonbrew_export_path "env/permanent" ;;
@@ -83,6 +85,7 @@ pythonbrew() {
         esac
         builtin hash -r
     fi
+    return ${exitcode}
 }
 
 pybrew() {
