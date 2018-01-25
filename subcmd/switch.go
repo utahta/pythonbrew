@@ -3,7 +3,6 @@ package subcmd
 import (
 	"flag"
 	"os"
-
 	"path/filepath"
 
 	"github.com/pkg/errors"
