@@ -2,6 +2,7 @@ package origin
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -17,6 +18,8 @@ type (
 		suffix string
 	}
 )
+
+var reVersion = regexp.MustCompile("^[0-9]+")
 
 // Major returns major version
 func (v *Version) Major() int {
@@ -35,7 +38,7 @@ func (v *Version) String() string {
 		f = fmt.Sprintf("%s.%d", f, *v.patch)
 	}
 	if v.suffix != "" {
-		f = fmt.Sprintf("%s-%s", f, v.suffix)
+		f = fmt.Sprintf("%s%s", f, v.suffix)
 	}
 	return f
 }
@@ -102,7 +105,7 @@ func ParseVersion(v string) (*Version, error) {
 	sv := strings.Split(v, "-")
 	var suffix string
 	if len(sv) > 1 {
-		suffix = sv[1]
+		suffix = fmt.Sprintf("-%s", sv[1])
 	}
 
 	sv = strings.Split(sv[0], ".")
@@ -122,11 +125,18 @@ func ParseVersion(v string) (*Version, error) {
 
 	var patch *int
 	if len(sv) == 3 {
-		p, err := strconv.Atoi(sv[2])
+		match := reVersion.FindAllString(sv[2], -1)
+		p, err := strconv.Atoi(match[0])
 		if err != nil {
 			return nil, err
 		}
 		patch = &p
+
+		// e.g. extract rc1 from 1.2.3rc1
+		match = reVersion.Split(sv[2], -1)
+		if len(match) >= 2 {
+			suffix = match[1] + suffix
+		}
 	}
 
 	return &Version{

@@ -20,3 +20,6 @@ package: gen
 release: package
 	@./scripts/release.sh
 
+dev-install:
+	@go install github.com/utahta/pythonbrew/cmd/pythonbrew
+
