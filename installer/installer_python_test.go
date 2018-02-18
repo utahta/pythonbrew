@@ -20,12 +20,22 @@ func TestPython_Install(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	pkg, err := origin.FindPackage("3.6.4")
-	if err != nil {
-		t.Fatal(err)
+	testcases := []struct {
+		version string
+	}{
+		{"3.4.8"},
+		{"3.5.5"},
 	}
-	p := installer.NewPython()
-	if err := p.Install(pkg, installer.PythonOptions{Jobs: runtime.NumCPU()}); err != nil {
-		t.Fatal(err)
+
+	for _, testcase := range testcases {
+		pkg, err := origin.FindPackage(testcase.version)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		p := installer.NewPython()
+		if err := p.Install(pkg, installer.PythonOptions{Jobs: runtime.NumCPU()}); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
