@@ -35,7 +35,7 @@ func (v *Version) String() string {
 		f = fmt.Sprintf("%s.%d", f, *v.patch)
 	}
 	if v.suffix != "" {
-		f = fmt.Sprintf("%s-%s", f, v.suffix)
+		f = fmt.Sprintf("%s%s", f, v.suffix)
 	}
 	return f
 }
@@ -102,7 +102,7 @@ func ParseVersion(v string) (*Version, error) {
 	sv := strings.Split(v, "-")
 	var suffix string
 	if len(sv) > 1 {
-		suffix = sv[1]
+		suffix = fmt.Sprintf("-%s", sv[1])
 	}
 
 	sv = strings.Split(sv[0], ".")
