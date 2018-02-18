@@ -5,3 +5,4 @@
 .coverage
 vendor
 dist
+.envrc
