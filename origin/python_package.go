@@ -62,12 +62,14 @@ var pythonPackages = map[string]Package{
 	"3.4.5": NewPythonPackage("https://www.python.org/ftp/python/3.4.5/Python-3.4.5.tgz#5f2ef90b1adef35a64df14d4bb7af733"),
 	"3.4.6": NewPythonPackage("https://www.python.org/ftp/python/3.4.6/Python-3.4.6.tgz#74a7cbe1bd9652013ae6087ef346b9da"),
 	"3.4.7": NewPythonPackage("https://www.python.org/ftp/python/3.4.7/Python-3.4.7.tgz#47bc789829ca7fc06eaa46588a261624"),
+	"3.4.8": NewPythonPackage("https://www.python.org/ftp/python/3.4.8/Python-3.4.8.tgz#28777863616060065112cfb73ee7bbb5"),
 
 	"3.5.0": NewPythonPackage("https://www.python.org/ftp/python/3.5.0/Python-3.5.0.tgz#a56c0c0b45d75a0ec9c6dee933c41c36"),
 	"3.5.1": NewPythonPackage("https://www.python.org/ftp/python/3.5.1/Python-3.5.1.tgz#be78e48cdfc1a7ad90efff146dce6cfe"),
 	"3.5.2": NewPythonPackage("https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz#3fe8434643a78630c61c6464fe2e7e72"),
 	"3.5.3": NewPythonPackage("https://www.python.org/ftp/python/3.5.3/Python-3.5.3.tgz#6192f0e45f02575590760e68c621a488"),
 	"3.5.4": NewPythonPackage("https://www.python.org/ftp/python/3.5.4/Python-3.5.4.tgz#2ed4802b7a2a7e40d2e797272bf388ec"),
+	"3.5.5": NewPythonPackage("https://www.python.org/ftp/python/3.5.5/Python-3.5.5.tgz#7c825b747d25c11e669e99b912398585"),
 
 	"3.6.0": NewPythonPackage("https://www.python.org/ftp/python/3.6.0/Python-3.6.0.tgz#3f7062ccf8be76491884d0e47ac8b251"),
 	"3.6.1": NewPythonPackage("https://www.python.org/ftp/python/3.6.1/Python-3.6.1.tgz#2d0fc9f3a5940707590e07f03ecb08b9"),
