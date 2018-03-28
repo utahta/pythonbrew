@@ -14,7 +14,7 @@ func main() {
 		l := log.NewFileLogger()
 		l.Errorf("An error has occurred: %v", err)
 		l.Verbosef("%+v", err)
-		l.Warnf("See more details: %s", l.Path())
+		l.Printf("See more details: %s", l.Path())
 		os.Exit(1)
 	}
 }

@@ -76,6 +76,7 @@ var pythonPackages = map[string]Package{
 	"3.6.2": NewPythonPackage("https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tgz#e1a36bfffdd1d3a780b1825daf16e56c"),
 	"3.6.3": NewPythonPackage("https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz#e9180c69ed9a878a4a8a3ab221e32fa9"),
 	"3.6.4": NewPythonPackage("https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tgz#9de6494314ea199e3633211696735f65"),
+	"3.6.5": NewPythonPackage("https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tgz#ab25d24b1f8cc4990ade979f6dc37883"),
 }
 
 func (p *pythonPackage) Type() PackageType {
