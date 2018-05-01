@@ -36,6 +36,7 @@ var pythonPackages = map[string]Package{
 	"2.7.12": NewPythonPackage("https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz#88d61f82e3616a4be952828b3694109d"),
 	"2.7.13": NewPythonPackage("https://www.python.org/ftp/python/2.7.13/Python-2.7.13.tgz#17add4bf0ad0ec2f08e0cae6d205c700"),
 	"2.7.14": NewPythonPackage("https://www.python.org/ftp/python/2.7.14/Python-2.7.14.tgz#cee2e4b33ad3750da77b2e85f2f8b724"),
+	"2.7.15": NewPythonPackage("https://www.python.org/ftp/python/2.7.15/Python-2.7.15.tgz#045fb3440219a1f6923fefdabde63342"),
 
 	"3.2":   NewPythonPackage("https://www.python.org/ftp/python/3.2/Python-3.2.tgz#5efe838a7878b170f6728d7e5d7517af"),
 	"3.2.1": NewPythonPackage("https://www.python.org/ftp/python/3.2.1/Python-3.2.1.tgz#6c2aa3481cadb7bdf74e625fffc352b2"),
