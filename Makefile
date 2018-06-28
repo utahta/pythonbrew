@@ -1,9 +1,9 @@
 
 setup:
-	@go get github.com/jessevdk/go-assets-builder
-	@go get github.com/mitchellh/gox
-	@go get github.com/tcnksm/ghr
-	@dep ensure
+	@go get github.com/jessevdk/go-assets-builder \
+		github.com/mitchellh/gox \
+		github.com/tcnksm/ghr
+	@dep ensure -v
 
 test:
 	@go test -v -race ./...
