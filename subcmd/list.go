@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/fatih/color"
 	"github.com/pkg/errors"
 	"github.com/utahta/pythonbrew/flagset"
 	"github.com/utahta/pythonbrew/log"
@@ -78,9 +79,9 @@ func (c *List) Run(args []string) error {
 		for _, f := range fs {
 			var name string
 			if filepath.Join(path.InstallDir(), f.Name()) == current {
-				name = fmt.Sprintf("* %s", f.Name())
+				name = color.New(color.FgYellow, color.BgBlack).Sprintf("%s", f.Name())
 			} else {
-				name = fmt.Sprintf("  %s", f.Name())
+				name = fmt.Sprintf("%s", f.Name())
 			}
 			c.log.Printf(name)
 		}
