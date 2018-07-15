@@ -20,6 +20,7 @@ type (
 	Python struct {
 		downloader Downloader
 		extractor  Extractor
+		cmd        *commandRunner
 		log        log.Logger
 	}
 
@@ -39,6 +40,7 @@ func NewPython() *Python {
 	return &Python{
 		downloader: NewDownloader(),
 		extractor:  NewExtractor(),
+		cmd:        newCommandRunner(),
 		log:        log.NewFileLogger(),
 	}
 }
@@ -48,9 +50,9 @@ func (p *Python) Install(pkg origin.Package, o PythonOptions) error {
 	const tag = "installer.python"
 
 	if o.Verbose {
-		p.log = log.NewVerboseLogger()
+		p.cmd.EnableVerbose()
 	}
-	p.log.Noticef("Logging %s", p.log.Path())
+	p.log.Noticef("Logging %s", path.Log())
 
 	if err := p.download(pkg); err != nil {
 		return errors.Wrap(err, tag)
@@ -114,7 +116,7 @@ func (p *Python) build(pkg origin.Package, o PythonOptions) error {
 	if err != nil {
 		return err
 	}
-	if err := commandRun(p.log, pkg.BuildDir(), "./configure", opts...); err != nil {
+	if err := p.cmd.Run(pkg.BuildDir(), "./configure", opts...); err != nil {
 		return err
 	}
 
@@ -122,7 +124,7 @@ func (p *Python) build(pkg origin.Package, o PythonOptions) error {
 	if o.Jobs > 0 {
 		opts = append(opts, "-j", strconv.Itoa(o.Jobs))
 	}
-	if err := commandRun(p.log, pkg.BuildDir(), "make", opts...); err != nil {
+	if err := p.cmd.Run(pkg.BuildDir(), "make", opts...); err != nil {
 		return err
 	}
 	return nil
@@ -148,13 +150,13 @@ func (p *Python) buildConfigureOptions(pkg origin.Package, o PythonOptions) ([]s
 
 	// for macOS
 	if runtime.GOOS == "darwin" {
-		dir, err := commandOutput("brew", "--prefix", "openssl")
+		dir, err := p.cmd.Output("brew", "--prefix", "openssl")
 		if err == nil {
 			p.log.Noticef("Using homebrew openssl (%s)", dir)
 			cflags = append(cflags, fmt.Sprintf("-I%s/include", dir))
 			ldflags = append(ldflags, fmt.Sprintf("-L%s/lib", dir))
 		}
-		dir, err = commandOutput("brew", "--prefix", "readline")
+		dir, err = p.cmd.Output("brew", "--prefix", "readline")
 		if err == nil {
 			p.log.Noticef("Using homebrew readline (%s)", dir)
 			cflags = append(cflags, fmt.Sprintf("-I%s/include", dir))
@@ -182,7 +184,7 @@ func (p *Python) install(pkg origin.Package, o PythonOptions) error {
 		return errors.WithStack(err)
 	}
 
-	if err := commandRun(p.log, pkg.BuildDir(), "make", "install"); err != nil {
+	if err := p.cmd.Run(pkg.BuildDir(), "make", "install"); err != nil {
 		return err
 	}
 	return nil
@@ -223,7 +225,7 @@ func (p *Python) ensurePip(pkg origin.Package, o PythonOptions) error {
 	}
 
 	name := filepath.Join("bin", fmt.Sprintf("python%d.%d", pkg.Version().Major(), pkg.Version().Minor()))
-	if err := commandRun(p.log, pkg.InstallDir(), name, pipfile); err != nil {
+	if err := p.cmd.Run(pkg.InstallDir(), name, pipfile); err != nil {
 		return err
 	}
 	return nil

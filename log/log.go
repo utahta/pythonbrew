@@ -3,7 +3,7 @@ package log
 import (
 	"fmt"
 	"io"
-	"os"
+	"io/ioutil"
 
 	"github.com/fatih/color"
 	"github.com/mattn/go-colorable"
@@ -12,7 +12,7 @@ import (
 )
 
 type (
-	// Logger output log interface
+	// Logger is a interface that output log.
 	Logger interface {
 		Progressf(format string, args ...interface{})
 		Printf(format string, args ...interface{})
@@ -20,110 +20,68 @@ type (
 		Noticef(format string, args ...interface{})
 		Warnf(format string, args ...interface{})
 		Errorf(format string, args ...interface{})
-		Verbosef(format string, args ...interface{})
-		Path() string
-		Stdout() io.Writer
-		Stderr() io.Writer
+		Debugf(format string, args ...interface{})
 	}
 
 	logger struct {
-		fw *cronowriter.CronoWriter
-	}
-
-	verboseLogger struct {
-		Logger
-		stdout io.Writer
-		stderr io.Writer
+		w io.Writer
 	}
 )
 
-// NewLogger returns logger
+var (
+	colorableStdout = colorable.NewColorableStdout()
+	colorableStderr = colorable.NewColorableStderr()
+)
+
+// NewLogger returns a logger
 func NewLogger() Logger {
-	return &logger{}
+	return &logger{
+		w: ioutil.Discard,
+	}
 }
 
-// NewFileLogger returns logger with file writer
+// NewFileLogger returns a logger with file writer
 func NewFileLogger() Logger {
 	return &logger{
-		fw: cronowriter.MustNew(path.Log(), cronowriter.WithInit()),
+		w: cronowriter.MustNew(path.Log()),
 	}
 }
 
-// NewVerboseLogger returns verbose logger
-func NewVerboseLogger() Logger {
-	return &verboseLogger{
-		Logger: NewFileLogger(),
-		stdout: cronowriter.MustNew(path.Log(), cronowriter.WithInit(), cronowriter.WithStdout()),
-		stderr: cronowriter.MustNew(path.Log(), cronowriter.WithInit(), cronowriter.WithStderr()),
-	}
-}
-
+// Progressf is a function to standard output progressive.
 func (l *logger) Progressf(format string, args ...interface{}) {
-	fmt.Fprintf(colorable.NewColorableStdout(), "\r\033[K%s", color.GreenString(format, args...))
+	fmt.Fprintf(colorableStdout, "\r\033[K%s", color.GreenString(format, args...))
 }
 
+// Printf is a function to standard output.
 func (l *logger) Printf(format string, args ...interface{}) {
-	fmt.Fprintln(os.Stdout, fmt.Sprintf(format, args...))
+	fmt.Fprintln(colorableStdout, fmt.Sprintf(format, args...))
 }
 
 func (l *logger) Infof(format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
-	fmt.Fprintln(colorable.NewColorableStdout(), color.GreenString(s))
-	l.writeFile(s)
+	fmt.Fprintln(colorableStdout, color.GreenString(s))
+	fmt.Fprintln(l.w, s)
 }
 
 func (l *logger) Noticef(format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
-	fmt.Fprintln(colorable.NewColorableStdout(), color.YellowString(s))
-	l.writeFile(s)
+	fmt.Fprintln(colorableStdout, color.YellowString(s))
+	fmt.Fprintln(l.w, s)
 }
 
 func (l *logger) Warnf(format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
-	fmt.Fprintln(colorable.NewColorableStdout(), color.YellowString(s))
-	l.writeFile(s)
+	fmt.Fprintln(colorableStdout, color.YellowString(s))
+	fmt.Fprintln(l.w, s)
 }
 
 func (l *logger) Errorf(format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
-	fmt.Fprintln(colorable.NewColorableStderr(), color.RedString(s))
-	l.writeFile(s)
+	fmt.Fprintln(colorableStderr, color.RedString(s))
+	fmt.Fprintln(l.w, s)
 }
 
-func (l *logger) Verbosef(format string, args ...interface{}) {
+func (l *logger) Debugf(format string, args ...interface{}) {
 	s := fmt.Sprintf(format, args...)
-	l.writeFile(s)
-}
-
-func (l *logger) Path() string {
-	return l.fw.Path()
-}
-
-func (l *logger) Stdout() io.Writer {
-	return l.fw
-}
-
-func (l *logger) Stderr() io.Writer {
-	return l.fw
-}
-
-func (l *logger) writeFile(s string) {
-	if l.fw == nil {
-		return
-	}
-	fmt.Fprintln(l.fw, s)
-
-}
-
-func (l *verboseLogger) Verbosef(format string, args ...interface{}) {
-	l.Logger.Verbosef(format, args...)
-	fmt.Fprintln(os.Stdout, fmt.Sprintf(format, args...))
-}
-
-func (l *verboseLogger) Stdout() io.Writer {
-	return l.stdout
-}
-
-func (l *verboseLogger) Stderr() io.Writer {
-	return l.stderr
+	fmt.Fprintln(l.w, s)
 }
