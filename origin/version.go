@@ -53,6 +53,12 @@ func (v *Version) GreaterThan(a *Version) bool {
 	return v.Compare(a) == 1
 }
 
+// GreaterThanEqualString v >= a
+func (v *Version) GreaterThanEqualString(a string) bool {
+	p := MustParseVersion(a)
+	return v.Compare(p) == 0 || v.Compare(p) == 1
+}
+
 // GreaterThanString v > a
 func (v *Version) GreaterThanString(a string) bool {
 	return v.Compare(MustParseVersion(a)) == 1

@@ -153,8 +153,12 @@ func (p *Python) buildConfigureOptions(pkg origin.Package, o PythonOptions) ([]s
 		dir, err := p.cmd.Output("brew", "--prefix", "openssl")
 		if err == nil {
 			p.log.Noticef("Using homebrew openssl (%s)", dir)
-			cflags = append(cflags, fmt.Sprintf("-I%s/include", dir))
-			ldflags = append(ldflags, fmt.Sprintf("-L%s/lib", dir))
+			if pkg.Version().GreaterThanEqualString("3.7.0") {
+				o.ConfigureOpts = append(o.ConfigureOpts, fmt.Sprintf("--with-openssl=%s", dir))
+			} else {
+				cflags = append(cflags, fmt.Sprintf("-I%s/include", dir))
+				ldflags = append(ldflags, fmt.Sprintf("-L%s/lib", dir))
+			}
 		}
 		dir, err = p.cmd.Output("brew", "--prefix", "readline")
 		if err == nil {

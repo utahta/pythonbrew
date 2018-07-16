@@ -29,7 +29,7 @@ func (c *commandRunner) EnableVerbose() {
 }
 
 func (c *commandRunner) Run(cwd string, name string, args ...string) error {
-	fmt.Fprintf(c.stdout, "Run %s %s", name, strings.Join(args, " "))
+	fmt.Fprintf(c.stdout, "Run %s %s\n", name, strings.Join(args, " "))
 	cmd := exec.Command(name, args...)
 	cmd.Dir = cwd
 	cmd.Stdout = c.stdout
