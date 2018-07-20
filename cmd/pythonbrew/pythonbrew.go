@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/utahta/pythonbrew/log"
+	"github.com/utahta/pythonbrew/path"
 	"github.com/utahta/pythonbrew/subcmd"
 )
 
@@ -13,8 +14,8 @@ func main() {
 	if err := run(); err != nil {
 		l := log.NewFileLogger()
 		l.Errorf("An error has occurred: %v", err)
-		l.Verbosef("%+v", err)
-		l.Printf("See more details: %s", l.Path())
+		l.Debugf("%+v", err)
+		l.Printf("See more details: %s", path.Log())
 		os.Exit(1)
 	}
 }
