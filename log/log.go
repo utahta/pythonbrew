@@ -12,7 +12,7 @@ import (
 )
 
 type (
-	// Logger is a interface that output log.
+	// Logger is a logging interface.
 	Logger interface {
 		Progressf(format string, args ...interface{})
 		Printf(format string, args ...interface{})
@@ -33,26 +33,26 @@ var (
 	colorableStderr = colorable.NewColorableStderr()
 )
 
-// NewLogger returns a logger
+// NewLogger returns a logger.
 func NewLogger() Logger {
 	return &logger{
 		w: ioutil.Discard,
 	}
 }
 
-// NewFileLogger returns a logger with file writer
+// NewFileLogger returns a logger with file writer.
 func NewFileLogger() Logger {
 	return &logger{
 		w: cronowriter.MustNew(path.Log()),
 	}
 }
 
-// Progressf is a function to standard output progressive.
+// Progressf is a function that writes string to standard output in a fixed position.
 func (l *logger) Progressf(format string, args ...interface{}) {
 	fmt.Fprintf(colorableStdout, "\r\033[K%s", color.GreenString(format, args...))
 }
 
-// Printf is a function to standard output.
+// Printf is a function that writes string to standard output.
 func (l *logger) Printf(format string, args ...interface{}) {
 	fmt.Fprintln(colorableStdout, fmt.Sprintf(format, args...))
 }

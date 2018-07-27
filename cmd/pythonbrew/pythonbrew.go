@@ -45,7 +45,7 @@ func run() error {
 
 	c, err := subcmd.Repository().Find(os.Args[1])
 	if err != nil {
-		return err
+		return subcmd.NewHelp().Run(nil)
 	}
 	return c.Run(os.Args[1:])
 }
