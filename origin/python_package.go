@@ -80,9 +80,11 @@ var pythonPackages = map[string]Package{
 	"3.6.5": NewPythonPackage("https://www.python.org/ftp/python/3.6.5/Python-3.6.5.tgz#ab25d24b1f8cc4990ade979f6dc37883"),
 	"3.6.6": NewPythonPackage("https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz#9a080a86e1a8d85e45eee4b1cd0a18a2"),
 	"3.6.7": NewPythonPackage("https://www.python.org/ftp/python/3.6.7/Python-3.6.7.tgz#c83551d83bf015134b4b2249213f3f85"),
+	"3.6.8": NewPythonPackage("https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tgz#48f393a04c2e66c77bfc114e589ec630"),
 
 	"3.7.0": NewPythonPackage("https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz#41b6595deb4147a1ed517a7d9a580271"),
 	"3.7.1": NewPythonPackage("https://www.python.org/ftp/python/3.7.1/Python-3.7.1.tgz#99f78ecbfc766ea449c4d9e7eda19e83"),
+	"3.7.2": NewPythonPackage("https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tgz#02a75015f7cd845e27b85192bb0ca4cb"),
 }
 
 func (p *pythonPackage) Type() PackageType {
