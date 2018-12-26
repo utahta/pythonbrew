@@ -10,8 +10,9 @@ func TestFindPackage(t *testing.T) {
 		arg      string
 		expected string
 	}{
-		{"2.7.14", "2.7.14"},
-		{"3.6.4", "3.6.4"},
+		{"2.7.15", "2.7.15"},
+		{"3.6.8", "3.6.8"},
+		{"3.7.2", "3.7.2"},
 		{"https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tgz", "3.6.4"},
 	}
 	for _, test := range tests {
