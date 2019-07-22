@@ -86,11 +86,13 @@ var pythonPackages = map[string]Package{
 	"3.6.6": NewPythonPackage("https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz#9a080a86e1a8d85e45eee4b1cd0a18a2"),
 	"3.6.7": NewPythonPackage("https://www.python.org/ftp/python/3.6.7/Python-3.6.7.tgz#c83551d83bf015134b4b2249213f3f85"),
 	"3.6.8": NewPythonPackage("https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tgz#48f393a04c2e66c77bfc114e589ec630"),
+	"3.6.9": NewPythonPackage("https://www.python.org/ftp/python/3.6.9/Python-3.6.9.tgz#ff7cdaef4846c89c1ec0d7b709bbd54d"),
 
 	"3.7.0": NewPythonPackage("https://www.python.org/ftp/python/3.7.0/Python-3.7.0.tgz#41b6595deb4147a1ed517a7d9a580271"),
 	"3.7.1": NewPythonPackage("https://www.python.org/ftp/python/3.7.1/Python-3.7.1.tgz#99f78ecbfc766ea449c4d9e7eda19e83"),
 	"3.7.2": NewPythonPackage("https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tgz#02a75015f7cd845e27b85192bb0ca4cb"),
 	"3.7.3": NewPythonPackage("https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz#2ee10f25e3d1b14215d56c3882486fcf"),
+	"3.7.4": NewPythonPackage("https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tgz#68111671e5b2db4aef7b9ab01bf0f9be"),
 }
 
 func (p *pythonPackage) Type() PackageType {
