@@ -5,6 +5,7 @@ distdir=${curdir}/../dist
 
 source ${curdir}/common.sh
 
+export GOFLAGS="-trimpath"
 gox -ldflags="-X github.com/utahta/pythonbrew/subcmd.Version=$(version)" github.com/utahta/pythonbrew/cmd/pythonbrew/
 
 rm -rf ${distdir}

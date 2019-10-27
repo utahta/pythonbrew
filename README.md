@@ -1,6 +1,6 @@
 # pythonbrew
 
-[![Build Status](https://travis-ci.org/utahta/pythonbrew.svg?branch=master)](https://travis-ci.org/utahta/pythonbrew)
+[![CircleCI](https://circleci.com/gh/utahta/pythonbrew/tree/master.svg?style=svg)](https://circleci.com/gh/utahta/pythonbrew/tree/master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/utahta/pythonbrew)](https://goreportcard.com/report/github.com/utahta/pythonbrew)
 [![GitHub release](https://img.shields.io/github/release/utahta/pythonbrew.svg)](https://github.com/utahta/pythonbrew/releases)
 
