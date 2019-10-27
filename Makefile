@@ -15,7 +15,7 @@ test:
 test/e2e:
 	go test -tags=e2e -timeout=30m -v -race ./...
 
-gen:
+gen: tools
 	go generate ./rc
 
 package: gen
