@@ -38,6 +38,7 @@ var pythonPackages = map[string]Package{
 	"2.7.14": NewPythonPackage("https://www.python.org/ftp/python/2.7.14/Python-2.7.14.tgz#cee2e4b33ad3750da77b2e85f2f8b724"),
 	"2.7.15": NewPythonPackage("https://www.python.org/ftp/python/2.7.15/Python-2.7.15.tgz#045fb3440219a1f6923fefdabde63342"),
 	"2.7.16": NewPythonPackage("https://www.python.org/ftp/python/2.7.16/Python-2.7.16.tgz#f1a2ace631068444831d01485466ece0"),
+	"2.7.17": NewPythonPackage("https://www.python.org/ftp/python/2.7.17/Python-2.7.17.tgz#27a7919fa8d1364bae766949aaa91a5b"),
 
 	"3.2":   NewPythonPackage("https://www.python.org/ftp/python/3.2/Python-3.2.tgz#5efe838a7878b170f6728d7e5d7517af"),
 	"3.2.1": NewPythonPackage("https://www.python.org/ftp/python/3.2.1/Python-3.2.1.tgz#6c2aa3481cadb7bdf74e625fffc352b2"),
@@ -93,6 +94,9 @@ var pythonPackages = map[string]Package{
 	"3.7.2": NewPythonPackage("https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tgz#02a75015f7cd845e27b85192bb0ca4cb"),
 	"3.7.3": NewPythonPackage("https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tgz#2ee10f25e3d1b14215d56c3882486fcf"),
 	"3.7.4": NewPythonPackage("https://www.python.org/ftp/python/3.7.4/Python-3.7.4.tgz#68111671e5b2db4aef7b9ab01bf0f9be"),
+	"3.7.5": NewPythonPackage("https://www.python.org/ftp/python/3.7.5/Python-3.7.5.tgz#1cd071f78ff6d9c7524c95303a3057aa"),
+
+	"3.8.0": NewPythonPackage("https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz#e18a9d1a0a6d858b9787e03fc6fdaa20"),
 }
 
 func (p *pythonPackage) Type() PackageType {
