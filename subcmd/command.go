@@ -4,11 +4,17 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 
+	"github.com/blang/semver"
 	"github.com/pkg/errors"
 )
 
-var Version string
+var (
+	Version string
+
+	reVersion = regexp.MustCompile(`\d+\.\d+\.\d+`)
+)
 
 type (
 	// Command sub command interface
@@ -80,4 +86,12 @@ PYTHONBREW_VERSION_LIB=%s
 
 	fp.WriteString(env)
 	return nil
+}
+
+func semverVersion() semver.Version {
+	v := Version
+	if loc := reVersion.FindStringIndex(v); loc != nil && loc[0] > 0 {
+		v = v[loc[0]:]
+	}
+	return semver.MustParse(v)
 }

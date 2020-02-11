@@ -3,7 +3,6 @@ package subcmd
 import (
 	"flag"
 
-	"github.com/blang/semver"
 	"github.com/pkg/errors"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"github.com/utahta/pythonbrew/flagset"
@@ -56,7 +55,7 @@ func (c *Update) Run(args []string) error {
 		return nil
 	}
 
-	previous := semver.MustParse(Version)
+	previous := semverVersion()
 	latest, err := selfupdate.UpdateSelf(previous, "utahta/pythonbrew")
 	if err != nil {
 		return errors.Wrap(err, tag)
