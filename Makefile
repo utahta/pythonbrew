@@ -1,6 +1,6 @@
 export GO111MODULE=on
 
-mod:
+deps:
 	go mod download
 
 .PHONY:tools
@@ -17,12 +17,6 @@ test/e2e:
 
 gen: tools
 	go generate ./rc
-
-package: gen
-	./scripts/package.sh
-
-release: package
-	./scripts/release.sh
 
 dev-install:
 	go install github.com/utahta/pythonbrew/cmd/pythonbrew
