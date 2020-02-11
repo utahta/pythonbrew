@@ -1,0 +1,29 @@
+project_name: pythonbrew
+env:
+  - GO111MODULE=on
+before:
+  hooks:
+    - go mod tidy
+builds:
+- 
+  main: ./cmd/pythonbrew/pythonbrew.go
+  binary: pythonbrew
+  flags: -trimpath
+  ldflags:
+    - -s -w
+    - -X github.com/utahta/pythonbrew/subcmd.Version={{.Version}}
+  env:
+    - CGO_ENABLED=0
+  goos:
+    - darwin
+    - linux
+    - freebsd
+    - windows
+archives:
+- 
+  name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+  format_overrides:
+    - goos: windows
+      format: zip
+release:
+  prerelease: auto
