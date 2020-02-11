@@ -24,7 +24,10 @@ func TestPython_Install(t *testing.T) {
 		version string
 	}{
 		{"2.7.16"},
-		{"3.7.4"},
+		{"3.5.9"},
+		{"3.6.10"},
+		{"3.7.6"},
+		{"3.8.1"},
 	}
 
 	for _, testcase := range testcases {
