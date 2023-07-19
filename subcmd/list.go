@@ -81,7 +81,7 @@ func (c *List) Run(args []string) error {
 			if filepath.Join(path.InstallDir(), f.Name()) == current {
 				name = color.New(color.FgYellow, color.BgBlack).Sprintf("%s", f.Name())
 			} else {
-				name = fmt.Sprintf("%s", f.Name())
+				name = f.Name()
 			}
 			c.log.Printf(name)
 		}
